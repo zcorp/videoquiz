@@ -36,4 +36,4 @@ https://zcorp.github.io/videoquiz/
 
 ## Contenu de la démo
 
-La démo utilise React, Vite, React Router et `HashRouter`. Elle propose une bibliothèque filtrable, un dashboard, des QCM thématiques, un lecteur vidéo, une progression locale et des quiz créés dans le navigateur.
+La démo utilise React, Vite, React Router et `HashRouter`. Elle propose une bibliothèque filtrable, un dashboard, des QCM thématiques, un lecteur vidéo, une progression locale et des quiz créés dans le navigateur. Dans « Vos entraînements », les filtres sont suivis d’une vue maître-détail : liste scrollable à gauche, évolution du quiz sélectionné à droite, puis empilement des deux zones sur mobile.

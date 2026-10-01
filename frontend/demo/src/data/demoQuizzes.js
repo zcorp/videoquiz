@@ -123,7 +123,7 @@ export const demoQuizzes = [
 ];
 
 export function getVideoUrl(videoId, seconds = 0) {
-  return `https://www.youtube-nocookie.com/embed/${encodeURIComponent(videoId)}?rel=0&controls=0&disablekb=1&playsinline=1&start=${Math.max(0, Number(seconds) || 0)}`;
+  return `https://www.youtube-nocookie.com/embed/${encodeURIComponent(videoId)}?rel=0&controls=1&disablekb=0&playsinline=1&start=${Math.max(0, Number(seconds) || 0)}`;
 }
 
 export function formatTime(seconds) {

@@ -3,11 +3,11 @@ import { Link, useParams } from 'react-router-dom';
 import { demoQuizzes } from '../data/demoQuizzes.js';
 import { getQuizProgression } from '../services/localStore.js';
 
-function formatDate(value) {
+export function formatDate(value) {
   return new Intl.DateTimeFormat('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' }).format(new Date(value));
 }
 
-function ScoreChart({ points }) {
+export function ScoreChart({ points }) {
   const width = 720;
   const height = 280;
   const padding = { top: 24, right: 24, bottom: 44, left: 48 };
