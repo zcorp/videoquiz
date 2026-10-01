@@ -1,0 +1,14 @@
+FROM node:20-alpine AS builder
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm ci --ignore-scripts
+COPY vite.demo.config.js ./
+COPY demo ./demo
+RUN DEMO_BASE_PATH=/ npm run build:demo
+
+FROM nginx:1.27-alpine
+COPY nginx.demo.conf /etc/nginx/conf.d/default.conf
+COPY --from=builder /app/demo-dist /usr/share/nginx/html
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]

@@ -1,0 +1,9 @@
+services:
+  demo:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.demo
+    container_name: videoquiz-demo
+    ports:
+      - "4174:80"
+    restart: unless-stopped

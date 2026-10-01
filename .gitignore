@@ -4,11 +4,16 @@
 !.github/
 !.github/workflows/
 !.github/workflows/demo-pages.yml
+!.github/copilot-instructions.md
 !README.md
+!DEPLOYMENT.md
+!docker-compose.demo.yml
 !frontend/
 !frontend/package.json
 !frontend/package-lock.json
 !frontend/vite.demo.config.js
+!frontend/Dockerfile.demo
+!frontend/nginx.demo.conf
 !frontend/demo/
 !frontend/demo/**
 .DS_Store
