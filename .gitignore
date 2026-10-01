@@ -15,4 +15,5 @@
 .env
 .env.*
 frontend/demo-dist/
+frontend/demo/demo-dist/
 frontend/node_modules/
