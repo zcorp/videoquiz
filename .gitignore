@@ -1,0 +1,18 @@
+# This repository publishes only the static demo to GitHub Pages.
+*
+!.gitignore
+!.github/
+!.github/workflows/
+!.github/workflows/demo-pages.yml
+!README.md
+!frontend/
+!frontend/package.json
+!frontend/package-lock.json
+!frontend/vite.demo.config.js
+!frontend/demo/
+!frontend/demo/**
+.DS_Store
+.env
+.env.*
+frontend/demo-dist/
+frontend/node_modules/
