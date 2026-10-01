@@ -33,7 +33,8 @@ jobs:
       - name: Install and build demo
         working-directory: frontend
         env:
-          DEMO_BASE_PATH: ${{ github.event.repository.name == format('{0}.github.io', github.repository_owner) && '/' || format('/{0}/', github.event.repository.name) }}
+          # The custom domain videoquiz.fr serves the site from the root path.
+          DEMO_BASE_PATH: /
         run: npm ci && npm run build:demo
       - uses: actions/upload-pages-artifact@v3
         with:
