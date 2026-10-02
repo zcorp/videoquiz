@@ -7,6 +7,7 @@ import DemoEditor from './components/DemoEditor.jsx';
 import ProgressionPage from './components/ProgressionPage.jsx';
 import DashboardPage from './components/DashboardPage.jsx';
 import WelcomeGuide from './components/WelcomeGuide.jsx';
+import RoadCodeVideosPage from './components/RoadCodeVideosPage.jsx';
 import { demoQuizzes } from './data/demoQuizzes.js';
 import { deleteLocalQuiz, getAttempts, getLocalQuizzes, saveAttempt, saveLocalQuiz } from './services/localStore.js';
 
@@ -38,6 +39,8 @@ export default function DemoApp() {
       <Routes>
         <Route path="/" element={<DemoHome quizzes={quizzes} attempts={attempts} onDelete={id => { deleteLocalQuiz(id); setLocalQuizzes(getLocalQuizzes()); }} />} />
         <Route path="/dashboard" element={<DashboardPage quizzes={quizzes} attempts={attempts} />} />
+        <Route path="/videos" element={<RoadCodeVideosPage />} />
+        <Route path="/videos/code-route" element={<RoadCodeVideosPage />} />
         <Route path="/quiz/:quizId" element={<DemoPlayer quizzes={quizzes} onAttempt={addAttempt} />} />
         <Route path="/progression/:quizId" element={<ProgressionPage quizzes={quizzes} />} />
         <Route path="/create" element={<DemoEditor onSave={addQuiz} />} />

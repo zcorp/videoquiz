@@ -8,6 +8,7 @@
 !README.md
 !DEPLOYMENT.md
 !docker-compose.demo.yml
+!run-demo.sh
 !frontend/
 !frontend/package.json
 !frontend/package-lock.json

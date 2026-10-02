@@ -13,7 +13,7 @@ export default function DemoHeader() {
         <nav className="demo-nav" aria-label="Navigation principale">
           <NavLink to="/" end>Découvrir</NavLink>
           <NavLink to="/dashboard">Dashboard</NavLink>
-          <NavLink className="nav-create" to="/create"><span aria-hidden="true">＋</span> Créer un quiz</NavLink>
+          <NavLink className="btn btn-outline-success nav-create" to="/create"><span aria-hidden="true">＋</span> Créer un quiz</NavLink>
         </nav>
       </div>
     </header>

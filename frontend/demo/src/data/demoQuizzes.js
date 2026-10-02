@@ -122,6 +122,52 @@ export const demoQuizzes = [
   scienceQcm,
 ];
 
+export const roadCodeVideos = [
+  { id: 'cKEKGGAronA', title: 'Test gratuit du code de la route 2026 · Série 312' },
+  { id: '3VZpQzXkAAM', title: 'Test gratuit du code de la route 2026 · Série 311' },
+  { id: '7OLEHdeh9K4', title: 'Code de la route · série complète', duration: '59:21' },
+  { id: 'uZX19sZfB-4', title: 'Test 23 · Code de la route 2026 · 40 questions' },
+  { id: '9lgAtRlJpV4', title: 'Test 22 · Code de la route 2026 · 40 questions' },
+  { id: 'iy94NPyW5ko', title: 'Code de la route · examen blanc', duration: '45:49' },
+  { id: 'tV8CYzqIDOA', title: 'Test Code de la route 2026 · Série 13 · 40 questions' },
+  { id: 'D6cFQ971jOM', title: 'Test Code de la route 2026 · Série 12 · 40 questions' },
+  { id: 'W3tKRBSbntE', title: 'Test Code de la route 2026 · Série 11 · 40 questions' },
+  { id: 'kbm8WZ-jfOc', title: 'Test Code de la route 2026 · Série 10 · 40 questions' },
+  { id: 'aQOBR12GPPY', title: 'Questions permis · 2026' },
+  { id: '3_dY4HmrUIA', title: 'Code de la route 2026 · 40 questions' },
+  { id: 'MeOl_iaymw4', title: 'Code de la route 2026 · Série de 40 questions' },
+];
+
+const additionalVideos = [
+  { id: 'zGUxhs0gdLg', title: 'Quiz culture générale · Niveau facile #1 · 40 questions', theme: 'Culture générale' },
+  { id: 'mpPtQWGNHkI', title: 'Devine les capitales · Quiz géographie · 35 questions', theme: 'Géographie' },
+  { id: 'UW0gQE5v-fo', title: 'Quiz mythologie grecque · 40 questions', theme: 'Mythologie' },
+  { id: '8NuORh9qvs8', title: 'Quiz système solaire · 40 questions', theme: 'Sciences' },
+  { id: 'faQPgBDocVQ', title: 'Culture générale · Édition histoire · 40 questions', theme: 'Histoire' },
+  { id: 'sBFQd3yB4Bs', title: 'Test animalier extrême · 35 questions + bonus', theme: 'Animaux' },
+  { id: 'R5duVrQLza4', title: 'Quiz sur le corps humain · 40 questions + bonus', theme: 'Sciences' },
+  { id: 'k_dqFN3N6z4', title: 'Défi footballistique · Devine le pays du joueur · 50 questions', theme: 'Football' },
+  { id: 'XIpFP_D4Dc0', title: 'Quiz personnages historiques · 50 questions', theme: 'Histoire' },
+  { id: 'iGrOHGENeOc', title: 'Quiz culture générale · Niveau difficile', theme: 'Culture générale' },
+  { id: '9iolSECMWD4', title: 'Quiz spécial Coupe du Monde · Football', theme: 'Football' },
+  { id: 'xKyrytWK4tg', title: 'Quiz spécial cinéma français · 30 questions', theme: 'Cinéma' },
+  { id: 'R1N3Z6_esyI', title: 'Quiz culture générale · Niveau moyen #8', theme: 'Culture générale' },
+  { id: 'm9yzeXOA7UY', title: 'Quiz spécial fruits', theme: 'Nature' },
+  { id: '1JB7bdlXRvU', title: 'Quiz spécial monuments du monde', theme: 'Géographie' },
+  { id: '7-gIBM2V6_0', title: 'Identifie 50 fruits', theme: 'Nature' },
+  { id: 'HpHLn0mLcG0', title: 'Grand quiz années 80 · 50 questions', theme: 'Culture générale' },
+  { id: 'R3ZEA8U0VeY', title: 'Identifie les personnages de dessins animés par leurs ombres', theme: 'Animation' },
+  { id: 'wQgPfzuWmWQ', title: 'Vidéo de quiz à classer', duration: '11:47', theme: 'À classer' },
+  { id: 'WhLXEsMsoiQ', title: 'Identifie 100 personnalités francophones', theme: 'Culture générale' },
+  { id: 'dY7dDTZWUcg', title: 'Vidéo de quiz à classer', duration: '11:56', theme: 'À classer' },
+  { id: '5C55d5UZbu8', title: 'Quiz 100% sport · 50 questions multi-sports', theme: 'Sport' },
+];
+
+export const videoLibrary = [
+  ...roadCodeVideos.map(video => ({ ...video, theme: 'Code de la route' })),
+  ...additionalVideos,
+];
+
 export function getVideoUrl(videoId, seconds = 0) {
   return `https://www.youtube-nocookie.com/embed/${encodeURIComponent(videoId)}?rel=0&controls=1&disablekb=0&playsinline=1&start=${Math.max(0, Number(seconds) || 0)}`;
 }

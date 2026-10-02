@@ -12,6 +12,12 @@ From the repository root:
 docker compose -f docker-compose.demo.yml up --build
 ```
 
+The equivalent shortcut is:
+
+```sh
+./run-demo.sh
+```
+
 Open http://localhost:4174.
 
 Stop the demo with:

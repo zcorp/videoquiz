@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { CBadge, CFormInput, CFormSelect } from '@coreui/react';
 import { formatDate, ScoreChart } from './ProgressionPage.jsx';
 import { getQuizProgression } from '../services/localStore.js';
 
@@ -36,7 +37,7 @@ function DashboardProgressDetail({ quiz, points }) {
         <Link className="icon-action" to={`/progression/${quiz.id}`} aria-label={`Ouvrir la progression complète de ${quiz.title}`} title="Ouvrir la progression complète">↗</Link>
       </div>
       {latest ? <>
-        <div className="dashboard-detail-score"><span>Dernier score</span><strong>{latest.score}/{latest.max}</strong><b>{latest.percentage}%</b></div>
+        <div className="dashboard-detail-score"><span>Dernier score</span><strong>{latest.score}/{latest.max}</strong><CBadge color="success">{latest.percentage}%</CBadge></div>
         <ScoreChart points={points} />
         <div className="dashboard-detail-history">{points.slice().reverse().slice(0, 5).map((point, index) => <span key={`${point.date}-${index}`}><small>{formatDate(point.date)}</small><strong>{point.score}/{point.max}</strong></span>)}</div>
       </> : <p className="dashboard-filter-empty">Aucune tentative enregistrée pour ce quiz.</p>}
@@ -74,17 +75,17 @@ export default function DashboardPage({ quizzes, attempts }) {
   return (
     <main className="demo-page dashboard-page">
       <div className="player-topline"><Link to="/" className="back-link">← Bibliothèque</Link><span className="eyebrow">VOTRE ESPACE LOCAL</span><span className="player-save-note"><span aria-hidden="true">●</span> Données conservées sur cet appareil</span></div>
-      <header className="dashboard-heading"><div><span className="eyebrow">TABLEAU DE BORD</span><h1>Votre progression, en un coup d’œil.</h1><p>Retrouvez vos quiz, vos résultats et les prochaines révisions à poursuivre.</p></div><Link className="button button-dark" to="/create">Créer un quiz <span aria-hidden="true">＋</span></Link></header>
+      <header className="dashboard-heading"><div><span className="eyebrow">TABLEAU DE BORD</span><h1>Votre progression, en un coup d’œil.</h1><p>Retrouvez vos quiz, vos résultats et les prochaines révisions à poursuivre.</p></div><Link className="btn btn-success button button-dark" to="/create">Créer un quiz <span aria-hidden="true">＋</span></Link></header>
       <section className="dashboard-stats" aria-label="Résumé de votre activité"><article><span className="eyebrow">QUIZ JOUÉS</span><strong>{played.length}</strong><small>sur {quizzes.length} disponibles</small></article><article><span className="eyebrow">TENTATIVES</span><strong>{totalAttempts}</strong><small>conservées localement</small></article><article><span className="eyebrow">MOYENNE</span><strong>{average}<small>%</small></strong><small>sur les tentatives terminées</small></article><article><span className="eyebrow">MEILLEUR SCORE</span><strong>{bestAttempt ? `${bestAttempt.score}/${bestAttempt.max}` : '—'}</strong><small>{bestAttempt ? `${bestAttempt.percentage}%` : 'À établir'}</small></article></section>
       <section className="dashboard-section" aria-labelledby="dashboard-quiz-title">
         <div className="dashboard-section-heading"><div><span className="eyebrow">SUIVI PAR QUIZ</span><h2 id="dashboard-quiz-title">Vos entraînements</h2></div><Link className="icon-action" to="/" aria-label="Voir tous les quiz" title="Voir tous les quiz">↗</Link></div>
         {played.length ? <>
-          <div className="dashboard-filters"><input value={query} onChange={event => setQuery(event.target.value)} placeholder="Rechercher…" aria-label="Rechercher dans vos entraînements" /><select value={modeFilter} onChange={event => setModeFilter(event.target.value)} aria-label="Filtrer les entraînements par type"><option value="all">Tous les types</option><option value="prepared">Préparés</option><option value="progressive">Progressifs</option><option value="qcm">QCM</option></select><select value={topicFilter} onChange={event => setTopicFilter(event.target.value)} aria-label="Filtrer les entraînements par thème"><option value="all">Tous les thèmes</option>{topics.map(topic => <option key={topic} value={topic}>{topic}</option>)}</select><select value={sort} onChange={event => setSort(event.target.value)} aria-label="Trier les entraînements"><option value="recent">Plus récents</option><option value="score">Meilleur score</option><option value="title">Titre A-Z</option></select></div>
+          <div className="dashboard-filters"><CFormInput value={query} onChange={event => setQuery(event.target.value)} placeholder="Rechercher…" aria-label="Rechercher dans vos entraînements" /><CFormSelect value={modeFilter} onChange={event => setModeFilter(event.target.value)} aria-label="Filtrer les entraînements par type"><option value="all">Tous les types</option><option value="prepared">Préparés</option><option value="progressive">Progressifs</option><option value="qcm">QCM</option></CFormSelect><CFormSelect value={topicFilter} onChange={event => setTopicFilter(event.target.value)} aria-label="Filtrer les entraînements par thème"><option value="all">Tous les thèmes</option>{topics.map(topic => <option key={topic} value={topic}>{topic}</option>)}</CFormSelect><CFormSelect value={sort} onChange={event => setSort(event.target.value)} aria-label="Trier les entraînements"><option value="recent">Plus récents</option><option value="score">Meilleur score</option><option value="title">Titre A-Z</option></CFormSelect></div>
           <div className="dashboard-master-detail">
             <div className="dashboard-quiz-list">{filteredPlayed.map(quiz => <QuizSummary key={quiz.id} quiz={quiz} attempts={attempts.filter(attempt => attempt.quizId === quiz.id).length} selected={selectedQuiz?.id === quiz.id} onSelect={setSelectedId} />)}{!filteredPlayed.length && <div className="dashboard-filter-empty">Aucun entraînement ne correspond aux filtres.</div>}</div>
             <DashboardProgressDetail quiz={selectedQuiz} points={selectedPoints} />
           </div>
-        </> : <div className="dashboard-empty"><h3>Votre première tentative apparaîtra ici.</h3><p>Lancez un quiz depuis la bibliothèque pour commencer à suivre votre progression.</p><Link className="button button-dark" to="/">Découvrir les quiz <span aria-hidden="true">→</span></Link></div>}
+        </> : <div className="dashboard-empty"><h3>Votre première tentative apparaîtra ici.</h3><p>Lancez un quiz depuis la bibliothèque pour commencer à suivre votre progression.</p><Link className="btn btn-success button button-dark" to="/">Découvrir les quiz <span aria-hidden="true">→</span></Link></div>}
       </section>
       <section className="dashboard-section dashboard-all-quizzes" aria-labelledby="dashboard-all-title"><div className="dashboard-section-heading"><div><span className="eyebrow">À EXPLORER</span><h2 id="dashboard-all-title">Continuer à apprendre</h2></div></div><div className="dashboard-quick-grid">{quizzes.slice(0, 4).map(quiz => <Link key={quiz.id} to={`/quiz/${quiz.id}`}><span>{quiz.topic}</span><strong>{quiz.title}</strong><small>{quiz.questionCount ?? quiz.questions.length} questions <b aria-hidden="true">↗</b></small></Link>)}</div></section>
     </main>

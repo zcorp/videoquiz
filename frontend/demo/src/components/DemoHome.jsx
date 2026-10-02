@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { demoQuizzes } from '../data/demoQuizzes.js';
+import { CBadge, CFormInput, CFormSelect } from '@coreui/react';
+import { demoQuizzes, videoLibrary } from '../data/demoQuizzes.js';
 
 function QuizTile({ quiz, attempt, onDelete }) {
   const quizPath = quiz.draft ? `/edit/${quiz.id}` : `/quiz/${quiz.id}`;
@@ -17,8 +18,8 @@ function QuizTile({ quiz, attempt, onDelete }) {
       </Link>
       <div className="tile-copy">
         <span className="eyebrow">{quiz.topic}</span>
-        {quiz.exam && <span className="exam-tile-label">EXAMEN BLANC · CORRECTION PAR QUESTION</span>}
-        {quiz.draft && <span className="draft-tile-label">BROUILLON {quiz.mode === 'qcm' ? 'QCM EXPRESS' : 'PROGRESSIF'} · {answeredSlots}/{quiz.questionCount ?? quiz.questions.length} COMPLÈTES</span>}
+        {quiz.exam && <CBadge className="exam-tile-label" color="warning">EXAMEN BLANC · CORRECTION PAR QUESTION</CBadge>}
+        {quiz.draft && <CBadge className="draft-tile-label" color="warning">BROUILLON {quiz.mode === 'qcm' ? 'QCM EXPRESS' : 'PROGRESSIF'} · {answeredSlots}/{quiz.questionCount ?? quiz.questions.length} COMPLÈTES</CBadge>}
         <h3><Link to={`/quiz/${quiz.id}`}>{quiz.title}</Link></h3>
         <p>{quiz.description}</p>
         <div className="tile-footer">
@@ -66,19 +67,26 @@ export default function DemoHome({ quizzes, attempts, onDelete }) {
     <main className="demo-page">
       <section className="welcome-band">
         <div className="welcome-copy">
-          <span className="eyebrow eyebrow-dark">APPRENDRE EN REGARDANT</span>
-          <h1>Une vidéo.<br />Des questions.<br /><em>Ça reste.</em></h1>
-          <p>Testez une autre façon d’apprendre : la question arrive au bon moment, pendant que l’idée est encore fraîche.</p>
-          <Link className="button button-dark" to={`/quiz/${featured.id}`}>Découvrir le concept <span aria-hidden="true">↓</span></Link>
+          <span className="eyebrow eyebrow-dark">ESPACE D’ENTRAÎNEMENT</span>
+          <h1>Réviser une vidéo,<br /><em>une question à la fois.</em></h1>
+          <p>Choisissez un sujet, regardez l’extrait, puis répondez sans quitter le fil de la vidéo. Vos scores restent dans ce navigateur.</p>
+          <div className="welcome-actions"><Link className="btn btn-success button button-dark" to={`/quiz/${featured.id}`}>Commencer avec la sélection <span aria-hidden="true">→</span></Link><Link className="btn btn-outline-secondary button button-quiet" to="/dashboard">Voir mon suivi <span aria-hidden="true">↗</span></Link></div>
+          <div className="welcome-meta"><span><strong>{quizzes.length}</strong> quiz disponibles</span><span><strong>3</strong> modes de révision</span><span><strong>100%</strong> local</span></div>
         </div>
         <Link className="feature-frame" to={`/quiz/${featured.id}`} aria-label={`Démarrer ${featured.title}`}>
           <img src={`https://img.youtube.com/vi/${featured.videoId}/maxresdefault.jpg`} alt={`Aperçu de la vidéo ${featured.videoLabel}`} onError={event => { event.currentTarget.src = `https://img.youtube.com/vi/${featured.videoId}/hqdefault.jpg`; }} />
           <span className="feature-wash" />
           <span className="feature-play" aria-hidden="true">▶</span>
-          <span className="feature-caption"><span>À L’AFFICHE</span><strong>{featured.title}</strong><small>{featured.questions.length} arrêts sur image · environ 3 min</small></span>
+          <span className="feature-caption"><CBadge color="warning">À L’AFFICHE</CBadge><strong>{featured.title}</strong><small>{featured.questions.length} arrêts sur image · environ 3 min</small></span>
           <span className="feature-index">01 <i>/ {String(demoQuizzes.length).padStart(2, '0')}</i></span>
         </Link>
       </section>
+
+      <Link className="road-video-collection-link" to="/videos">
+        <span className="road-video-collection-mark" aria-hidden="true">▶</span>
+        <span><span className="eyebrow">COLLECTION VIDÉO</span><strong>Vidéos pour vos QCM</strong><small>{videoLibrary.length} vidéos · {new Set(videoLibrary.map(video => video.theme)).size} thèmes</small></span>
+        <span className="icon-action" aria-hidden="true">↗</span>
+      </Link>
 
       <section className="library-section" aria-labelledby="library-title">
         <div className="section-heading">
@@ -86,10 +94,10 @@ export default function DemoHome({ quizzes, attempts, onDelete }) {
           <span className="section-count">{quizzes.length.toString().padStart(2, '0')} QUIZ</span>
         </div>
         <div className="library-tools" aria-label="Filtres de la bibliothèque">
-          <label className="library-search"><span aria-hidden="true">⌕</span><input value={query} onChange={event => updateFilter(setQuery)(event.target.value)} placeholder="Rechercher un quiz…" aria-label="Rechercher un quiz" /></label>
-          <select value={modeFilter} onChange={event => updateFilter(setModeFilter)(event.target.value)} aria-label="Filtrer par type"><option value="all">Tous les types</option><option value="prepared">Quiz préparés</option><option value="progressive">Progressifs</option><option value="qcm">QCM express</option></select>
-          <select value={topicFilter} onChange={event => updateFilter(setTopicFilter)(event.target.value)} aria-label="Filtrer par thème"><option value="all">Tous les thèmes</option>{topics.map(topic => <option key={topic} value={topic}>{topic}</option>)}</select>
-          <select value={sort} onChange={event => updateFilter(setSort)(event.target.value)} aria-label="Trier les quiz"><option value="recent">Activité récente</option><option value="title">Titre A-Z</option><option value="questions">Nombre de questions</option></select>
+          <label className="library-search"><span aria-hidden="true">⌕</span><CFormInput value={query} onChange={event => updateFilter(setQuery)(event.target.value)} placeholder="Rechercher un quiz…" aria-label="Rechercher un quiz" /></label>
+          <CFormSelect value={modeFilter} onChange={event => updateFilter(setModeFilter)(event.target.value)} aria-label="Filtrer par type"><option value="all">Tous les types</option><option value="prepared">Quiz préparés</option><option value="progressive">Progressifs</option><option value="qcm">QCM express</option></CFormSelect>
+          <CFormSelect value={topicFilter} onChange={event => updateFilter(setTopicFilter)(event.target.value)} aria-label="Filtrer par thème"><option value="all">Tous les thèmes</option>{topics.map(topic => <option key={topic} value={topic}>{topic}</option>)}</CFormSelect>
+          <CFormSelect value={sort} onChange={event => updateFilter(setSort)(event.target.value)} aria-label="Trier les quiz"><option value="recent">Activité récente</option><option value="title">Titre A-Z</option><option value="questions">Nombre de questions</option></CFormSelect>
         </div>
         <div className="library-result-line"><span>{filteredQuizzes.length} quiz affiché{filteredQuizzes.length === 1 ? '' : 's'}</span>{(query || modeFilter !== 'all' || topicFilter !== 'all') && <button type="button" className="clear-filters" onClick={() => { setQuery(''); setModeFilter('all'); setTopicFilter('all'); setPage(1); }}>Réinitialiser <span aria-hidden="true">×</span></button>}</div>
         <div className="quiz-grid">
