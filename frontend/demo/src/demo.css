@@ -649,6 +649,16 @@ body { background: var(--paper); }
 .demo-footer > span:first-child { display: flex; align-items: center; gap: 8px; color: var(--ink); font-family: 'DM Sans', sans-serif; font-weight: 750; letter-spacing: .05em; }
 .demo-footer .badge { padding: 4px 6px; border-radius: 4px; font-size: 8px; }
 .demo-footer a { color: var(--green); }
+.analytics-preferences-link { padding: 0; border: 0; background: none; color: var(--green); font: inherit; text-decoration: underline; cursor: pointer; }
+.analytics-consent { position: fixed; right: 20px; bottom: 20px; left: 20px; z-index: 30; display: flex; align-items: center; justify-content: space-between; gap: 24px; max-width: 1120px; margin: 0 auto; padding: 19px 22px; border: 1px solid #dfe4db; border-radius: 12px; background: #fff; box-shadow: 0 16px 48px rgba(32,40,36,.2); }
+.analytics-consent-copy { max-width: 740px; }
+.analytics-consent-copy h2 { margin: 0 0 5px; color: var(--ink); font: 700 16px 'DM Sans', sans-serif; }
+.analytics-consent-copy p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.55; }
+.analytics-consent-copy .analytics-consent-warning { margin-top: 6px; color: #9f4331; }
+.analytics-consent-actions { display: flex; flex: 0 0 auto; gap: 8px; }
+.analytics-consent-actions button { min-height: 40px; padding: 0 16px; border: 1px solid var(--green); border-radius: 6px; font: 700 12px 'DM Sans', sans-serif; cursor: pointer; }
+.analytics-consent-reject { background: #fff; color: var(--green); }
+.analytics-consent-accept { background: var(--green); color: #fff; }
 
 @media (max-width: 900px) {
   .demo-header-inner { width: calc(100% - 40px); }
@@ -677,6 +687,8 @@ body { background: var(--paper); }
   .dashboard-stat-card strong { font-size: 27px; }
   .editor-section.card { padding: 16px; }
   .demo-footer.footer { width: calc(100% - 36px); align-items: flex-start; gap: 9px; }
+  .analytics-consent { right: 10px; bottom: 10px; left: 10px; align-items: stretch; flex-direction: column; gap: 14px; padding: 16px; }
+  .analytics-consent-actions { justify-content: flex-end; }
 }
 
 @media (min-width: 681px) and (max-width: 900px) {
