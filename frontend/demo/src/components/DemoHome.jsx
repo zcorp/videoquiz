@@ -1,22 +1,26 @@
 import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { CBadge, CFormInput, CFormSelect } from '@coreui/react';
-import { demoQuizzes, videoLibrary } from '../data/demoQuizzes.js';
+import { CBadge, CCard, CCardBody, CFormInput, CFormSelect } from '@coreui/react';
+import { videoLibrary } from '../data/demoQuizzes.js';
+import { getQuizUsingVideo } from '../services/localStore.js';
 
-function QuizTile({ quiz, attempt, onDelete }) {
-  const quizPath = quiz.draft ? `/edit/${quiz.id}` : `/quiz/${quiz.id}`;
+const normalizeTopic = value => value.toLocaleUpperCase('fr-FR');
+
+function QuizTile({ quiz, quizzes, attempt, onDelete }) {
+  const conflictingQuiz = quiz.local ? getQuizUsingVideo(quiz.videoId, quizzes, quiz.id) : undefined;
+  const quizPath = quiz.draft || conflictingQuiz ? `/edit/${quiz.id}` : `/quiz/${quiz.id}`;
   const isProgressive = quiz.mode === 'progressive' || quiz.mode === 'qcm';
      const answeredSlots = quiz.mode === 'qcm'
        ? quiz.questionCount ?? quiz.questions?.length ?? 0
        : quiz.questions?.filter(question => question.prompt?.trim() && question.options?.filter(option => option.trim()).length >= 2).length ?? 0;
   return (
-    <article className={`quiz-tile${quiz.exam ? ' exam-tile' : ''}`}>
-      <Link to={quizPath} className="tile-image-link" aria-label={`${quiz.draft ? 'Reprendre' : 'Ouvrir'} ${quiz.title}`}>
+    <CCard className={`quiz-tile${quiz.exam ? ' exam-tile' : ''}`}>
+      <Link to={quizPath} className="tile-image-link" aria-label={`${conflictingQuiz ? 'Corriger l’association vidéo de' : quiz.draft ? 'Reprendre' : 'Ouvrir'} ${quiz.title}`}>
         <img className="tile-image" src={`https://img.youtube.com/vi/${quiz.videoId}/hqdefault.jpg`} alt={`Vidéo : ${quiz.videoLabel}`} loading="lazy" />
         <span className="tile-play" aria-hidden="true">▶</span>
         <span className="tile-count">{isProgressive ? `${quiz.questionCount ?? quiz.questions.length} questions` : `${quiz.questions.length} ${quiz.questions.length === 1 ? 'question' : 'questions'}`}</span>
       </Link>
-      <div className="tile-copy">
+      <CCardBody className="tile-copy">
         <span className="eyebrow">{quiz.topic}</span>
         {quiz.exam && <CBadge className="exam-tile-label" color="warning">EXAMEN BLANC · CORRECTION PAR QUESTION</CBadge>}
         {quiz.draft && <CBadge className="draft-tile-label" color="warning">BROUILLON {quiz.mode === 'qcm' ? 'QCM EXPRESS' : 'PROGRESSIF'} · {answeredSlots}/{quiz.questionCount ?? quiz.questions.length} COMPLÈTES</CBadge>}
@@ -30,26 +34,34 @@ function QuizTile({ quiz, attempt, onDelete }) {
             <Link className="icon-action icon-play" to={quizPath} aria-label={`${quiz.draft ? 'Compléter' : 'Lancer'} ${quiz.title}`} title={quiz.draft ? 'Compléter' : 'Lancer'}>▶</Link>
           </div>
         </div>
-      </div>
-    </article>
+      </CCardBody>
+    </CCard>
   );
 }
 
 export default function DemoHome({ quizzes, attempts, onDelete }) {
-  const featured = demoQuizzes[0];
+  const featuredVideo = videoLibrary.find(video => video.theme === 'Code de la route') ?? videoLibrary[0];
   const [query, setQuery] = useState('');
   const [modeFilter, setModeFilter] = useState('all');
   const [topicFilter, setTopicFilter] = useState('all');
   const [sort, setSort] = useState('recent');
   const [page, setPage] = useState(1);
   const pageSize = 9;
+  const topicCounts = [...new Set(videoLibrary.map(video => normalizeTopic(video.theme)))]
+    .map(topic => ({ topic, count: videoLibrary.filter(video => normalizeTopic(video.theme) === topic).length }))
+    .sort((left, right) => right.count - left.count || left.topic.localeCompare(right.topic, 'fr'));
   const topics = [...new Set(quizzes.map(quiz => quiz.topic))].sort();
+  const quickTopics = topicCounts.slice(0, 5);
+  const featuredQuiz = getQuizUsingVideo(featuredVideo.id, quizzes);
+  const featuredDestination = featuredQuiz
+    ? featuredQuiz.local ? `/edit/${featuredQuiz.id}` : `/quiz/${featuredQuiz.id}`
+    : `/create?mode=qcm&video=${featuredVideo.id}&title=${encodeURIComponent(featuredVideo.title)}&topic=${encodeURIComponent(featuredVideo.theme.toLocaleUpperCase('fr-FR'))}`;
   const filteredQuizzes = useMemo(() => {
     const normalizedQuery = query.trim().toLocaleLowerCase();
     return quizzes.filter(quiz => {
       const matchesQuery = !normalizedQuery || [quiz.title, quiz.description, quiz.topic].some(value => value?.toLocaleLowerCase().includes(normalizedQuery));
       const matchesMode = modeFilter === 'all' || quiz.mode === modeFilter;
-      const matchesTopic = topicFilter === 'all' || quiz.topic === topicFilter;
+      const matchesTopic = topicFilter === 'all' || normalizeTopic(quiz.topic) === topicFilter;
       return matchesQuery && matchesMode && matchesTopic;
     }).sort((left, right) => {
       if (sort === 'title') return left.title.localeCompare(right.title, 'fr');
@@ -67,26 +79,22 @@ export default function DemoHome({ quizzes, attempts, onDelete }) {
     <main className="demo-page">
       <section className="welcome-band">
         <div className="welcome-copy">
-          <span className="eyebrow eyebrow-dark">ESPACE D’ENTRAÎNEMENT</span>
-          <h1>Réviser une vidéo,<br /><em>une question à la fois.</em></h1>
-          <p>Choisissez un sujet, regardez l’extrait, puis répondez sans quitter le fil de la vidéo. Vos scores restent dans ce navigateur.</p>
-          <div className="welcome-actions"><Link className="btn btn-success button button-dark" to={`/quiz/${featured.id}`}>Commencer avec la sélection <span aria-hidden="true">→</span></Link><Link className="btn btn-outline-secondary button button-quiet" to="/dashboard">Voir mon suivi <span aria-hidden="true">↗</span></Link></div>
-          <div className="welcome-meta"><span><strong>{quizzes.length}</strong> quiz disponibles</span><span><strong>3</strong> modes de révision</span><span><strong>100%</strong> local</span></div>
+          <span className="eyebrow eyebrow-dark">BIBLIOTHÈQUE VIDÉO</span>
+          <h1>Choisir une série.<br /><em>Créer son QCM.</em></h1>
+          <p>Parcours les thèmes, associe une vidéo à une grille de réponses, puis entraîne-toi à ton rythme. Quiz et résultats restent sur cet appareil.</p>
+          <div className="welcome-actions"><Link className="btn btn-success button button-dark" to="/videos">Parcourir les vidéos <span aria-hidden="true">→</span></Link><Link className="btn btn-outline-secondary button button-quiet" to="/dashboard">Voir mon suivi <span aria-hidden="true">↗</span></Link></div>
+          <div className="welcome-topics" aria-label="Accès rapide aux thèmes vidéo"><span className="eyebrow">THÈMES</span><div>{quickTopics.map(item => <Link key={item.topic} className="btn btn-outline-success topic-quick-chip" to={`/videos?theme=${encodeURIComponent(item.topic)}`}>{item.topic}<small>{item.count}</small></Link>)}</div></div>
         </div>
-        <Link className="feature-frame" to={`/quiz/${featured.id}`} aria-label={`Démarrer ${featured.title}`}>
-          <img src={`https://img.youtube.com/vi/${featured.videoId}/maxresdefault.jpg`} alt={`Aperçu de la vidéo ${featured.videoLabel}`} onError={event => { event.currentTarget.src = `https://img.youtube.com/vi/${featured.videoId}/hqdefault.jpg`; }} />
-          <span className="feature-wash" />
-          <span className="feature-play" aria-hidden="true">▶</span>
-          <span className="feature-caption"><CBadge color="warning">À L’AFFICHE</CBadge><strong>{featured.title}</strong><small>{featured.questions.length} arrêts sur image · environ 3 min</small></span>
-          <span className="feature-index">01 <i>/ {String(demoQuizzes.length).padStart(2, '0')}</i></span>
-        </Link>
+        <CCard className="feature-card">
+          <Link className="feature-frame" to={featuredDestination} aria-label={featuredQuiz ? `Ouvrir le quiz associé à ${featuredVideo.title}` : `Associer ${featuredVideo.title} à un QCM`}>
+            <img src={`https://img.youtube.com/vi/${featuredVideo.id}/maxresdefault.jpg`} alt={`Aperçu vidéo : ${featuredVideo.title}`} onError={event => { event.currentTarget.src = `https://img.youtube.com/vi/${featuredVideo.id}/hqdefault.jpg`; }} />
+            <span className="feature-wash" />
+            <span className="feature-play" aria-hidden="true">＋</span>
+            <span className="feature-caption"><CBadge color="warning">{featuredQuiz ? 'QUIZ ASSOCIÉ' : 'VIDÉO À UTILISER'}</CBadge><strong>{featuredVideo.title}</strong><small>{featuredVideo.theme} · {featuredQuiz ? 'Ouvrir le quiz' : 'Créer un QCM express'}</small></span>
+            <span className="feature-index">01 <i>/ {String(videoLibrary.length).padStart(2, '0')}</i></span>
+          </Link>
+        </CCard>
       </section>
-
-      <Link className="road-video-collection-link" to="/videos">
-        <span className="road-video-collection-mark" aria-hidden="true">▶</span>
-        <span><span className="eyebrow">COLLECTION VIDÉO</span><strong>Vidéos pour vos QCM</strong><small>{videoLibrary.length} vidéos · {new Set(videoLibrary.map(video => video.theme)).size} thèmes</small></span>
-        <span className="icon-action" aria-hidden="true">↗</span>
-      </Link>
 
       <section className="library-section" aria-labelledby="library-title">
         <div className="section-heading">
@@ -101,7 +109,7 @@ export default function DemoHome({ quizzes, attempts, onDelete }) {
         </div>
         <div className="library-result-line"><span>{filteredQuizzes.length} quiz affiché{filteredQuizzes.length === 1 ? '' : 's'}</span>{(query || modeFilter !== 'all' || topicFilter !== 'all') && <button type="button" className="clear-filters" onClick={() => { setQuery(''); setModeFilter('all'); setTopicFilter('all'); setPage(1); }}>Réinitialiser <span aria-hidden="true">×</span></button>}</div>
         <div className="quiz-grid">
-          {visibleQuizzes.map(quiz => <QuizTile key={quiz.id} quiz={quiz} attempt={attempts.find(item => item.quizId === quiz.id)} onDelete={onDelete} />)}
+          {visibleQuizzes.map(quiz => <QuizTile key={quiz.id} quiz={quiz} quizzes={quizzes} attempt={attempts.find(item => item.quizId === quiz.id)} onDelete={onDelete} />)}
           {!visibleQuizzes.length && <div className="library-empty"><span aria-hidden="true">⌕</span><h3>Aucun quiz trouvé</h3><p>Modifiez les filtres ou votre recherche.</p></div>}
           <Link to="/create" className="create-tile">
             <span className="create-symbol" aria-hidden="true">＋</span>
@@ -113,7 +121,6 @@ export default function DemoHome({ quizzes, attempts, onDelete }) {
         </div>
         {pageCount > 1 && <nav className="library-pagination" aria-label="Pagination des quiz"><button type="button" className="icon-action" onClick={() => setPage(value => Math.max(1, value - 1))} disabled={page === 1} aria-label="Page précédente" title="Page précédente">←</button><span>Page {Math.min(page, pageCount)} / {pageCount}</span><button type="button" className="icon-action" onClick={() => setPage(value => Math.min(pageCount, value + 1))} disabled={page === pageCount} aria-label="Page suivante" title="Page suivante">→</button></nav>}
       </section>
-      <footer className="demo-footer"><span>VIDEO QUIZ / DÉMO LOCALE</span><span>Vos quiz restent dans ce navigateur.</span><span>Une petite vitrine du produit complet.</span></footer>
     </main>
   );
 }

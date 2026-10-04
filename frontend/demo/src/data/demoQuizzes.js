@@ -60,14 +60,9 @@ const demoQcm = (id, title, topic, description, videoId, questions) => ({
   id, title, topic, description, videoId, videoLabel: title, mode: 'qcm', questionCount: questions.length, maxOptions: 3, questions,
 });
 
-const historyQcm = demoQcm('history-reperes', 'Repères historiques essentiels', 'HISTOIRE', 'Une courte série pour réviser quelques dates et événements majeurs.', 'W6NZfCO5SIk', [
+const historyQcm = demoQcm('history-reperes', 'Repères historiques essentiels', 'HISTOIRE', 'Une courte série pour réviser quelques dates et événements majeurs.', 'faQPgBDocVQ', [
   { id: 'history-q1', prompt: 'En quelle année débute la Révolution française ?', at: 18, type: 'multi_choice', options: ['1789', '1815', '1848'], explanation: 'La Révolution française débute en 1789.', answer: [0] },
   { id: 'history-q2', prompt: 'Quels événements appartiennent à la Seconde Guerre mondiale ?', at: 48, type: 'multi_choice', options: ['Le débarquement de Normandie', 'La chute de Constantinople', 'La libération de Paris'], explanation: 'Le débarquement et la libération de Paris ont lieu en 1944.', answer: [0, 2] },
-]);
-
-const mathsQcm = demoQcm('maths-fondamentaux', 'Mathématiques du quotidien', 'MATHÉMATIQUES', 'Pour s’entraîner aux calculs rapides, pourcentages et ordres de grandeur.', 'TNhaISOUy6Q', [
-  { id: 'maths-q1', prompt: 'Quels nombres sont des multiples de 6 ?', at: 22, type: 'multi_choice', options: ['12', '15', '24'], explanation: '12 et 24 sont divisibles par 6.', answer: [0, 2] },
-  { id: 'maths-q2', prompt: 'Quel est 20 % de 150 ?', at: 61, type: 'multi_choice', options: ['20', '30', '35'], explanation: '20 % de 150 correspondent à 30.', answer: [1] },
 ]);
 
 const scienceQcm = demoQcm('science-climat', 'Climat et énergie', 'SCIENCES', 'Un QCM rapide pour revoir quelques notions de climat et d’énergie.', 'KBTd5Vh-smw', [
@@ -79,15 +74,17 @@ export const demoQuizzes = [
   {
     id: 'react-hooks', title: 'React Hooks, sans magie', topic: 'DÉVELOPPEMENT WEB',
     description: 'Repérer les bons outils pour gérer état et effets dans un composant.',
-    videoId: 'TNhaISOUy6Q', videoLabel: 'React Hooks',
+    videoId: 'TNhaISOUy6Q', videoLabel: 'React Hooks', mode: 'prepared',
     questions: [
       choice('react-q1', 'Quel hook conserve une valeur d’état et relance le rendu lorsqu’elle change ?', 42, ['useState', 'useRef', 'useMemo'], 0, 'useState conserve une valeur et déclenche un nouveau rendu lorsqu’elle change.'),
+      choice('state-q1', 'Que provoque la mise à jour d’un state React ?', 68, ['Un nouveau rendu', 'Un rechargement complet', 'Une nouvelle route'], 0, 'Mettre à jour un state demande à React de recalculer le rendu du composant.'),
+      { id: 'state-q2', prompt: 'Quel hook fournit une valeur initiale et son setter ?', at: 82, type: 'text', answer: 'useState', explanation: 'useState renvoie la valeur actuelle et une fonction qui permet de la mettre à jour.' },
       choice('react-q2', 'Quel hook synchronise un composant avec un système externe ?', 96, ['useEffect', 'useId', 'useContext'], 0, 'useEffect sert aux effets de bord, par exemple écouter un événement ou synchroniser une API du navigateur.'),
       { id: 'react-q3', prompt: 'Les dépendances indiquent quand un effet doit être…', at: 154, type: 'text', answer: 'recalculé', explanation: 'Les dépendances indiquent les valeurs dont dépend l’effet et quand il doit être recalculé.' },
     ],
   },
   {
-    id: 'javascript-basics', title: 'JavaScript : les bons réflexes', topic: 'FONDAMENTAUX',
+    id: 'javascript-basics', title: 'JavaScript : les bons réflexes', topic: 'FONDAMENTAUX', mode: 'prepared',
     description: 'Trois arrêts sur image pour vérifier les bases du langage.',
     videoId: 'W6NZfCO5SIk', videoLabel: 'JavaScript Fundamentals',
     questions: [
@@ -96,15 +93,7 @@ export const demoQuizzes = [
       { id: 'js-q3', prompt: 'Que renvoie typeof null ?', at: 182, type: 'text', answer: 'object', explanation: 'C’est une particularité historique de JavaScript : typeof null renvoie "object".' },
     ],
   },
-  {
-    id: 'react-state', title: 'État local, rendu prévisible', topic: 'ATELIER REACT',
-    description: 'Une mini-révision pour comprendre quand React redessine l’interface.',
-    videoId: 'TNhaISOUy6Q', videoLabel: 'React Hooks',
-    questions: [
-      choice('state-q1', 'Que provoque la mise à jour d’un state React ?', 42, ['Un nouveau rendu', 'Un rechargement complet', 'Une nouvelle route'], 0, 'Mettre à jour un state demande à React de recalculer le rendu du composant.'),
-      { id: 'state-q2', prompt: 'Quel hook fournit une valeur initiale et son setter ?', at: 78, type: 'text', answer: 'useState', explanation: 'useState renvoie la valeur actuelle et une fonction qui permet de la mettre à jour.' },
-    ],
-  },
+
   {
     id: 'code-route-40',
     title: 'Code de la route — examen blanc',
@@ -118,7 +107,6 @@ export const demoQuizzes = [
     questions: roadCodeQuestions,
   },
   historyQcm,
-  mathsQcm,
   scienceQcm,
 ];
 
@@ -163,10 +151,12 @@ const additionalVideos = [
   { id: '5C55d5UZbu8', title: 'Quiz 100% sport · 50 questions multi-sports', theme: 'Sport' },
 ];
 
-export const videoLibrary = [
+const catalogVideos = [
   ...roadCodeVideos.map(video => ({ ...video, theme: 'Code de la route' })),
   ...additionalVideos,
 ];
+
+export const videoLibrary = [...new Map(catalogVideos.map(video => [video.id, video])).values()];
 
 export function getVideoUrl(videoId, seconds = 0) {
   return `https://www.youtube-nocookie.com/embed/${encodeURIComponent(videoId)}?rel=0&controls=1&disablekb=0&playsinline=1&start=${Math.max(0, Number(seconds) || 0)}`;

@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { CBadge, CFormInput, CFormSelect } from '@coreui/react';
+import { CBadge, CCard, CCardBody, CFormInput, CFormSelect, CProgress } from '@coreui/react';
 import { formatDate, ScoreChart } from './ProgressionPage.jsx';
 import { getQuizProgression } from '../services/localStore.js';
 
@@ -31,17 +31,20 @@ function DashboardProgressDetail({ quiz, points }) {
   const latest = points.at(-1);
 
   return (
-    <div className="dashboard-progress-detail" aria-live="polite">
+    <CCard className="dashboard-progress-detail" aria-live="polite">
+     <CCardBody>
       <div className="dashboard-detail-heading">
         <div><span className="eyebrow">ÉVOLUTION</span><h3>{quiz.title}</h3><span>{points.length} tentative{points.length === 1 ? '' : 's'}</span></div>
         <Link className="icon-action" to={`/progression/${quiz.id}`} aria-label={`Ouvrir la progression complète de ${quiz.title}`} title="Ouvrir la progression complète">↗</Link>
       </div>
       {latest ? <>
         <div className="dashboard-detail-score"><span>Dernier score</span><strong>{latest.score}/{latest.max}</strong><CBadge color="success">{latest.percentage}%</CBadge></div>
+        <CProgress className="dashboard-score-progress" value={latest.percentage} max={100} color="success" aria-label={`Dernier score : ${latest.percentage}%`} />
         <ScoreChart points={points} />
         <div className="dashboard-detail-history">{points.slice().reverse().slice(0, 5).map((point, index) => <span key={`${point.date}-${index}`}><small>{formatDate(point.date)}</small><strong>{point.score}/{point.max}</strong></span>)}</div>
       </> : <p className="dashboard-filter-empty">Aucune tentative enregistrée pour ce quiz.</p>}
-    </div>
+       </CCardBody>
+      </CCard>
   );
 }
 
@@ -76,7 +79,12 @@ export default function DashboardPage({ quizzes, attempts }) {
     <main className="demo-page dashboard-page">
       <div className="player-topline"><Link to="/" className="back-link">← Bibliothèque</Link><span className="eyebrow">VOTRE ESPACE LOCAL</span><span className="player-save-note"><span aria-hidden="true">●</span> Données conservées sur cet appareil</span></div>
       <header className="dashboard-heading"><div><span className="eyebrow">TABLEAU DE BORD</span><h1>Votre progression, en un coup d’œil.</h1><p>Retrouvez vos quiz, vos résultats et les prochaines révisions à poursuivre.</p></div><Link className="btn btn-success button button-dark" to="/create">Créer un quiz <span aria-hidden="true">＋</span></Link></header>
-      <section className="dashboard-stats" aria-label="Résumé de votre activité"><article><span className="eyebrow">QUIZ JOUÉS</span><strong>{played.length}</strong><small>sur {quizzes.length} disponibles</small></article><article><span className="eyebrow">TENTATIVES</span><strong>{totalAttempts}</strong><small>conservées localement</small></article><article><span className="eyebrow">MOYENNE</span><strong>{average}<small>%</small></strong><small>sur les tentatives terminées</small></article><article><span className="eyebrow">MEILLEUR SCORE</span><strong>{bestAttempt ? `${bestAttempt.score}/${bestAttempt.max}` : '—'}</strong><small>{bestAttempt ? `${bestAttempt.percentage}%` : 'À établir'}</small></article></section>
+      <section className="dashboard-stats" aria-label="Résumé de votre activité">{[
+        ['QUIZ JOUÉS', played.length, `sur ${quizzes.length} disponibles`],
+        ['TENTATIVES', totalAttempts, 'conservées localement'],
+        ['MOYENNE', <>{average}<small>%</small></>, 'sur les tentatives terminées'],
+        ['MEILLEUR SCORE', bestAttempt ? `${bestAttempt.score}/${bestAttempt.max}` : '—', bestAttempt ? `${bestAttempt.percentage}%` : 'À établir'],
+      ].map(([label, value, caption]) => <CCard className="dashboard-stat-card" key={label}><CCardBody><span className="eyebrow">{label}</span><strong>{value}</strong><small>{caption}</small></CCardBody></CCard>)}</section>
       <section className="dashboard-section" aria-labelledby="dashboard-quiz-title">
         <div className="dashboard-section-heading"><div><span className="eyebrow">SUIVI PAR QUIZ</span><h2 id="dashboard-quiz-title">Vos entraînements</h2></div><Link className="icon-action" to="/" aria-label="Voir tous les quiz" title="Voir tous les quiz">↗</Link></div>
         {played.length ? <>
