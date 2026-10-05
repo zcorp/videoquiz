@@ -5,7 +5,7 @@ Ce document décrit les fonctionnalités disponibles dans la démo statique publ
 ## Périmètre
 
 - **Inclus :** consultation des quiz et vidéos d’exemple, création et modification de quiz dans le navigateur, passation des quiz, suivi local des résultats et mesure d’audience avec consentement.
-- **Exclus :** comptes, authentification, API, partage entre utilisateurs, synchronisation entre appareils et stockage serveur. Ces services ne sont pas fournis par la démo.
+- **Exclus :** comptes, authentification, API, partage entre utilisateurs, synchronisation automatique entre appareils et stockage serveur. Ces services ne sont pas fournis par la démo.
 - Les vidéos sont lues depuis YouTube. Leur disponibilité et leur contenu dépendent de leurs auteurs et de YouTube.
 - Les quiz créés, les tentatives, les corrections mémorisées et le choix Analytics sont propres au navigateur utilisé. Ils ne sont pas transférés lors d’un déploiement.
 
@@ -21,7 +21,11 @@ Ce document décrit les fonctionnalités disponibles dans la démo statique publ
 
 ### Créer puis passer un quiz
 
-**Étant donné** une vidéo YouTube valide, **lorsque** l’utilisateur crée et enregistre un quiz, **alors** celui-ci est disponible dans sa bibliothèque locale. Il peut ensuite répondre aux questions, obtenir son résultat et retrouver sa tentative sur ce navigateur.
+**Étant donné** une vidéo YouTube valide, **lorsque** l’utilisateur crée et enregistre un quiz, **alors** celui-ci est disponible dans sa bibliothèque locale. Il peut ensuite répondre aux questions, retrouver sa progression après avoir quitté le quiz et reprendre là où il s’était arrêté.
+
+### Sauvegarder et restaurer ses données
+
+**Étant donné** des quiz et des données de progression enregistrés localement, **lorsque** l’utilisateur exporte puis importe une sauvegarde sur un navigateur, **alors** les données absentes y sont fusionnées sans remplacer les données déjà présentes.
 
 ### Suivre sa progression
 
@@ -71,6 +75,12 @@ Ce document décrit les fonctionnalités disponibles dans la démo statique publ
 - **REQ-020 — Soumettre Analytics au consentement :** pour améliorer l’expérience utilisateur, le tag GA4 mesure les consultations des sections uniquement après acceptation. Le choix est conservé et modifiable depuis le pied de page; un refus ou retrait bloque les envois futurs. Si le consentement est retiré après le chargement du tag, celui-ci peut rester présent dans la page, mais ne doit plus envoyer d’événements.
 - **REQ-021 — Limiter les données envoyées par l’application :** l’application envoie des vues de sections sans transmettre les réponses ni le contenu saisi dans les quiz. Pour éviter les événements automatiques tels que les défilements, la Mesure améliorée doit également être désactivée dans les paramètres du flux GA4.
 - **REQ-022 — Attribuer la démo :** le pied de page affiche la mention de droits ZCOORE avec l’année courante et un accès aux préférences Analytics.
+- **REQ-025 — Reprendre un quiz interrompu :** les réponses, l’auto-correction et la question courante d’un quiz inachevé sont conservées localement. À la prochaine ouverture, le quiz reprend cet état et propose de recommencer; une tentative terminée n’est pas reprise.
+- **REQ-026 — Exporter les données locales :** l’utilisateur peut télécharger un fichier JSON qui contient ses quiz créés, les 30 tentatives conservées, les auto-corrections et les quiz inachevés.
+- **REQ-027 — Importer et fusionner une sauvegarde :** l’utilisateur peut importer une sauvegarde Video Quiz valide de 5 Mo au plus. Les nouveaux quiz et données compatibles sont ajoutés; un quiz dont l’identifiant ou la vidéo est déjà utilisé est ignoré, et aucune donnée existante n’est remplacée.
+- **REQ-028 — Signaler les erreurs de sauvegarde :** un format non reconnu, un fichier illisible ou une erreur de stockage est annoncé dans l’interface et n’est pas présenté comme un import réussi.
+- **REQ-029 — Mesurer les interactions consenties :** après acceptation seulement, Analytics peut recevoir des événements sans paramètre utilisateur pour le démarrage, la reprise, l’abandon ou la fin d’un quiz, l’ouverture du mode lecture et les actions de sauvegarde. Aucune réponse, correction, titre, identifiant de quiz ni donnée saisie n’est inclus.
+- **REQ-030 — Rendre les nouveaux parcours accessibles :** l’import est activable au clavier, ses retours sont annoncés aux technologies d’assistance, les erreurs sont identifiables et les animations sont réduites si l’utilisateur le demande dans son système.
 
 ## Entités fonctionnelles
 
@@ -78,6 +88,8 @@ Ce document décrit les fonctionnalités disponibles dans la démo statique publ
 - **Question :** énoncé, position dans la vidéo, options éventuelles, type de réponse et correction selon le mode.
 - **Tentative :** quiz concerné, score, maximum, pourcentage et date de réalisation.
 - **Correction personnelle :** correction déclarée par l’apprenant pour une question progressive, enregistrée séparément de sa réponse.
+- **Progression en cours :** index de la question courante, réponses et corrections nécessaires à la reprise d’un quiz non terminé.
+- **Sauvegarde locale :** fichier portable versionné contenant les données locales exportables du navigateur.
 - **Préférence Analytics :** consentement accepté ou refusé, conservé dans le navigateur.
 
 ## Critères de réussite vérifiables
@@ -95,10 +107,15 @@ Ce document décrit les fonctionnalités disponibles dans la démo statique publ
 - **SC-011 :** après avoir saisi sa réponse et son auto-correction à une question progressive, l’utilisateur passe directement à la question suivante; la comparaison et le score ne s’affichent qu’à la fin du quiz.
 - **SC-012 :** depuis le résultat d’un quiz progressif, le mode lecture permet de parcourir toutes les questions, affiche les deux réponses et leur concordance, repositionne la vidéo sur chaque instant et ne permet aucune modification.
 - **SC-013 :** la courbe de progression affiche une graduation cohérente avec le score maximal, reste lisible sur petit écran et rend le score, le pourcentage et la date de chaque tentative accessibles au survol ou au clavier.
+- **SC-014 :** après avoir répondu à au moins une question puis quitté et rouvert le même quiz, l’utilisateur retrouve la question, ses réponses et les corrections déjà saisies; les tentatives terminées ne réapparaissent pas comme quiz à reprendre.
+- **SC-015 :** un export puis un import dans un navigateur sans données correspondantes restaure les quiz, tentatives, corrections et progressions exportés; les collisions ne remplacent aucune donnée existante et sont signalées.
+- **SC-016 :** un fichier invalide ou de plus de 5 Mo produit un message d’erreur accessible et ne modifie pas les données locales.
+- **SC-017 :** sans consentement Analytics accepté, aucun événement d’interaction n’est envoyé; après acceptation, les événements ne contiennent que leur nom, sans paramètres de quiz ou de réponse.
+- **SC-018 :** les commandes d’export et d’import sont accessibles au clavier, les résultats et erreurs d’import sont annoncés sans dépendre uniquement de la couleur, et les préférences de réduction du mouvement sont respectées. Les textes secondaires et corail sur fond blanc ou papier atteignent un contraste de 4,5:1; le contour de focus atteint au moins 3:1.
 
 ## Hors périmètre et limites connues
 
-- Pas de compte, de serveur, de sauvegarde distante, d’import/export ni de synchronisation des données locales.
+- Pas de compte, de serveur, de sauvegarde distante ni de synchronisation automatique des données locales.
 - Les statistiques ne sont pas partagées entre navigateurs ou appareils.
 - Dans le créateur QCM express, les cellules de questions et de choix sont affichées mais ne peuvent pas encore être renseignées directement dans cette grille.
 - GA4 peut collecter des événements automatiques configurés au niveau de la propriété, même si l’application n’envoie que des vues de sections. Désactiver la Mesure améliorée si seuls ces événements sont souhaités.

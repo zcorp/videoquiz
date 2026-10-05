@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Route, Routes, useLocation } from 'react-router-dom';
 import { CBadge, CFooter } from '@coreui/react';
 import DemoHeader from './components/DemoHeader.jsx';
@@ -32,8 +32,14 @@ export default function DemoApp() {
   const [showAnalyticsChoices, setShowAnalyticsChoices] = useState(() => readAnalyticsConsent() === null);
   const [analyticsStorageWarning, setAnalyticsStorageWarning] = useState(false);
   const lastTrackedLocation = useRef(null);
+  const analyticsConsentRef = useRef(analyticsConsent);
   const location = useLocation();
   const quizzes = useMemo(() => [...localQuizzes, ...demoQuizzes], [localQuizzes]);
+  const trackInteraction = useCallback(eventName => {
+    if (analyticsConsentRef.current === 'accepted' && window.gtag) window.gtag('event', eventName);
+  }, []);
+
+  analyticsConsentRef.current = analyticsConsent;
 
   useEffect(() => { window.scrollTo(0, 0); }, [location.pathname]);
 
@@ -86,6 +92,10 @@ export default function DemoApp() {
   const addAttempt = attempt => {
     if (saveAttempt(attempt)) setAttempts(getAttempts());
   };
+  const refreshLocalData = () => {
+    setLocalQuizzes(getLocalQuizzes());
+    setAttempts(getAttempts());
+  };
   const closeWelcome = () => {
     localStorage.setItem('videoquiz-demo:welcome-seen:v1', '1');
     setShowWelcome(false);
@@ -107,10 +117,10 @@ export default function DemoApp() {
       <DemoHeader />
       <Routes>
         <Route path="/" element={<DemoHome quizzes={quizzes} attempts={attempts} onDelete={id => { deleteLocalQuiz(id); setLocalQuizzes(getLocalQuizzes()); }} />} />
-        <Route path="/dashboard" element={<DashboardPage quizzes={quizzes} attempts={attempts} />} />
+        <Route path="/dashboard" element={<DashboardPage quizzes={quizzes} attempts={attempts} onDataChanged={refreshLocalData} onTrack={trackInteraction} />} />
         <Route path="/videos" element={<RoadCodeVideosPage quizzes={quizzes} />} />
         <Route path="/videos/code-route" element={<RoadCodeVideosPage quizzes={quizzes} />} />
-        <Route path="/quiz/:quizId" element={<DemoPlayer quizzes={quizzes} onAttempt={addAttempt} />} />
+        <Route path="/quiz/:quizId" element={<DemoPlayer quizzes={quizzes} onAttempt={addAttempt} onTrack={trackInteraction} />} />
         <Route path="/progression/:quizId" element={<ProgressionPage quizzes={quizzes} />} />
         <Route path="/create" element={<DemoEditor quizzes={quizzes} onSave={addQuiz} />} />
         <Route path="/edit/:quizId" element={<DemoEditor quiz={localQuizzes.find(quiz => quiz.id === location.pathname.split('/').pop())} quizzes={quizzes} onSave={addQuiz} />} />
@@ -123,7 +133,7 @@ export default function DemoApp() {
         <button className="analytics-preferences-link" type="button" onClick={() => setShowAnalyticsChoices(true)}>Préférences Analytics</button>
       </CFooter>
       {showWelcome && <WelcomeGuide onClose={closeWelcome} />}
-      {showAnalyticsChoices && <section className="analytics-consent" role="dialog" aria-labelledby="analytics-consent-title">
+      {showAnalyticsChoices && <section className="analytics-consent" role="dialog" aria-modal="true" aria-labelledby="analytics-consent-title">
         <div className="analytics-consent-copy">
           <h2 id="analytics-consent-title">Mesure d’audience</h2>
           <p>Pour améliorer l’expérience utilisateur, nous mesurons avec Google Analytics la consultation des différentes sections de cette démo. Aucune réponse au quiz ni aucun contenu saisi n’est envoyé. Vous pouvez refuser ou modifier votre choix à tout moment dans le pied de page.</p>

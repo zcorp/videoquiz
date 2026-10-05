@@ -1,8 +1,8 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { CBadge, CCard, CCardBody, CFormInput, CFormSelect, CProgress } from '@coreui/react';
 import { formatDate, ScoreChart } from './ProgressionPage.jsx';
-import { getQuizProgression } from '../services/localStore.js';
+import { exportLocalBackup, getQuizProgression, importLocalBackup } from '../services/localStore.js';
 
 function QuizSummary({ quiz, attempts, selected, onSelect }) {
   const progression = getQuizProgression(quiz.id);
@@ -48,13 +48,16 @@ function DashboardProgressDetail({ quiz, points }) {
   );
 }
 
-export default function DashboardPage({ quizzes, attempts }) {
+export default function DashboardPage({ quizzes, attempts, onDataChanged, onTrack }) {
   const played = quizzes.filter(quiz => attempts.some(attempt => attempt.quizId === quiz.id));
   const [selectedId, setSelectedId] = useState(() => played[0]?.id ?? null);
   const [query, setQuery] = useState('');
   const [modeFilter, setModeFilter] = useState('all');
   const [topicFilter, setTopicFilter] = useState('all');
   const [sort, setSort] = useState('recent');
+  const backupInput = useRef(null);
+  const [backupStatus, setBackupStatus] = useState(null);
+  const [backupError, setBackupError] = useState(false);
   const totalAttempts = attempts.length;
   const bestAttempt = attempts.reduce((current, attempt) => !current || attempt.percentage > current.percentage ? attempt : current, null);
   const average = attempts.length ? Math.round(attempts.reduce((total, attempt) => total + attempt.percentage, 0) / attempts.length) : 0;
@@ -74,6 +77,59 @@ export default function DashboardPage({ quizzes, attempts }) {
   }, [attempts, modeFilter, played, query, sort, topicFilter]);
   const selectedQuiz = filteredPlayed.find(quiz => quiz.id === selectedId) ?? filteredPlayed[0];
   const selectedPoints = selectedQuiz ? getQuizProgression(selectedQuiz.id) : [];
+  const downloadBackup = () => {
+    try {
+      const backup = exportLocalBackup();
+      const url = URL.createObjectURL(new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' }));
+      const anchor = document.createElement('a');
+      anchor.href = url;
+      anchor.download = `video-quiz-sauvegarde-${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+      setBackupError(false);
+      setBackupStatus('Sauvegarde téléchargée. Conservez ce fichier dans un emplacement sûr.');
+      onTrack?.('backup_exported');
+    } catch {
+      setBackupError(true);
+      setBackupStatus('Impossible de créer la sauvegarde dans ce navigateur.');
+    }
+  };
+  const importBackupFile = async event => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    setBackupStatus(null);
+    setBackupError(false);
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      setBackupError(true);
+      setBackupStatus('Le fichier dépasse la limite de 5 Mo.');
+      return;
+    }
+    try {
+      let parsed;
+      try {
+        parsed = JSON.parse(await file.text());
+      } catch {
+        setBackupError(true);
+        setBackupStatus('Impossible de lire ce fichier. Vérifiez qu’il s’agit d’un JSON valide.');
+        return;
+      }
+      const imported = importLocalBackup(parsed);
+      if (!imported.ok) {
+        setBackupError(true);
+        setBackupStatus(imported.error);
+        return;
+      }
+      onDataChanged?.();
+      setBackupStatus(`Import terminé : ${imported.importedQuizzes} quiz, ${imported.importedAttempts} tentatives, ${imported.importedCorrections} auto-corrections et ${imported.importedProgress} reprises ajoutés. ${imported.skippedQuizzes} quiz déjà présents ignorés.`);
+      onTrack?.('backup_imported');
+    } catch {
+      setBackupError(true);
+      setBackupStatus('Le navigateur n’a pas pu traiter cette sauvegarde.');
+    }
+  };
 
   return (
     <main className="demo-page dashboard-page">
@@ -96,6 +152,16 @@ export default function DashboardPage({ quizzes, attempts }) {
         </> : <div className="dashboard-empty"><h3>Votre première tentative apparaîtra ici.</h3><p>Lancez un quiz depuis la bibliothèque pour commencer à suivre votre progression.</p><Link className="btn btn-success button button-dark" to="/">Découvrir les quiz <span aria-hidden="true">→</span></Link></div>}
       </section>
       <section className="dashboard-section dashboard-all-quizzes" aria-labelledby="dashboard-all-title"><div className="dashboard-section-heading"><div><span className="eyebrow">À EXPLORER</span><h2 id="dashboard-all-title">Continuer à apprendre</h2></div></div><div className="dashboard-quick-grid">{quizzes.slice(0, 4).map(quiz => <Link key={quiz.id} to={`/quiz/${quiz.id}`}><span>{quiz.topic}</span><strong>{quiz.title}</strong><small>{quiz.questionCount ?? quiz.questions.length} questions <b aria-hidden="true">↗</b></small></Link>)}</div></section>
+      <section className="dashboard-section backup-section" aria-labelledby="backup-title">
+        <div className="dashboard-section-heading"><div><span className="eyebrow">VOS DONNÉES</span><h2 id="backup-title">Sauvegarder ou restaurer</h2></div></div>
+        <p>Exportez vos quiz, résultats, auto-corrections et quiz en cours pour les conserver ou les déplacer vers un autre navigateur. Les fichiers JSON importés sont limités à 5 Mo.</p>
+        <div className="backup-actions">
+          <button type="button" className="button button-dark" onClick={downloadBackup}>Télécharger une sauvegarde</button>
+          <button type="button" className="button button-quiet" onClick={() => backupInput.current?.click()}>Importer une sauvegarde</button>
+          <input ref={backupInput} className="visually-hidden" type="file" accept="application/json,.json" aria-label="Choisir un fichier de sauvegarde Video Quiz" onChange={importBackupFile} />
+        </div>
+        {backupStatus && <p className={`backup-status${backupError ? ' is-error' : ''}`} role={backupError ? 'alert' : 'status'} aria-live="polite">{backupStatus}</p>}
+      </section>
     </main>
   );
 }
