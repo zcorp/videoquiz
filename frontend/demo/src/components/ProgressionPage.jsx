@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useId } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import { area, curveMonotoneX, line, scaleLinear } from 'd3';
 import { demoQuizzes } from '../data/demoQuizzes.js';
 import { getQuizProgression } from '../services/localStore.js';
 
@@ -10,25 +11,47 @@ export function formatDate(value) {
 export function ScoreChart({ points }) {
   const width = 720;
   const height = 280;
-  const padding = { top: 24, right: 24, bottom: 44, left: 48 };
-  const chartWidth = width - padding.left - padding.right;
-  const chartHeight = height - padding.top - padding.bottom;
+  const padding = { top: 24, right: 28, bottom: 42, left: 48 };
   const max = points[0]?.max || 1;
-  const x = index => padding.left + (points.length === 1 ? chartWidth / 2 : index / (points.length - 1) * chartWidth);
-  const y = score => padding.top + chartHeight - score / max * chartHeight;
-  const line = points.map((point, index) => `${index === 0 ? 'M' : 'L'} ${x(index)} ${y(point.score)}`).join(' ');
-  const guides = [0, Math.ceil(max / 2), max];
+  const x = scaleLinear().domain([0, Math.max(points.length - 1, 1)]).range([padding.left, width - padding.right]);
+  const y = scaleLinear().domain([0, max]).range([height - padding.bottom, padding.top]);
+  const data = points.map((point, index) => ({ ...point, index }));
+  const scoreLine = line().x(point => x(point.index)).y(point => y(point.score)).curve(curveMonotoneX);
+  const scoreArea = area().x(point => x(point.index)).y0(y(0)).y1(point => y(point.score)).curve(curveMonotoneX);
+  const yTickStep = Math.max(1, Math.ceil(max / 4));
+  const yTicks = [...Array.from({ length: Math.ceil(max / yTickStep) }, (_, index) => index * yTickStep), max];
+  const xTickStep = Math.max(1, Math.ceil((points.length - 1) / 5));
+  const xTicks = [...new Set([0, ...points.map((_, index) => index).filter(index => index % xTickStep === 0), points.length - 1])];
+  const gradientId = `score-area-${useId().replace(/:/g, '')}`;
+  const chartBottom = height - padding.bottom;
 
   return (
     <div className="progression-chart-wrap">
-      <svg className="progression-chart" viewBox={`0 0 ${width} ${height}`} role="img" aria-label="Évolution du score au fil des tentatives">
-        {guides.map(value => <g key={value}><line x1={padding.left} x2={width - padding.right} y1={y(value)} y2={y(value)} /><text x={padding.left - 12} y={y(value) + 4} textAnchor="end">{value}</text></g>)}
-        <line className="chart-axis" x1={padding.left} x2={padding.left} y1={padding.top} y2={height - padding.bottom} />
-        <line className="chart-axis" x1={padding.left} x2={width - padding.right} y1={height - padding.bottom} y2={height - padding.bottom} />
-        <path className="progression-line" d={line} />
-        {points.map((point, index) => <circle key={`${point.date}-${index}`} cx={x(index)} cy={y(point.score)} r="6"><title>{`${point.score}/${point.max} · ${point.percentage}% · ${formatDate(point.date)}`}</title></circle>)}
+      <svg className="progression-chart" viewBox={`0 0 ${width} ${height}`} role="img" aria-label={`Évolution du score sur ${points.length} tentative${points.length === 1 ? '' : 's'}`}>
+        <defs>
+          <linearGradient id={gradientId} x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stopColor="var(--green)" stopOpacity=".22" />
+            <stop offset="100%" stopColor="var(--green)" stopOpacity="0" />
+          </linearGradient>
+        </defs>
+        {yTicks.map(value => <g className="chart-gridline" key={value}>
+          <line x1={padding.left} x2={width - padding.right} y1={y(value)} y2={y(value)} />
+          <text x={padding.left - 12} y={y(value) + 4} textAnchor="end">{value}</text>
+        </g>)}
+        <path className="progression-area" d={scoreArea(data)} fill={`url(#${gradientId})`} />
+        {data.length > 1 && <path className="progression-line" d={scoreLine(data)} />}
+        {data.map(point => <g className="progression-point" key={`${point.date}-${point.index}`} tabIndex="0" role="img" aria-label={`Tentative ${point.index + 1} : ${point.score} sur ${point.max}, ${point.percentage} %, ${formatDate(point.date)}`}>
+          <circle className="progression-point-hit" cx={x(point.index)} cy={y(point.score)} r="13" />
+          <circle className="progression-point-marker" cx={x(point.index)} cy={y(point.score)} r="5.5" />
+          <title>{`Tentative ${point.index + 1} · ${point.score}/${point.max} · ${point.percentage}% · ${formatDate(point.date)}`}</title>
+        </g>)}
+        {xTicks.map(index => <g className="chart-x-tick" key={index}>
+          <line x1={x(index)} x2={x(index)} y1={chartBottom} y2={chartBottom + 5} />
+          <text x={x(index)} y={height - 14} textAnchor="middle">#{index + 1}</text>
+        </g>)}
+        <line className="chart-axis" x1={padding.left} x2={width - padding.right} y1={chartBottom} y2={chartBottom} />
       </svg>
-      <div className="progression-chart-legend"><span><i /> Score brut</span><span>Maximum : {max}</span></div>
+      <div className="progression-chart-legend"><span><i /> Score brut</span><span>{points.length} tentative{points.length === 1 ? '' : 's'} · maximum {max}</span></div>
     </div>
   );
 }

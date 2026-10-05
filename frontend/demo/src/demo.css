@@ -56,7 +56,12 @@ button:disabled { cursor: not-allowed; opacity: .45; }
 .welcome-topics > div { display: flex; flex-wrap: wrap; gap: 6px; }
 .topic-quick-chip { display: inline-flex; align-items: center; gap: 8px; min-height: 31px; padding: 4px 8px; border-radius: 3px; color: var(--green); font-size: 10px; text-decoration: none; }
 .topic-quick-chip small { color: var(--muted); font: 9px var(--mono); }
-.topic-quick-chip:hover { background: #e9eae2; color: var(--green); }
+.welcome-topics .topic-quick-chip,
+.welcome-topics .topic-quick-chip:visited,
+.welcome-topics .topic-quick-chip:active { background-color: #fff; color: var(--green); }
+.welcome-topics .topic-quick-chip:hover,
+.welcome-topics .topic-quick-chip:focus-visible { background-color: #e9eae2; color: var(--green); }
+.welcome-topics .topic-quick-chip small { color: var(--muted); }
 .button { min-height: 46px; display: inline-flex; align-items: center; justify-content: center; gap: 16px; border: 0; padding: 0 17px; font-size: 13px; font-weight: 700; transition: background .18s ease, transform .18s ease; }
 .button:hover:not(:disabled) { transform: translateY(-1px); }
 .button-dark { background: var(--green); color: #fff; }
@@ -88,6 +93,8 @@ button:disabled { cursor: not-allowed; opacity: .45; }
 .road-video-toolbar { display: flex; align-items: center; gap: 15px; margin-bottom: 17px; }
 .road-video-toolbar input { max-width: 440px; }
 .road-video-toolbar select { max-width: 230px; }
+.road-video-toolbar .form-select { color: var(--ink); background-color: #fff; -webkit-text-fill-color: var(--ink); }
+.road-video-toolbar .form-select option { color: var(--ink); background-color: #fff; }
 .road-video-toolbar > span { color: var(--muted); font-size: 11px; }
 .road-video-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 13px; }
 .road-video-card { min-width: 0; overflow: hidden; border: 1px solid var(--rule); border-radius: 4px; background: #fff; text-align: left; }
@@ -100,6 +107,10 @@ button:disabled { cursor: not-allowed; opacity: .45; }
 .road-video-series-badge { justify-self: start; font: 9px var(--mono); }
 .road-video-card-copy .card-title { margin: 0; font: 600 17px/1.2 var(--serif); }
 .road-video-open { align-self: end; width: 100%; color: #fff; font-size: 11px; font-weight: 700; }
+.road-video-open.btn-outline-success { color: var(--green); }
+.road-video-open.btn-outline-success:hover,
+.road-video-open.btn-outline-success:focus-visible,
+.road-video-open.btn-outline-success:active { color: #fff; }
 .road-video-card-copy .card-text { margin: 0; }
 .road-video-source { color: var(--muted); font-size: 10px; }
 .library-section { padding: 42px 0 68px; border-top: 1px solid var(--rule); }
@@ -236,12 +247,16 @@ button:disabled { cursor: not-allowed; opacity: .45; }
 .progression-latest { color: var(--muted); font-size: 11px; }
 .progression-latest strong { margin-left: 6px; color: var(--green); font: 600 18px var(--mono); }
 .progression-chart-wrap { margin-top: 22px; padding: 12px 0 0; background: #fffdf8; }
-.progression-chart { display: block; width: 100%; min-height: 250px; overflow: visible; }
-.progression-chart line:not(.chart-axis) { stroke: #e5e4dc; stroke-dasharray: 3 5; }
-.progression-chart .chart-axis { stroke: #b9beb5; }
-.progression-chart text { fill: var(--muted); font: 11px var(--mono); }
-.progression-line { fill: none; stroke: var(--green); stroke-linecap: round; stroke-linejoin: round; stroke-width: 4; }
-.progression-chart circle { fill: var(--coral); stroke: #fffdf8; stroke-width: 3; }
+.progression-chart { display: block; width: 100%; height: auto; overflow: visible; }
+.progression-chart .chart-gridline line { stroke: #e8ebe5; stroke-dasharray: 3 5; }
+.progression-chart .chart-gridline text,.progression-chart .chart-x-tick text { fill: #89928b; font: 10px var(--mono); }
+.progression-chart .chart-axis,.progression-chart .chart-x-tick line { stroke: #cbd2ca; }
+.progression-area { pointer-events: none; }
+.progression-line { fill: none; stroke: var(--green); stroke-linecap: round; stroke-linejoin: round; stroke-width: 3; }
+.progression-point { cursor: help; outline: none; }
+.progression-point-hit { fill: transparent; }
+.progression-point-marker { fill: #fffdf8; stroke: var(--coral); stroke-width: 3; transition: r .16s ease, fill .16s ease, stroke .16s ease; }
+.progression-point:hover .progression-point-marker,.progression-point:focus-visible .progression-point-marker { r: 7; fill: var(--coral); stroke: #fffdf8; }
 .progression-chart-legend { display: flex; justify-content: space-between; padding: 4px 12px 13px 48px; color: var(--muted); font: 10px var(--mono); }
 .progression-chart-legend span:first-child { display: flex; align-items: center; gap: 6px; }
 .progression-chart-legend i { width: 8px; height: 8px; display: inline-block; border-radius: 50%; background: var(--coral); }
