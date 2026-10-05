@@ -40,7 +40,7 @@ function DashboardProgressDetail({ quiz, points }) {
       {latest ? <>
         <div className="dashboard-detail-score"><span>Dernier score</span><strong>{latest.score}/{latest.max}</strong><CBadge color="success">{latest.percentage}%</CBadge></div>
         <CProgress className="dashboard-score-progress" value={latest.percentage} max={100} color="success" aria-label={`Dernier score : ${latest.percentage}%`} />
-        <ScoreChart points={points} />
+        <ScoreChart points={points} compact />
         <div className="dashboard-detail-history">{points.slice().reverse().slice(0, 5).map((point, index) => <span key={`${point.date}-${index}`}><small>{formatDate(point.date)}</small><strong>{point.score}/{point.max}</strong></span>)}</div>
       </> : <p className="dashboard-filter-empty">Aucune tentative enregistrée pour ce quiz.</p>}
        </CCardBody>

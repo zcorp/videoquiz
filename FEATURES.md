@@ -63,7 +63,7 @@ Ce document décrit les fonctionnalités disponibles dans la démo statique publ
 - **REQ-016 — Consulter le résultat :** à la fin d’un quiz, l’utilisateur voit son score, son pourcentage et le détail des réponses et corrections disponibles.
 - **REQ-024 — Revoir un quiz en mode lecture :** après la fin d’un quiz progressif, l’utilisateur peut revoir chaque question avec la vidéo repositionnée à l’instant correspondant, sa réponse initiale, son auto-correction et l’indication de concordance. Les réponses ne sont pas modifiables dans ce mode.
 - **REQ-017 — Suivre l’activité :** le tableau de bord récapitule les quiz joués, les tentatives, la moyenne et le meilleur score. La liste des entraînements peut être recherchée, filtrée, triée et présentée avec le détail du quiz sélectionné.
-- **REQ-018 — Consulter l’historique :** chaque quiz joué dispose d’une page de progression avec une courbe des scores et la liste des tentatives. La démo conserve au maximum les 30 tentatives les plus récentes au total dans le navigateur.
+- **REQ-018 — Consulter l’historique :** chaque quiz joué dispose d’une page de progression avec une courbe des scores et la liste des tentatives. La courbe présente une échelle adaptée au quiz et les détails d’une tentative au survol ou au focus clavier. La démo conserve au maximum les 30 tentatives les plus récentes au total dans le navigateur.
 
 ### Confidentialité et attribution
 
@@ -94,6 +94,7 @@ Ce document décrit les fonctionnalités disponibles dans la démo statique publ
 - **SC-010 :** les miniatures restent visibles même si les versions les plus haute résolution ne sont pas disponibles, gardent un cadrage 16:9 sur mobile, et les effets visuels au survol ne restent pas activés après un toucher sur un écran tactile.
 - **SC-011 :** après avoir saisi sa réponse et son auto-correction à une question progressive, l’utilisateur passe directement à la question suivante; la comparaison et le score ne s’affichent qu’à la fin du quiz.
 - **SC-012 :** depuis le résultat d’un quiz progressif, le mode lecture permet de parcourir toutes les questions, affiche les deux réponses et leur concordance, repositionne la vidéo sur chaque instant et ne permet aucune modification.
+- **SC-013 :** la courbe de progression affiche une graduation cohérente avec le score maximal, reste lisible sur petit écran et rend le score, le pourcentage et la date de chaque tentative accessibles au survol ou au clavier.
 
 ## Hors périmètre et limites connues
 

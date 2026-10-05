@@ -8,12 +8,13 @@ export function formatDate(value) {
   return new Intl.DateTimeFormat('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' }).format(new Date(value));
 }
 
-export function ScoreChart({ points }) {
+export function ScoreChart({ points, compact = false }) {
   const width = 720;
   const height = 280;
   const padding = { top: 24, right: 28, bottom: 42, left: 48 };
   const max = points[0]?.max || 1;
-  const x = scaleLinear().domain([0, Math.max(points.length - 1, 1)]).range([padding.left, width - padding.right]);
+  const xScale = scaleLinear().domain([0, Math.max(points.length - 1, 1)]).range([padding.left, width - padding.right]);
+  const x = index => points.length === 1 ? width / 2 : xScale(index);
   const y = scaleLinear().domain([0, max]).range([height - padding.bottom, padding.top]);
   const data = points.map((point, index) => ({ ...point, index }));
   const scoreLine = line().x(point => x(point.index)).y(point => y(point.score)).curve(curveMonotoneX);
@@ -27,7 +28,7 @@ export function ScoreChart({ points }) {
 
   return (
     <div className="progression-chart-wrap">
-      <svg className="progression-chart" viewBox={`0 0 ${width} ${height}`} role="img" aria-label={`Évolution du score sur ${points.length} tentative${points.length === 1 ? '' : 's'}`}>
+      <svg className={`progression-chart${compact ? ' is-compact' : ''}`} viewBox={`0 0 ${width} ${height}`} role="img" aria-label={`Évolution du score sur ${points.length} tentative${points.length === 1 ? '' : 's'}`}>
         <defs>
           <linearGradient id={gradientId} x1="0" x2="0" y1="0" y2="1">
             <stop offset="0%" stopColor="var(--green)" stopOpacity=".22" />
