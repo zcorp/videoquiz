@@ -66,7 +66,7 @@ Ce document décrit les fonctionnalités disponibles dans la démo statique publ
 ### Confidentialité et attribution
 
 - **REQ-019 — Conserver les données de quiz sur l’appareil :** les quiz créés, résultats et corrections restent dans le stockage local du navigateur; aucune connexion ni aucun compte n’est requis. La suppression des données du navigateur peut les effacer.
-- **REQ-020 — Soumettre Analytics au consentement :** le tag GA4 n’est chargé qu’après acceptation. Le choix est conservé et modifiable depuis le pied de page; un refus ou retrait bloque les envois futurs. Si le consentement est retiré après le chargement du tag, celui-ci peut rester présent dans la page, mais ne doit plus envoyer d’événements.
+- **REQ-020 — Soumettre Analytics au consentement :** pour améliorer l’expérience utilisateur, le tag GA4 mesure les consultations des sections uniquement après acceptation. Le choix est conservé et modifiable depuis le pied de page; un refus ou retrait bloque les envois futurs. Si le consentement est retiré après le chargement du tag, celui-ci peut rester présent dans la page, mais ne doit plus envoyer d’événements.
 - **REQ-021 — Limiter les données envoyées par l’application :** l’application envoie des vues de sections sans transmettre les réponses ni le contenu saisi dans les quiz. Pour éviter les événements automatiques tels que les défilements, la Mesure améliorée doit également être désactivée dans les paramètres du flux GA4.
 - **REQ-022 — Attribuer la démo :** le pied de page affiche la mention de droits ZCOORE avec l’année courante et un accès aux préférences Analytics.
 

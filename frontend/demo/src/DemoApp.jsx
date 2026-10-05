@@ -126,7 +126,7 @@ export default function DemoApp() {
       {showAnalyticsChoices && <section className="analytics-consent" role="dialog" aria-labelledby="analytics-consent-title">
         <div className="analytics-consent-copy">
           <h2 id="analytics-consent-title">Mesure d’audience</h2>
-          <p>Avec votre accord, Google Analytics mesure les consultations des sections de cette démo. Aucune réponse au quiz ni aucun contenu saisi n’est envoyé. Vous pouvez refuser ou modifier votre choix à tout moment dans le pied de page.</p>
+          <p>Pour améliorer l’expérience utilisateur, nous mesurons avec Google Analytics la consultation des différentes sections de cette démo. Aucune réponse au quiz ni aucun contenu saisi n’est envoyé. Vous pouvez refuser ou modifier votre choix à tout moment dans le pied de page.</p>
           {analyticsStorageWarning && <p className="analytics-consent-warning" role="alert">Votre choix ne peut pas être mémorisé dans ce navigateur. Il s’appliquera uniquement jusqu’à la fermeture de cette page.</p>}
         </div>
         <div className="analytics-consent-actions">

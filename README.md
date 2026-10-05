@@ -24,7 +24,7 @@ Ou utiliser le raccourci :
 
 La démo conserve les quiz, résultats et corrections personnelles des quiz progressifs dans le `localStorage` du navigateur; les corrections sont réutilisées lors des tentatives suivantes, mais ne sont révélées qu’après validation de la réponse personnelle. Les réponses personnelles repartent de zéro. Arrêter le conteneur ne supprime pas ces données.
 
-La mesure d’audience Google Analytics 4 (G-8WSJCE0XQM) est soumise au choix explicite du visiteur. Le tag est chargé uniquement après « Accepter »; « Refuser » est mémorisé et les préférences restent accessibles au pied de page. Seules les vues de sections sont envoyées par l’application; ni les réponses ni le contenu saisi ne sont transmis. Désactiver aussi la mesure améliorée dans les paramètres du flux GA4 pour empêcher la collecte automatique d’événements supplémentaires. Le refus ou le retrait du consentement bloque les envois futurs. Il ne faut pas tester le consentement en envoyant de véritables réponses ou informations personnelles.
+La mesure d’audience Google Analytics 4 (G-8WSJCE0XQM), destinée à améliorer l’expérience utilisateur, est soumise au choix explicite du visiteur. Le tag est chargé uniquement après « Accepter »; « Refuser » est mémorisé et les préférences restent accessibles au pied de page. Seules les vues de sections sont envoyées par l’application; ni les réponses ni le contenu saisi ne sont transmis. Désactiver aussi la mesure améliorée dans les paramètres du flux GA4 pour empêcher la collecte automatique d’événements supplémentaires. Le refus ou le retrait du consentement bloque les envois futurs. Il ne faut pas tester le consentement en envoyant de véritables réponses ou informations personnelles.
 
 ## Déploiement GitHub Pages
 
