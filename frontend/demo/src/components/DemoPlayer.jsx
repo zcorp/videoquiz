@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { CCard, CFormInput } from '@coreui/react';
 import { formatChoiceLabel, formatTime, getVideoUrl } from '../data/demoQuizzes.js';
@@ -53,9 +53,12 @@ export default function DemoPlayer({ quizzes, onAttempt }) {
   const [selfKeys, setSelfKeys] = useState(() => quiz && isProgressiveMode(quiz) ? getQuizCorrections(quiz) : {});
   const [result, setResult] = useState(null);
   const [showVideo, setShowVideo] = useState(true);
+  const [videoReady, setVideoReady] = useState(false);
   const [answerSubmitted, setAnswerSubmitted] = useState(false);
   const [correctionShown, setCorrectionShown] = useState(false);
   const [storageWarning, setStorageWarning] = useState(false);
+  const videoFrame = useRef(null);
+  const questionAt = quiz?.questions[current]?.at ?? 0;
   const conflictingQuiz = quiz?.local ? getQuizUsingVideo(quiz.videoId, quizzes, quiz.id) : undefined;
 
   useEffect(() => {
@@ -64,10 +67,20 @@ export default function DemoPlayer({ quizzes, onAttempt }) {
     setSelfKeys(quiz && isProgressiveMode(quiz) ? getQuizCorrections(quiz) : {});
     setResult(null);
     setShowVideo(true);
+    setVideoReady(false);
     setAnswerSubmitted(false);
     setCorrectionShown(false);
     setStorageWarning(false);
   }, [quizId]);
+
+  useEffect(() => {
+    if (!videoReady || !showVideo || !videoFrame.current?.contentWindow) return;
+    videoFrame.current.contentWindow.postMessage(JSON.stringify({
+      event: 'command',
+      func: 'seekTo',
+      args: [questionAt, true],
+    }), 'https://www.youtube-nocookie.com');
+  }, [current, questionAt, showVideo, videoReady]);
 
   if (!quiz) return <main className="demo-page"><div className="empty-state"><span>404</span><h1>Quiz introuvable</h1><Link className="button button-dark" to="/">Revenir aux quiz</Link></div></main>;
   if (conflictingQuiz) return <main className="demo-page"><div className="empty-state"><span>VIDÉO DÉJÀ ASSOCIÉE</span><h1>Cette vidéo est déjà utilisée par « {conflictingQuiz.title} ».</h1><p>Pour conserver une seule association vidéo, choisissez une autre vidéo avant de reprendre ce quiz.</p><Link className="button button-dark" to={`/edit/${quiz.id}`}>Corriger l’association <span aria-hidden="true">→</span></Link></div></main>;
@@ -154,8 +167,8 @@ export default function DemoPlayer({ quizzes, onAttempt }) {
           <header className="player-title-row"><div><h1>{quiz.title}</h1><p>{quiz.description}</p></div><span className="question-counter">{String(current + 1).padStart(2, '0')} <i>/ {String(quiz.questions.length).padStart(2, '0')}</i></span></header>
           <div className="player-grid">
             <section className="video-column" aria-label="Vidéo de cours">
-              {showVideo ? <div className="video-shell"><iframe key={`${question.id}-${question.at}`} src={getVideoUrl(quiz.videoId, question.at)} title={`Vidéo : ${quiz.videoLabel}, à ${formatTime(question.at)}`} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen /></div> : <div className="video-disabled"><span>Vidéo masquée</span><button className="text-action" onClick={() => setShowVideo(true)}>Afficher</button></div>}
-              <div className="video-caption"><span>REGARDEZ, PUIS RÉPONDEZ</span><button onClick={() => setShowVideo(value => !value)}>{showVideo ? 'Masquer la vidéo' : 'Afficher la vidéo'}</button></div>
+              {showVideo ? <div className="video-shell"><iframe ref={videoFrame} onLoad={() => setVideoReady(true)} src={getVideoUrl(quiz.videoId, quiz.questions[0]?.at ?? 0, true)} title={`Vidéo : ${quiz.videoLabel}, à ${formatTime(question.at)}`} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen /></div> : <div className="video-disabled"><span>Vidéo masquée</span><button className="text-action" onClick={() => setShowVideo(true)}>Afficher</button></div>}
+              <div className="video-caption"><span>REGARDEZ, PUIS RÉPONDEZ</span><button onClick={() => { if (showVideo) setVideoReady(false); setShowVideo(value => !value); }}>{showVideo ? 'Masquer la vidéo' : 'Afficher la vidéo'}</button></div>
               {!quiz.exam && !progressive && <div className="chapter-list"><span className="eyebrow">LES ARRÊTS DU QUIZ</span>{quiz.questions.map((item, index) => <button key={item.id} className={`chapter-row${index === current ? ' is-current' : ''}${answers[item.id] !== undefined ? ' is-done' : ''}`} onClick={() => setCurrent(index)}><span className="chapter-time">{formatTime(item.at)}</span><span>{item.prompt}</span><i>{answers[item.id] !== undefined ? '✓' : index + 1}</i></button>)}</div>}
             </section>
             <CCard key={current} className="question-column" role="region" aria-label="Question du quiz" aria-live="polite">

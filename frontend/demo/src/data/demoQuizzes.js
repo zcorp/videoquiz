@@ -158,8 +158,9 @@ const catalogVideos = [
 
 export const videoLibrary = [...new Map(catalogVideos.map(video => [video.id, video])).values()];
 
-export function getVideoUrl(videoId, seconds = 0) {
-  return `https://www.youtube-nocookie.com/embed/${encodeURIComponent(videoId)}?rel=0&controls=1&disablekb=0&playsinline=1&start=${Math.max(0, Number(seconds) || 0)}`;
+export function getVideoUrl(videoId, seconds = 0, enableApi = false) {
+  const playerOptions = enableApi ? `&enablejsapi=1&origin=${encodeURIComponent(window.location.origin)}` : '';
+  return `https://www.youtube-nocookie.com/embed/${encodeURIComponent(videoId)}?rel=0&controls=1&disablekb=0&playsinline=1&start=${Math.max(0, Number(seconds) || 0)}${playerOptions}`;
 }
 
 export function formatTime(seconds) {

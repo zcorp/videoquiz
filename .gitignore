@@ -6,6 +6,7 @@
 !.github/workflows/demo-pages.yml
 !.github/copilot-instructions.md
 !README.md
+!FEATURES.md
 !DEPLOYMENT.md
 !docker-compose.demo.yml
 !run-demo.sh
