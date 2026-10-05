@@ -182,6 +182,8 @@ button:disabled { cursor: not-allowed; opacity: .45; }
 .question-column { padding: 25px 26px 20px; background: #fff; border: 1px solid var(--rule); }
 .question-card-head { display: flex; justify-content: space-between; align-items: center; }
 .time-chip { padding: 5px 7px; background: #f0f1eb; color: var(--muted); font: 10px var(--mono); }
+.time-chip.is-review-correct { background: #e9f2eb; color: var(--green); }
+.time-chip.is-review-wrong { background: #fff0e9; color: #a64d3c; }
 .question-column h2 { margin: 24px 0 8px; font: 600 29px/1.16 var(--serif); }
 .question-hint { margin: 0 0 22px; color: var(--muted); font-size: 12px; }
 .answer-list { display: grid; gap: 8px; }
@@ -195,6 +197,8 @@ button:disabled { cursor: not-allowed; opacity: .45; }
 .answer-option.is-correct > span { background: var(--green); color: white; }
 .answer-option.is-incorrect { border-color: #be563e; background: #fff0e9; }
 .answer-option.is-incorrect > span { background: #be563e; color: white; }
+.answer-option.is-missed { box-shadow: inset 0 0 0 2px #d5a340; }
+.answer-option.is-missed > i { color: #9a6a12; }
 .instant-feedback { margin-top: 15px; padding: 11px 12px; border-left: 3px solid var(--green); background: #edf4ed; }
 .instant-feedback.is-wrong { border-color: #be563e; background: #fff0e9; }
 .instant-feedback strong { color: var(--green); font-size: 12px; }
@@ -208,6 +212,9 @@ button:disabled { cursor: not-allowed; opacity: .45; }
 .answer-field small { color: #9aa29b; font-size: 10px; font-weight: 400; }
 .answer-field input,.answer-field textarea,.answer-field select { width: 100%; min-height: 45px; padding: 10px 11px; color: var(--ink); border: 1px solid var(--rule); border-radius: 0; background: #fff; font-weight: 400; resize: vertical; }
 .answer-field input::placeholder,.answer-field textarea::placeholder { color: #a5aca5; }
+.answer-field.is-review-correct input { border-color: var(--green); background: #f0f5f0; }
+.answer-field.is-review-wrong input { border-color: #be563e; background: #fff0e9; }
+.answer-field.is-review-correction input { border-color: var(--green); background: #e9f2eb; }
 .question-actions { display: flex; justify-content: space-between; gap: 8px; margin-top: 25px; }
 .question-actions .button { min-height: 43px; padding: 0 12px; font-size: 11px; }
 .privacy-note { display: flex; gap: 7px; margin-top: 17px; padding-top: 13px; border-top: 1px solid #eceee8; color: var(--muted); font-size: 10px; line-height: 1.5; }
@@ -414,7 +421,7 @@ button:disabled { cursor: not-allowed; opacity: .45; }
   .welcome-copy p { max-width: 440px; font-size: 14px; }
   .welcome-topics > div { flex-wrap: nowrap; overflow-x: auto; padding: 2px 0 7px; }
   .topic-quick-chip { flex: 0 0 auto; }
-  .feature-frame { min-height: 255px; }
+  .feature-frame { min-height: 0; aspect-ratio: 16 / 9; }
   .feature-caption { left: 18px; bottom: 17px; }
   .feature-caption strong { font-size: 24px; }
   .feature-play { width: 52px; height: 52px; }
@@ -520,7 +527,7 @@ button:disabled { cursor: not-allowed; opacity: .45; }
   .dashboard-filters { grid-template-columns: 1fr; }
   .welcome-copy h1 { font-size: 34px; }
   .welcome-copy p { font-size: 12px; }
-  .feature-frame { min-height: 205px; }
+  .feature-frame { min-height: 0; aspect-ratio: 16 / 9; }
   .feature-caption { left: 12px; bottom: 12px; }
   .feature-caption strong { font-size: 18px; }
   .feature-caption small { font-size: 10px; }
@@ -660,6 +667,10 @@ body { background: var(--paper); }
 .analytics-consent-reject { background: #fff; color: var(--green); }
 .analytics-consent-accept { background: var(--green); color: #fff; }
 
+@media (hover: none) {
+  .feature-frame:hover > img, .quiz-tile:hover .tile-image { transform: none; }
+}
+
 @media (max-width: 900px) {
   .demo-header-inner { width: calc(100% - 40px); }
   .welcome-band { grid-template-columns: minmax(270px, .86fr) minmax(0, 1.14fr); gap: 25px; padding: 40px 0; }
@@ -676,7 +687,7 @@ body { background: var(--paper); }
   .demo-nav .nav-create { min-height: 37px; margin-left: 1px; padding: 0 9px; }
   .welcome-band { grid-template-columns: 1fr; gap: 23px; padding: 30px 0 26px; }
   .welcome-copy h1 { font-size: 38px; }
-  .feature-frame { min-height: 255px; }
+  .feature-frame { min-height: 0; aspect-ratio: 16 / 9; }
   .feature-caption { left: 18px; bottom: 18px; max-width: calc(100% - 36px); }
   .quiz-grid, .road-video-grid { gap: 12px; }
   .library-tools { grid-template-columns: minmax(0, 1fr); }

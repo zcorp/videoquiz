@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
-import { CBadge, CCard, CCardBody, CCardImage, CCardText, CCardTitle, CFormInput, CFormSelect } from '@coreui/react';
+import { CBadge, CCard, CCardBody, CCardText, CCardTitle, CFormInput, CFormSelect } from '@coreui/react';
 import { videoLibrary } from '../data/demoQuizzes.js';
 import { getQuizUsingVideo } from '../services/localStore.js';
+import YouTubeThumbnail from './YouTubeThumbnail.jsx';
 
 const PAGE_SIZE = 8;
 
@@ -32,7 +33,7 @@ export default function RoadCodeVideosPage({ quizzes }) {
           const existingQuiz = getQuizUsingVideo(video.id, quizzes);
           const existingQuizPath = existingQuiz?.local ? `/edit/${existingQuiz.id}` : existingQuiz ? `/quiz/${existingQuiz.id}` : null;
           return <CCard className="road-video-card" key={video.id}>
-          <div className="road-video-card-media"><CCardImage orientation="top" src={`https://img.youtube.com/vi/${video.id}/hqdefault.jpg`} alt={`Miniature vidéo : ${video.title}`} loading="lazy" /><span className="road-video-play" aria-hidden="true">＋</span>{video.duration && <span className="road-video-duration">{video.duration}</span>}</div>
+          <div className="road-video-card-media"><YouTubeThumbnail className="card-img-top" videoId={video.id} alt={`Miniature vidéo : ${video.title}`} /><span className="road-video-play" aria-hidden="true">＋</span>{video.duration && <span className="road-video-duration">{video.duration}</span>}</div>
           <CCardBody className="road-video-card-copy"><CBadge className="road-video-series-badge" color="warning">{video.theme}</CBadge><CCardTitle>{video.title}</CCardTitle>{existingQuiz ? <Link className="btn btn-outline-success road-video-open" to={existingQuizPath}>{existingQuiz.local ? 'Modifier le quiz associé' : 'Quiz déjà associé'} <span aria-hidden="true">→</span></Link> : <Link className="btn btn-success road-video-open" to={associateVideo(video)}>Associer à un QCM <span aria-hidden="true">→</span></Link>}<CCardText><a className="road-video-source" href={`https://www.youtube.com/watch?v=${video.id}`} target="_blank" rel="noreferrer">Source YouTube ↗</a></CCardText></CCardBody>
         </CCard>;
         })}

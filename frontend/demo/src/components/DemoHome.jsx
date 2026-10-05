@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { CBadge, CCard, CCardBody, CFormInput, CFormSelect } from '@coreui/react';
 import { videoLibrary } from '../data/demoQuizzes.js';
 import { getQuizUsingVideo } from '../services/localStore.js';
+import YouTubeThumbnail from './YouTubeThumbnail.jsx';
 
 const normalizeTopic = value => value.toLocaleUpperCase('fr-FR');
 
@@ -16,7 +17,7 @@ function QuizTile({ quiz, quizzes, attempt, onDelete }) {
   return (
     <CCard className={`quiz-tile${quiz.exam ? ' exam-tile' : ''}`}>
       <Link to={quizPath} className="tile-image-link" aria-label={`${conflictingQuiz ? 'Corriger l’association vidéo de' : quiz.draft ? 'Reprendre' : 'Ouvrir'} ${quiz.title}`}>
-        <img className="tile-image" src={`https://img.youtube.com/vi/${quiz.videoId}/hqdefault.jpg`} alt={`Vidéo : ${quiz.videoLabel}`} loading="lazy" />
+        <YouTubeThumbnail className="tile-image" videoId={quiz.videoId} alt={`Vidéo : ${quiz.videoLabel}`} />
         <span className="tile-play" aria-hidden="true">▶</span>
         <span className="tile-count">{isProgressive ? `${quiz.questionCount ?? quiz.questions.length} questions` : `${quiz.questions.length} ${quiz.questions.length === 1 ? 'question' : 'questions'}`}</span>
       </Link>
@@ -87,7 +88,7 @@ export default function DemoHome({ quizzes, attempts, onDelete }) {
         </div>
         <CCard className="feature-card">
           <Link className="feature-frame" to={featuredDestination} aria-label={featuredQuiz ? `Ouvrir le quiz associé à ${featuredVideo.title}` : `Associer ${featuredVideo.title} à un QCM`}>
-            <img src={`https://img.youtube.com/vi/${featuredVideo.id}/maxresdefault.jpg`} alt={`Aperçu vidéo : ${featuredVideo.title}`} onError={event => { event.currentTarget.src = `https://img.youtube.com/vi/${featuredVideo.id}/hqdefault.jpg`; }} />
+            <YouTubeThumbnail videoId={featuredVideo.id} alt={`Aperçu vidéo : ${featuredVideo.title}`} loading="eager" />
             <span className="feature-wash" />
             <span className="feature-play" aria-hidden="true">＋</span>
             <span className="feature-caption"><CBadge color="warning">{featuredQuiz ? 'QUIZ ASSOCIÉ' : 'VIDÉO À UTILISER'}</CBadge><strong>{featuredVideo.title}</strong><small>{featuredVideo.theme} · {featuredQuiz ? 'Ouvrir le quiz' : 'Créer un QCM express'}</small></span>

@@ -39,6 +39,7 @@ Ce document décrit les fonctionnalités disponibles dans la démo statique publ
 - **REQ-002 — Repérer ses quiz :** chaque carte présente le thème, le titre, la vidéo, le nombre de questions et, si une tentative existe, le dernier score. Les quiz créés localement peuvent être modifiés, repris ou supprimés.
 - **REQ-003 — Accéder rapidement aux vidéos :** l’accueil propose des thèmes vidéo fréquemment représentés et une vidéo mise en avant, avec une action adaptée à l’existence d’un quiz associé.
 - **REQ-004 — Être guidé au premier accès :** un guide de bienvenue présente les actions principales et ne se réaffiche pas après sa fermeture sur le même navigateur.
+- **REQ-023 — Afficher des miniatures nettes sur mobile :** les miniatures utilisent la meilleure résolution disponible pour chaque vidéo, reviennent automatiquement à une version compatible si celle-ci manque et conservent un cadrage adapté au format vidéo sur petit écran.
 
 ### Collection de vidéos
 
@@ -51,7 +52,7 @@ Ce document décrit les fonctionnalités disponibles dans la démo statique publ
 - **REQ-008 — Créer et modifier localement :** l’utilisateur peut définir un titre, une vidéo YouTube, une description facultative et un mode de révision. Le thème est repris de la vidéo choisie ou prend la valeur par défaut. Les modifications sont conservées dans ce navigateur.
 - **REQ-009 — Quiz préparé :** le créateur permet de définir des questions liées à des instants de la vidéo, avec des choix et une bonne réponse ou une réponse courte. Le lecteur donne accès aux chapitres/questions de la vidéo et se déplace à l’instant correspondant sans recharger ni interrompre le lecteur lors du changement de question.
 - **REQ-010 — Révision progressive :** l’utilisateur peut préparer une grille de questions à compléter au fil de la vidéo, régler son nombre de questions et le nombre maximal de choix, puis poursuivre un brouillon incomplet.
-- **REQ-011 — Correction déclarée par l’apprenant :** pour une question progressive, l’apprenant soumet d’abord sa propre réponse. La correction qu’il déclare d’après la vidéo n’est proposée qu’ensuite; elle est mémorisée localement et réutilisée lors des tentatives suivantes. La réponse personnelle n’est pas préremplie.
+- **REQ-011 — Correction déclarée par l’apprenant :** pour une question progressive, l’apprenant soumet d’abord sa propre réponse. La correction qu’il déclare d’après la vidéo n’est proposée qu’ensuite; elle est mémorisée localement et réutilisée lors des tentatives suivantes. La réponse personnelle n’est pas préremplie. Le passage à la question suivante ne demande aucune comparaison intermédiaire.
 - **REQ-012 — Comparaison exacte des choix multiples :** une réponse progressive est considérée correcte uniquement si elle contient toutes les bonnes options et aucune option incorrecte.
 - **REQ-013 — QCM express :** la collection peut ouvrir le créateur en mode QCM express avec la vidéo et ses métadonnées préremplies; le lecteur sait faire passer les quiz existants selon le parcours progressif. Limite actuelle : dans le créateur, le nombre de questions et d’options est réglable, mais les cellules de la grille QCM affichée ne sont pas éditables.
 - **REQ-014 — Examen blanc :** lorsqu’un quiz est marqué comme examen, l’apprenant répond question par question et consulte la correction avant de continuer.
@@ -60,6 +61,7 @@ Ce document décrit les fonctionnalités disponibles dans la démo statique publ
 ### Résultats et progression
 
 - **REQ-016 — Consulter le résultat :** à la fin d’un quiz, l’utilisateur voit son score, son pourcentage et le détail des réponses et corrections disponibles.
+- **REQ-024 — Revoir un quiz en mode lecture :** après la fin d’un quiz progressif, l’utilisateur peut revoir chaque question avec la vidéo repositionnée à l’instant correspondant, sa réponse initiale, son auto-correction et l’indication de concordance. Les réponses ne sont pas modifiables dans ce mode.
 - **REQ-017 — Suivre l’activité :** le tableau de bord récapitule les quiz joués, les tentatives, la moyenne et le meilleur score. La liste des entraînements peut être recherchée, filtrée, triée et présentée avec le détail du quiz sélectionné.
 - **REQ-018 — Consulter l’historique :** chaque quiz joué dispose d’une page de progression avec une courbe des scores et la liste des tentatives. La démo conserve au maximum les 30 tentatives les plus récentes au total dans le navigateur.
 
@@ -89,6 +91,9 @@ Ce document décrit les fonctionnalités disponibles dans la démo statique publ
 - **SC-007 :** aucune réponse au quiz ni aucun texte saisi dans le créateur n’est transmis dans les vues Analytics envoyées par l’application.
 - **SC-008 :** le parcours vidéo et réponses reste utilisable sur mobile et tablette sans perdre l’accès à la vidéo pendant la réponse.
 - **SC-009 :** passer à une autre question ne recharge pas le lecteur YouTube; le lecteur se positionne à l’instant associé à la nouvelle question et conserve son état de lecture.
+- **SC-010 :** les miniatures restent visibles même si les versions les plus haute résolution ne sont pas disponibles, gardent un cadrage 16:9 sur mobile, et les effets visuels au survol ne restent pas activés après un toucher sur un écran tactile.
+- **SC-011 :** après avoir saisi sa réponse et son auto-correction à une question progressive, l’utilisateur passe directement à la question suivante; la comparaison et le score ne s’affichent qu’à la fin du quiz.
+- **SC-012 :** depuis le résultat d’un quiz progressif, le mode lecture permet de parcourir toutes les questions, affiche les deux réponses et leur concordance, repositionne la vidéo sur chaque instant et ne permet aucune modification.
 
 ## Hors périmètre et limites connues
 
