@@ -80,7 +80,7 @@ Ce document décrit les fonctionnalités disponibles dans la démo statique publ
 - **REQ-027 — Importer et fusionner une sauvegarde :** l’utilisateur peut importer une sauvegarde Video Quiz valide de 5 Mo au plus. Les nouveaux quiz et données compatibles sont ajoutés; un quiz dont l’identifiant ou la vidéo est déjà utilisé est ignoré, et aucune donnée existante n’est remplacée.
 - **REQ-028 — Signaler les erreurs de sauvegarde :** un format non reconnu, un fichier illisible ou une erreur de stockage est annoncé dans l’interface et n’est pas présenté comme un import réussi.
 - **REQ-029 — Mesurer les interactions consenties :** après acceptation seulement, Analytics peut recevoir des événements sans paramètre utilisateur pour le démarrage, la reprise, l’abandon ou la fin d’un quiz, l’ouverture du mode lecture et les actions de sauvegarde. Aucune réponse, correction, titre, identifiant de quiz ni donnée saisie n’est inclus.
-- **REQ-030 — Rendre les nouveaux parcours accessibles :** l’import est activable au clavier, ses retours sont annoncés aux technologies d’assistance, les erreurs sont identifiables et les animations sont réduites si l’utilisateur le demande dans son système.
+- **REQ-030 — Rendre les parcours accessibles :** les commandes et retours sont utilisables au clavier et annoncés aux technologies d’assistance, les erreurs sont identifiables, les animations sont réduites selon la préférence du système et les textes courants restent lisibles sur petit écran.
 
 ## Entités fonctionnelles
 
@@ -112,6 +112,7 @@ Ce document décrit les fonctionnalités disponibles dans la démo statique publ
 - **SC-016 :** un fichier invalide ou de plus de 5 Mo produit un message d’erreur accessible et ne modifie pas les données locales.
 - **SC-017 :** sans consentement Analytics accepté, aucun événement d’interaction n’est envoyé; après acceptation, les événements ne contiennent que leur nom, sans paramètres de quiz ou de réponse.
 - **SC-018 :** les commandes d’export et d’import sont accessibles au clavier, les résultats et erreurs d’import sont annoncés sans dépendre uniquement de la couleur, et les préférences de réduction du mouvement sont respectées. Les textes secondaires et corail sur fond blanc ou papier atteignent un contraste de 4,5:1; le contour de focus atteint au moins 3:1.
+- **SC-019 :** hors titres et icônes, les informations secondaires et repères de section sont affichés à 14 px ou plus; les paragraphes et commandes restent à 15 px ou plus (champs à 16 px), y compris sur les petits écrans.
 
 ## Hors périmètre et limites connues
 

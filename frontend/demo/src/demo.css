@@ -760,10 +760,29 @@ body { background: var(--paper); }
 .quiz-resume-notice .text-action { flex: none; }
 
 @media (max-width: 680px) {
-  .quiz-resume-notice { align-items: flex-start; flex-direction: column; gap: 5px; margin: 8px 0; padding: 8px 12px; font-size: 11px; }
+  .quiz-resume-notice { align-items: flex-start; flex-direction: column; gap: 5px; margin: 8px 0; padding: 8px 12px; font-size: 14px; }
   .player-page > .quiz-resume-notice { flex: 0 0 auto; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
+
+.demo-nav { font-size: 15px; }
+.demo-label { font-size: 13px; }
+.demo-page p { font-size: 16px; }
+.demo-page small { font-size: 14px; }
+.demo-page :is(.eyebrow, .section-count, .road-video-count, .road-video-series-badge, .feature-caption .badge) { font-size: 14px; }
+.demo-page :is(.demo-label, .welcome-meta, .feature-caption > span, .feature-caption small, .feature-index, .topic-quick-chip, .topic-quick-chip small, .road-video-collection-link small, .road-video-toolbar > span, .road-video-source, .road-video-duration, .tile-count, .tile-meta, .last-score, .exam-tile-label, .draft-tile-label, .library-result-line, .library-pagination, .video-caption span, .progression-latest, .progression-attempt-number, .dashboard-quick-grid span) { font-size: 14px; }
+.demo-page :is(.button, .btn, .text-action, .back-link, .player-save-note, .video-caption button, .chapter-row, .chapter-row > span:nth-child(2), .chapter-time, .chapter-row i, .time-chip, .question-hint, .answer-field, .answer-field small, .answer-option, .answer-option > span, .question-actions .button, .instant-feedback strong, .instant-feedback p, .exam-progress, .correction-save-status, .privacy-note, .player-title-row p, .editor-heading p, .result-score > span:last-child, .result-copy p, .result-actions .button, .review-row p, .review-row > strong, .dashboard-stats small, .dashboard-quiz-title > span:last-child, .dashboard-metric span, .dashboard-metric small, .dashboard-detail-heading span:last-child, .dashboard-detail-score span, .dashboard-detail-history small, .dashboard-detail-history strong, .dashboard-filter-empty, .dashboard-empty p, .dashboard-quick-grid small, .welcome-guide-intro, .welcome-guide-steps li::before, .welcome-guide-steps span, .pass-status, .editor-section-title > span, .editor-section-title p, .analytics-consent-copy p, .analytics-consent-actions button, .demo-footer, .backup-status, .quiz-resume-notice) { font-size: 15px; }
+.demo-page :is(.library-tools select, .library-search input, .dashboard-filters input, .dashboard-filters select, .road-video-toolbar input, .road-video-toolbar select) { font-size: 16px; }
+.progression-chart .chart-gridline text, .progression-chart .chart-x-tick text, .progression-chart-legend { font-size: 14px; }
+.demo-footer.footer { font-size: 14px; }
+.demo-footer > span:first-child { font-size: 14px; }
+.demo-footer .badge { font-size: 11px; }
+
+@media (max-width: 680px) {
+  .demo-page p { font-size: 16px; }
+  .demo-page :is(.player-title-row p, .editor-heading p, .privacy-note, .exam-progress, .correction-save-status) { font-size: 15px; }
+  .progression-chart .chart-gridline text, .progression-chart .chart-x-tick text, .progression-chart-legend { font-size: 14px; }
 }
