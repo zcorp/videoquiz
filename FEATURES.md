@@ -115,6 +115,7 @@ Ce document décrit les fonctionnalités disponibles dans la démo statique publ
 - **SC-019 :** hors titres et icônes, les informations secondaires et repères de section sont affichés à 14 px ou plus; les paragraphes et commandes restent à 15 px ou plus (champs à 16 px), y compris sur les petits écrans.
 - **SC-020 :** les écrans de la démo appliquent une typographie cohérente avec CoreUI; les formulaires gardent une taille de saisie de 16 px et les numérotations de questions, étapes et tentatives utilisent une hiérarchie visuelle lisible et uniforme.
 - **SC-021 :** la démo utilise une identité de marque cohérente bleu nuit, turquoise et corail dans son en-tête, ses actions, ses états de réponse, sa progression et ses accents; les fonds clairs et les contrastes maintiennent la lisibilité.
+- **SC-022 :** sur téléphone et tablette, les pages utilisent la largeur disponible avec des marges cohérentes, une hiérarchie de titres lisible et des informations clés alignées; les grilles et actions restent utilisables sans défilement horizontal, et le lecteur vidéo reste épinglé sous la barre de navigation pendant le défilement du quiz.
 
 ## Hors périmètre et limites connues
 
