@@ -1,8 +1,10 @@
 import React, { useId } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import { CBadge } from '@coreui/react';
 import { area, curveMonotoneX, line, scaleLinear } from 'd3';
 import { demoQuizzes } from '../data/demoQuizzes.js';
 import { getQuizProgression } from '../services/localStore.js';
+import DemoIcon from './DemoIcon.jsx';
 
 export function formatDate(value) {
   return new Intl.DateTimeFormat('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' }).format(new Date(value));
@@ -66,15 +68,15 @@ export default function ProgressionPage({ quizzes }) {
 
   return (
     <main className="demo-page progression-page">
-      <div className="player-topline"><Link to="/" className="back-link">← Tous les quiz</Link><span className="eyebrow">SUIVI LOCAL</span><span className="player-save-note"><span aria-hidden="true">●</span> Historique sur cet appareil</span></div>
+      <div className="player-topline"><Link to="/" className="back-link"><DemoIcon name="arrowLeft" /> Tous les quiz</Link><span className="eyebrow">SUIVI LOCAL</span><span className="player-save-note"><DemoIcon name="circle" /> Historique sur cet appareil</span></div>
       <header className="progression-heading"><span className="eyebrow">VOTRE ÉVOLUTION</span><h1>{quiz.title}</h1><p>{points.length ? `${points.length} tentative${points.length === 1 ? '' : 's'} enregistrée${points.length === 1 ? '' : 's'} pour ce quiz.` : 'Votre progression apparaîtra après votre première tentative.'}</p></header>
       {points.length ? <>
         <section className="progression-panel" aria-labelledby="progression-chart-title">
           <div className="progression-panel-heading"><div><span className="eyebrow">COURBE DES SCORES</span><h2 id="progression-chart-title">Le score au fil des tentatives</h2></div><span className="progression-latest">Dernier score <strong>{points[points.length - 1].score}/{points[points.length - 1].max}</strong></span></div>
           <ScoreChart points={points} />
         </section>
-        <section className="progression-history" aria-labelledby="progression-history-title"><div className="progression-panel-heading"><div><span className="eyebrow">HISTORIQUE</span><h2 id="progression-history-title">Toutes les tentatives</h2></div></div><div className="progression-history-list">{points.slice().reverse().map((point, index) => <article key={`${point.date}-${index}`}><span className="progression-attempt-number">#{points.length - index}</span><span>{formatDate(point.date)}</span><strong>{point.score}/{point.max}</strong><b>{point.percentage}%</b></article>)}</div></section>
-      </> : <section className="progression-empty"><span className="eyebrow">PAS ENCORE DE SCORE</span><h2>La première tentative lancera la courbe.</h2><p>Répondez au quiz pour commencer à suivre votre évolution sur cet appareil.</p><Link className="button button-dark" to={`/quiz/${quiz.id}`}>Lancer le quiz <span aria-hidden="true">→</span></Link></section>}
+        <section className="progression-history" aria-labelledby="progression-history-title"><div className="progression-panel-heading"><div><span className="eyebrow">HISTORIQUE</span><h2 id="progression-history-title">Toutes les tentatives</h2></div></div><div className="progression-history-list">{points.slice().reverse().map((point, index) => <article key={`${point.date}-${index}`}><CBadge className="progression-attempt-number" color="light">#{points.length - index}</CBadge><span>{formatDate(point.date)}</span><strong>{point.score}/{point.max}</strong><b>{point.percentage}%</b></article>)}</div></section>
+      </> : <section className="progression-empty"><span className="eyebrow">PAS ENCORE DE SCORE</span><h2>La première tentative lancera la courbe.</h2><p>Répondez au quiz pour commencer à suivre votre évolution sur cet appareil.</p><Link className="button button-dark" to={`/quiz/${quiz.id}`}>Lancer le quiz <DemoIcon name="arrowRight" /></Link></section>}
     </main>
   );
 }

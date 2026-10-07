@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { CContainer, CHeader, CNavbar } from '@coreui/react';
+import DemoIcon from './DemoIcon.jsx';
 
 export default function DemoHeader() {
   return (
@@ -15,7 +16,7 @@ export default function DemoHeader() {
         <nav className="demo-nav" aria-label="Navigation principale">
           <NavLink to="/" end>Découvrir</NavLink>
           <NavLink to="/dashboard">Dashboard</NavLink>
-          <NavLink className="btn btn-outline-success nav-create" to="/create"><span aria-hidden="true">＋</span> Créer un quiz</NavLink>
+          <NavLink className="btn btn-outline-success nav-create" to="/create"><DemoIcon name="plus" /> Créer un quiz</NavLink>
         </nav>
         </CContainer>
       </CNavbar>

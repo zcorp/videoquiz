@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { CAlert, CButton, CCard, CFormInput, CFormSelect, CFormTextarea } from '@coreui/react';
+import { CAlert, CBadge, CButton, CCard, CFormInput, CFormSelect, CFormTextarea } from '@coreui/react';
 import { formatChoiceLabel, formatTime, getVideoUrl } from '../data/demoQuizzes.js';
 import { getQuizUsingVideo } from '../services/localStore.js';
 import { extractYouTubeVideoId } from '../services/youtube.js';
+import DemoIcon from './DemoIcon.jsx';
 
 function createId() {
   if (typeof globalThis.crypto?.randomUUID === 'function') return globalThis.crypto.randomUUID();
@@ -169,11 +170,11 @@ export default function DemoEditor({ quiz, quizzes = [], onSave }) {
 
   return (
     <main className="demo-page editor-page">
-      <div className="player-topline"><Link to="/" className="back-link">← Bibliothèque</Link><span className="eyebrow">VOTRE ESPACE LOCAL</span><span className="player-save-note"><span aria-hidden="true">●</span> Enregistrement dans ce navigateur</span></div>
+      <div className="player-topline"><Link to="/" className="back-link"><DemoIcon name="arrowLeft" /> Bibliothèque</Link><span className="eyebrow">VOTRE ESPACE LOCAL</span><span className="player-save-note"><DemoIcon name="circle" /> Enregistrement dans ce navigateur</span></div>
       <div className="editor-heading"><span className="eyebrow">CRÉATEUR DE QUIZ</span><h1>{quiz ? 'Affinez votre quiz.' : 'Une vidéo, vos questions.'}</h1><p>Votre quiz reste dans ce navigateur. La vidéo se charge depuis YouTube.</p></div>
       <form className="editor-form" onSubmit={save}>
         <CCard className="editor-section" role="group">
-          <div className="editor-section-title"><span>01</span><div><h2>La vidéo</h2><p>Collez le lien YouTube que vous souhaitez accompagner.</p></div></div>
+          <div className="editor-section-title"><CBadge className="editor-section-number" color="success">01</CBadge><div><h2>La vidéo</h2><p>Collez le lien YouTube que vous souhaitez accompagner.</p></div></div>
           <div className="editor-fields">
             <label className="answer-field"><span>Titre du quiz</span><CFormInput value={title} onChange={event => setTitle(event.target.value)} maxLength={90} placeholder="Ex. Les bases de la photographie" /></label>
             <label className="answer-field"><span>Lien YouTube</span><CFormInput value={videoUrl} onChange={event => { setVideoUrl(event.target.value); setError(''); }} placeholder="https://www.youtube.com/watch?v=…" inputMode="url" />{conflictingQuiz && <small className="video-duplicate-note">Cette vidéo est déjà utilisée par « {conflictingQuiz.title} ».</small>}</label>
@@ -183,10 +184,10 @@ export default function DemoEditor({ quiz, quizzes = [], onSave }) {
           </div>
         </CCard>
         <CCard className="editor-section" role="group">
-          <div className="editor-section-title"><span>02</span><div><h2>{progressive ? mode === 'qcm' ? 'Grille QCM' : 'Questions au fil de la vidéo' : 'Les questions'}</h2><p>{progressive ? mode === 'qcm' ? 'Une ligne par question, une colonne par choix. Remplissez la grille en une vue.' : 'Définissez une grille vide, puis remplissez chaque case pendant le visionnage.' : 'Choisissez un passage et une façon simple de répondre.'}</p></div></div>
+          <div className="editor-section-title"><CBadge className="editor-section-number" color="success">02</CBadge><div><h2>{progressive ? mode === 'qcm' ? 'Grille QCM' : 'Questions au fil de la vidéo' : 'Les questions'}</h2><p>{progressive ? mode === 'qcm' ? 'Une ligne par question, une colonne par choix. Remplissez la grille en une vue.' : 'Définissez une grille vide, puis remplissez chaque case pendant le visionnage.' : 'Choisissez un passage et une façon simple de répondre.'}</p></div></div>
           <div>
             {progressive && <div className="progressive-grid-settings"><label className="answer-field"><span>Nombre de questions</span><input aria-label="Nombre de questions" type="number" min="1" value={questionCount} onChange={event => changeQuestionCount(event.target.value)} /></label><label className="answer-field"><span>Options maximum par question</span><input aria-label="Options maximum par question" type="number" min="2" value={maxOptions} onChange={event => changeMaxOptions(event.target.value)} /></label></div>}
-            {mode === 'prepared' && <div className="question-pager"><button type="button" className="icon-action" onClick={() => selectQuestion(activeQuestion - 1)} disabled={activeQuestion === 0} aria-label="Question précédente" title="Question précédente">←</button><span>QUESTION {String(activeQuestion + 1).padStart(2, '0')} / {String(questions.length).padStart(2, '0')}</span><button type="button" className="icon-action" onClick={() => selectQuestion(activeQuestion + 1)} disabled={activeQuestion >= questions.length - 1} aria-label="Question suivante" title="Question suivante">→</button></div>}
+            {mode === 'prepared' && <div className="question-pager"><button type="button" className="icon-action" onClick={() => selectQuestion(activeQuestion - 1)} disabled={activeQuestion === 0} aria-label="Question précédente" title="Question précédente"><DemoIcon name="arrowLeft" /></button><span>QUESTION {String(activeQuestion + 1).padStart(2, '0')} / {String(questions.length).padStart(2, '0')}</span><button type="button" className="icon-action" onClick={() => selectQuestion(activeQuestion + 1)} disabled={activeQuestion >= questions.length - 1} aria-label="Question suivante" title="Question suivante"><DemoIcon name="arrowRight" /></button></div>}
             {mode === 'progressive' && <div className="question-slot-board"><div><span className="eyebrow">GRILLE DES {questionCount} QUESTIONS</span><span className="preview-time">{completeCount} renseignée{completeCount === 1 ? '' : 's'} / {questionCount}</span></div><div className="question-slot-grid">{Array.from({ length: questionCount }, (_, slot) => {
               const item = questions[slot];
               const complete = completeQuestion(item);
@@ -196,7 +197,7 @@ export default function DemoEditor({ quiz, quizzes = [], onSave }) {
               {(mode === 'progressive' ? [questions[activeQuestion]] : mode === 'prepared' ? questions.slice(activeQuestion, activeQuestion + 1) : questions).map((item, visibleIndex) => {
                 const index = mode === 'progressive' || mode === 'prepared' ? activeQuestion : visibleIndex;
                 return <article id={mode === 'progressive' ? `progressive-question-${index}` : undefined} className="editor-question" key={item.id}>
-                <div className="editor-question-top"><span className="eyebrow">QUESTION {String(index + 1).padStart(2, '0')}</span>{mode === 'prepared' && questions.length > 1 && <button className="remove-question" type="button" onClick={() => removeQuestion(item.id)} aria-label={`Supprimer la question ${index + 1}`}>×</button>}</div>
+                <div className="editor-question-top"><span className="eyebrow">QUESTION {String(index + 1).padStart(2, '0')}</span>{mode === 'prepared' && questions.length > 1 && <button className="remove-question" type="button" onClick={() => removeQuestion(item.id)} aria-label={`Supprimer la question ${index + 1}`}><DemoIcon name="trash" /></button>}</div>
                 <label className="answer-field"><span>Question</span><CFormInput value={item.prompt} onChange={event => updateQuestion(item.id, { prompt: event.target.value })} placeholder="Que voulez-vous faire retenir ?" /></label>
                 <div className="editor-inline-fields">
                   <label className="answer-field"><span>Moment dans la vidéo</span><CFormInput type="text" inputMode="numeric" value={toTimestamp(item.at)} onChange={event => { const at = toSeconds(event.target.value); updateQuestion(item.id, { at }); setPreviewAt(at); }} aria-label="Moment dans la vidéo, minutes et secondes" /></label>
@@ -210,12 +211,12 @@ export default function DemoEditor({ quiz, quizzes = [], onSave }) {
               </article>;
               })}
             </div>}
-            {mode === 'prepared' && <div className="question-add-row"><button type="button" className="add-question" onClick={() => { setQuestions(items => [...items, emptyQuestion(mode)]); setActiveQuestion(questions.length); }}><span>＋</span> Ajouter une question</button><span>{questions.length}</span></div>}
+            {mode === 'prepared' && <div className="question-add-row"><button type="button" className="add-question" onClick={() => { setQuestions(items => [...items, emptyQuestion(mode)]); setActiveQuestion(questions.length); }}><span><DemoIcon name="plus" /></span> Ajouter une question</button><span>{questions.length}</span></div>}
             {progressive && videoId && <div className="editor-video-preview"><div><span className="eyebrow">APERÇU DE LA VIDÉO</span><span className="preview-time">Départ à {formatTime(previewAt)}</span></div><div className="video-shell"><iframe key={`${videoId}-${previewAt}`} src={getVideoUrl(videoId, previewAt)} title={`Aperçu vidéo à ${formatTime(previewAt)}`} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen /></div></div>}
           </div>
         </CCard>
         {error && <CAlert color="danger" role="alert" className="editor-error">{error}{conflictingQuiz && <div><Link to={conflictingQuiz.local ? `/edit/${conflictingQuiz.id}` : `/quiz/${conflictingQuiz.id}`}>{conflictingQuiz.local ? 'Modifier ce quiz' : 'Ouvrir ce quiz'}</Link></div>}</CAlert>}
-        <div className="editor-submit"><Link className="btn btn-outline-secondary button button-quiet" to="/">Annuler</Link><CButton type="submit" className="button button-dark" color="success">{mode === 'qcm' ? 'Créer et lancer le QCM' : progressive ? readyToPlay ? 'Enregistrer et réviser' : 'Enregistrer le brouillon' : quiz ? 'Enregistrer les changements' : 'Enregistrer et essayer'} <span aria-hidden="true">→</span></CButton></div>
+        <div className="editor-submit"><Link className="btn btn-outline-secondary button button-quiet" to="/">Annuler</Link><CButton type="submit" className="button button-dark" color="success">{mode === 'qcm' ? 'Créer et lancer le QCM' : progressive ? readyToPlay ? 'Enregistrer et réviser' : 'Enregistrer le brouillon' : quiz ? 'Enregistrer les changements' : 'Enregistrer et essayer'} <DemoIcon name="arrowRight" /></CButton></div>
       </form>
     </main>
   );

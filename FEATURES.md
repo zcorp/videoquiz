@@ -113,6 +113,8 @@ Ce document décrit les fonctionnalités disponibles dans la démo statique publ
 - **SC-017 :** sans consentement Analytics accepté, aucun événement d’interaction n’est envoyé; après acceptation, les événements ne contiennent que leur nom, sans paramètres de quiz ou de réponse.
 - **SC-018 :** les commandes d’export et d’import sont accessibles au clavier, les résultats et erreurs d’import sont annoncés sans dépendre uniquement de la couleur, et les préférences de réduction du mouvement sont respectées. Les textes secondaires et corail sur fond blanc ou papier atteignent un contraste de 4,5:1; le contour de focus atteint au moins 3:1.
 - **SC-019 :** hors titres et icônes, les informations secondaires et repères de section sont affichés à 14 px ou plus; les paragraphes et commandes restent à 15 px ou plus (champs à 16 px), y compris sur les petits écrans.
+- **SC-020 :** les écrans de la démo appliquent une typographie cohérente avec CoreUI; les formulaires gardent une taille de saisie de 16 px et les numérotations de questions, étapes et tentatives utilisent une hiérarchie visuelle lisible et uniforme.
+- **SC-021 :** la démo utilise une identité de marque cohérente bleu nuit, turquoise et corail dans son en-tête, ses actions, ses états de réponse, sa progression et ses accents; les fonds clairs et les contrastes maintiennent la lisibilité.
 
 ## Hors périmètre et limites connues
 
