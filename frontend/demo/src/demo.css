@@ -1534,7 +1534,7 @@ body, .demo-shell { background: var(--paper); color: var(--ink); }
   .welcome-copy { max-width: 640px; }
   .welcome-copy h1 { max-width: 640px; font-size: clamp(42px, 6vw, 56px); }
   .demo-page .welcome-copy > .welcome-description { max-width: 640px; font-size: 20px; line-height: 1.5; }
-  .feature-card { order: -1; }
+  .feature-card { order: 0; }
   .feature-frame { min-height: 0; aspect-ratio: 16 / 9; }
   .feature-cycle-slide { min-height: 350px; aspect-ratio: auto; }
   .welcome-topics { width: 100%; min-width: 0; align-items: flex-start; flex-direction: column; gap: 9px; margin-bottom: 23px; padding-top: 13px; }
