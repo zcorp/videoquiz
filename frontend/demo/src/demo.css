@@ -1099,6 +1099,8 @@ body, .demo-shell { background: var(--paper); color: var(--ink); }
   .demo-menu-toggle:focus-visible { outline: 3px solid rgba(36,92,75,.35); outline-offset: 2px; }
   .demo-nav { position: absolute; top: calc(100% + 8px); right: 0; z-index: 20; display: none; width: min(280px, calc(100vw - 32px)); align-items: stretch; flex-direction: column; gap: 5px; padding: 10px; border: 1px solid var(--rule); border-radius: 10px; background: #fff; box-shadow: 0 14px 34px rgba(32,40,36,.16); font-size: 14px; }
   .demo-nav.is-open { display: flex; }
+  .demo-nav a:not(.nav-create) { color: var(--navy); }
+  .demo-nav a.active:not(.nav-create), .demo-nav > a:not(.nav-create):hover { border-left: 3px solid var(--turquoise); background: #e6f4f3; color: var(--navy); }
   .demo-nav > a:not(.nav-create) { display: flex; min-height: 44px; align-items: center; padding: 0 12px; border-radius: 7px; }
   .demo-nav .nav-create { width: 100%; min-height: 44px; justify-content: flex-start; margin: 2px 0 0; padding: 0 12px; border: 0; font-size: 14px; }
 }
