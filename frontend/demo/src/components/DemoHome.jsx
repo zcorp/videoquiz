@@ -90,11 +90,10 @@ export default function DemoHome({ quizzes, attempts, onDelete }) {
     <main className="demo-page">
       <section className="welcome-band">
         <div className="welcome-copy">
-          <span className="eyebrow eyebrow-dark">BIBLIOTHÈQUE VIDÉO</span>
-          <h1>Choisis une série.<br /><em>Crée ton QCM.<br />Entraîne-toi à ton rythme.</em></h1>
+          <div className="welcome-kicker"><span className="eyebrow eyebrow-dark">APPRENDRE EN REGARDANT</span><span>VIDÉO <i /> QUIZ <i /> PROGRESSION</span></div>
+          <h1><span>Choisis une série.</span><span>Crée ton QCM.</span><span>Entraîne-toi à ton rythme.</span></h1>
           <p className="welcome-description">Associe une vidéo de ton choix à une grille de réponses, teste tes connaissances et suis ta progression. Tes quiz et tes résultats restent enregistrés sur ton appareil.</p>
           <div className="welcome-actions"><Link className="btn btn-success button button-dark" to="/create">Démarrer <DemoIcon name="arrowRight" /></Link><Link className="btn btn-outline-secondary button button-quiet" to="/tutoriel">Découvrir le principe <DemoIcon name="arrowRight" /></Link></div>
-          <div className="welcome-topics" aria-label="Accès rapide aux thèmes vidéo"><span className="eyebrow">Pas d’idée ? Commence par un thème</span><div>{quickTopics.map(item => <Link key={item.topic} className="btn btn-outline-success topic-quick-chip" to={`/videos?theme=${encodeURIComponent(item.topic)}`}>{item.topic}<small>{item.count}</small></Link>)}</div></div>
         </div>
         <CCard className="feature-card">
           <div className="feature-carousel" role="region" aria-label="Exemples de quiz vidéo" aria-roledescription="carrousel">
@@ -142,6 +141,7 @@ export default function DemoHome({ quizzes, attempts, onDelete }) {
           </div>
         </CCard>
       </section>
+      <nav className="welcome-topics" aria-label="Accès rapide aux thèmes vidéo"><span className="eyebrow">Ou explore par thème</span><div>{quickTopics.map(item => <Link key={item.topic} className="btn btn-outline-success topic-quick-chip" to={`/videos?theme=${encodeURIComponent(item.topic)}`}>{item.topic}<small>{item.count}</small></Link>)}</div></nav>
 
       <section className="library-section" aria-labelledby="library-title">
         <div className="section-heading">
