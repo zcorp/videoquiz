@@ -31,7 +31,7 @@ Ce document décrit les fonctionnalités disponibles dans la démo statique publ
 
 **Étant donné** une ou plusieurs tentatives enregistrées, **lorsque** l’utilisateur ouvre « Suivi », **alors** il retrouve les graphiques de chaque quiz joué et peut consulter l’historique détaillé de chacun.
 
-**Étant donné** un utilisateur qui ouvre le tableau de bord, **lorsque** il n’a pas encore joué de quiz, **alors** il voit une invitation à commencer sans statistiques vides. Après ses premières tentatives, quatre cartes résument les quiz joués, le nombre de tentatives, le score moyen et le meilleur score; le dashboard met aussi en avant la reprise du dernier quiz et quelques suggestions. Les graphiques et l’historique sont accessibles dans « Suivi ». Les outils de sauvegarde restent disponibles dans une section repliée.
+**Étant donné** un utilisateur qui ouvre le tableau de bord, **lorsque** il n’a pas encore joué de quiz, **alors** il voit une invitation à commencer sans statistiques vides. Après ses premières tentatives, quatre cartes résument les quiz joués, le nombre de tentatives, le score moyen et le meilleur score; le dashboard met aussi en avant la reprise du dernier quiz et quelques suggestions. Sur ordinateur, les entraînements et leurs graphiques restent consultables dans le dashboard; sur mobile et tablette, le dashboard conserve sa présentation allégée et les graphiques sont accessibles dans « Suivi ». Les outils de sauvegarde restent disponibles dans une section repliée.
 
 **Étant donné** un appareil mobile ou une tablette, **lorsque** l’utilisateur navigue dans la démo, **alors** une barre fixe en bas donne accès à « Découvrir », « Vidéos », « Suivi » et « Créer », respecte la zone de sécurité de l’écran et reste masquée pendant un quiz et la création d’un quiz.
 
@@ -135,7 +135,7 @@ Ce document décrit les fonctionnalités disponibles dans la démo statique publ
 - **SC-023 :** depuis la page d’aide, l’utilisateur peut en un clic atteindre la bibliothèque, les vidéos ou le tableau de bord; les principes du projet, le stockage local et les choix de confidentialité sont expliqués sans lien vers une page externe.
 - **SC-024 :** sur une largeur de 900 px CSS ou moins, la navigation basse fixe contient les liens Découvrir, Vidéos, Suivi et Créer, reste au-dessus de la zone de sécurité, et réserve un espace de contenu équivalent. Sur une page de quiz ou du créateur, la navigation basse est masquée et l’espace réservé est retiré.
 - **SC-025 :** la page Suivi affiche les courbes de chaque quiz joué et permet d’ouvrir son historique complet; sans tentative, elle propose un accès direct à la bibliothèque.
-- **SC-026 :** le dashboard ne montre ni statistiques vides ni graphiques; après une tentative, il met en évidence le quiz le plus récemment joué, son dernier score et une action pour le reprendre.
+- **SC-026 :** le dashboard ne montre pas de statistiques vides; après une tentative, ses quatre cartes affichent les quiz joués, les tentatives, le score moyen et le meilleur score, et il met en évidence le quiz récemment joué avec une action de reprise. Au-delà de 900 px CSS, les entraînements et leur graphique restent visibles et sélectionnables dans le dashboard; à 900 px ou moins, cette zone est remplacée par l’accès mobile allégé et les graphiques restent accessibles dans « Suivi ».
 
 ## Hors périmètre et limites connues
 
