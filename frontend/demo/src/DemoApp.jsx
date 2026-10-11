@@ -11,6 +11,7 @@ import WelcomeGuide from './components/WelcomeGuide.jsx';
 import RoadCodeVideosPage from './components/RoadCodeVideosPage.jsx';
 import HelpPage from './components/HelpPage.jsx';
 import TrackingPage from './components/TrackingPage.jsx';
+import TutorialPage from './components/TutorialPage.jsx';
 import MobileBottomNavigation from './components/MobileBottomNavigation.jsx';
 import { demoQuizzes } from './data/demoQuizzes.js';
 import { deleteLocalQuiz, getAttempts, getLocalQuizzes, saveAttempt, saveLocalQuiz } from './services/localStore.js';
@@ -126,6 +127,7 @@ export default function DemoApp() {
         <Route path="/dashboard" element={<DashboardPage quizzes={quizzes} attempts={attempts} onDataChanged={refreshLocalData} onTrack={trackInteraction} />} />
         <Route path="/suivi" element={<TrackingPage quizzes={quizzes} attempts={attempts} />} />
         <Route path="/help" element={<HelpPage onOpenAnalyticsPreferences={() => setShowAnalyticsChoices(true)} />} />
+        <Route path="/tutoriel" element={<TutorialPage />} />
         <Route path="/videos" element={<RoadCodeVideosPage quizzes={quizzes} />} />
         <Route path="/videos/code-route" element={<RoadCodeVideosPage quizzes={quizzes} />} />
         <Route path="/quiz/:quizId" element={<DemoPlayer quizzes={quizzes} onAttempt={addAttempt} onTrack={trackInteraction} />} />

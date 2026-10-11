@@ -15,6 +15,12 @@ Ce document décrit les fonctionnalités disponibles dans la démo statique publ
 
 **Étant donné** la bibliothèque de quiz, **lorsque** l’utilisateur recherche un terme, choisit un thème ou un mode, ou modifie le tri, **alors** la liste est filtrée ou réordonnée et peut être parcourue par pages.
 
+**Étant donné** l’accueil, **lorsque** l’utilisateur parcourt le carrousel d’exemples, **alors** il peut découvrir des vidéos de quiz sur différents thèmes ainsi qu’une illustration du cycle vidéo, QCM et progression, avec des liens directs vers les quiz ou le tutoriel.
+
+### Comprendre le principe et commencer
+
+**Étant donné** l’accueil, **lorsque** l’utilisateur veut comprendre le parcours ou commencer directement, **alors** il peut ouvrir un tutoriel en trois étapes ou accéder au créateur de quiz. Le tutoriel explique qu’il peut utiliser n’importe quelle vidéo YouTube et présente la collection intégrée comme des exemples pour démarrer.
+
 ### Choisir une vidéo
 
 **Étant donné** la collection de vidéos, **lorsque** l’utilisateur recherche un titre ou filtre par thème, **alors** seules les vidéos correspondantes sont affichées. Si une vidéo est déjà associée à un quiz, l’interface permet d’ouvrir ce quiz au lieu d’en créer un doublon.

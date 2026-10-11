@@ -49,6 +49,7 @@ export default function DemoHome({ quizzes, attempts, onDelete }) {
   const [sort, setSort] = useState('recent');
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [page, setPage] = useState(1);
+  const [activeFeatureSlide, setActiveFeatureSlide] = useState(0);
   const pageSize = 9;
   const activeFilterCount = Number(modeFilter !== 'all') + Number(topicFilter !== 'all');
   const topicCounts = [...new Set(videoLibrary.map(video => normalizeTopic(video.theme)))]
@@ -60,6 +61,12 @@ export default function DemoHome({ quizzes, attempts, onDelete }) {
   const featuredDestination = featuredQuiz
     ? featuredQuiz.local ? `/edit/${featuredQuiz.id}` : `/quiz/${featuredQuiz.id}`
     : `/create?mode=qcm&video=${featuredVideo.id}&title=${encodeURIComponent(featuredVideo.title)}&topic=${encodeURIComponent(featuredVideo.theme.toLocaleUpperCase('fr-FR'))}`;
+  const cultureVideo = videoLibrary.find(video => normalizeTopic(video.theme) === 'CULTURE GÉNÉRALE') ?? videoLibrary.find(video => video.theme !== featuredVideo.theme);
+  const cultureQuiz = cultureVideo ? getQuizUsingVideo(cultureVideo.id, quizzes) : undefined;
+  const cultureDestination = cultureVideo && (cultureQuiz
+    ? cultureQuiz.local ? `/edit/${cultureQuiz.id}` : `/quiz/${cultureQuiz.id}`
+    : `/create?mode=qcm&video=${cultureVideo.id}&title=${encodeURIComponent(cultureVideo.title)}&topic=${encodeURIComponent(cultureVideo.theme.toLocaleUpperCase('fr-FR'))}`);
+  const featureSlideCount = cultureVideo ? 3 : 2;
   const filteredQuizzes = useMemo(() => {
     const normalizedQuery = query.trim().toLocaleLowerCase();
     return quizzes.filter(quiz => {
@@ -84,25 +91,59 @@ export default function DemoHome({ quizzes, attempts, onDelete }) {
       <section className="welcome-band">
         <div className="welcome-copy">
           <span className="eyebrow eyebrow-dark">BIBLIOTHÈQUE VIDÉO</span>
-          <h1>Choisir une série.<br /><em>Créer son QCM.</em></h1>
-          <p>Parcours les thèmes, associe une vidéo à une grille de réponses, puis entraîne-toi à ton rythme. Quiz et résultats restent sur cet appareil.</p>
-          <div className="welcome-actions"><Link className="btn btn-success button button-dark" to="/videos">Parcourir les vidéos <DemoIcon name="arrowRight" /></Link><Link className="btn btn-outline-secondary button button-quiet" to="/dashboard">Voir mon suivi <DemoIcon name="externalLink" /></Link></div>
-          <div className="welcome-topics" aria-label="Accès rapide aux thèmes vidéo"><span className="eyebrow">THÈMES</span><div>{quickTopics.map(item => <Link key={item.topic} className="btn btn-outline-success topic-quick-chip" to={`/videos?theme=${encodeURIComponent(item.topic)}`}>{item.topic}<small>{item.count}</small></Link>)}</div></div>
+          <h1>Choisis une série.<br /><em>Crée ton QCM.</em></h1>
+          <p>Associe n’importe quelle vidéo à une grille de réponses, puis entraîne-toi à ton rythme. Quiz et résultats restent sur cet appareil.</p>
+          <div className="welcome-actions"><Link className="btn btn-success button button-dark" to="/create">Démarrer <DemoIcon name="arrowRight" /></Link><Link className="btn btn-outline-secondary button button-quiet" to="/tutoriel">Découvrir le principe <DemoIcon name="arrowRight" /></Link></div>
+          <div className="welcome-topics" aria-label="Accès rapide aux thèmes vidéo"><span className="eyebrow">Pas d’idée ? Commence par un thème</span><div>{quickTopics.map(item => <Link key={item.topic} className="btn btn-outline-success topic-quick-chip" to={`/videos?theme=${encodeURIComponent(item.topic)}`}>{item.topic}<small>{item.count}</small></Link>)}</div></div>
         </div>
         <CCard className="feature-card">
-          <Link className="feature-frame" to={featuredDestination} aria-label={featuredQuiz ? `Ouvrir le quiz associé à ${featuredVideo.title}` : `Associer ${featuredVideo.title} à un QCM`}>
-            <YouTubeThumbnail videoId={featuredVideo.id} alt={`Aperçu vidéo : ${featuredVideo.title}`} loading="eager" />
-            <span className="feature-wash" />
-            <span className="feature-play"><DemoIcon name="plus" /></span>
-            <span className="feature-caption"><CBadge color="warning">{featuredQuiz ? 'QUIZ ASSOCIÉ' : 'VIDÉO À UTILISER'}</CBadge><strong>{featuredVideo.title}</strong><small>{featuredVideo.theme} · {featuredQuiz ? 'Ouvrir le quiz' : 'Créer un QCM express'}</small></span>
-            <span className="feature-index">01 <i>/ {String(videoLibrary.length).padStart(2, '0')}</i></span>
-          </Link>
+          <div className="feature-carousel" role="region" aria-label="Exemples de quiz vidéo" aria-roledescription="carrousel">
+            <div className="feature-carousel-content" aria-live="polite">
+              {activeFeatureSlide === 0 && <Link className="feature-frame" to={featuredDestination} aria-label={featuredQuiz ? `Ouvrir le quiz associé à ${featuredVideo.title}` : `Associer ${featuredVideo.title} à un QCM`}>
+                <YouTubeThumbnail videoId={featuredVideo.id} alt={`Aperçu vidéo : ${featuredVideo.title}`} loading="eager" />
+                <span className="feature-wash" />
+                <span className="feature-play"><DemoIcon name="plus" /></span>
+                <span className="feature-caption"><CBadge color="warning">{featuredQuiz ? 'QUIZ ASSOCIÉ' : 'VIDÉO À UTILISER'}</CBadge><strong>{featuredVideo.title}</strong><small>{featuredVideo.theme} · {featuredQuiz ? 'Ouvrir le quiz' : 'Créer un QCM express'}</small></span>
+                <span className="feature-index">EXEMPLE 01</span>
+              </Link>}
+              {activeFeatureSlide === 1 && <div className="feature-cycle-slide">
+                <div className="feature-cycle-heading">
+                  <span className="eyebrow">LE PRINCIPE</span>
+                  <h2>Une vidéo devient un parcours actif.</h2>
+                  <p>Le lecteur s’adapte à la plateforme vidéo; le cycle d’apprentissage reste le même.</p>
+                </div>
+                <div className="feature-cycle" role="img" aria-label="Une vidéo mène à un QCM, puis à un entraînement et au suivi de la progression">
+                  <div className="feature-cycle-node"><span className="feature-cycle-icon"><DemoIcon name="mediaPlay" /></span><strong>VIDÉO</strong><small>À regarder</small></div>
+                  <DemoIcon className="feature-cycle-arrow" name="arrowRight" />
+                  <div className="feature-cycle-node"><span className="feature-cycle-icon"><DemoIcon name="check" /></span><strong>QCM</strong><small>À préparer</small></div>
+                  <DemoIcon className="feature-cycle-arrow" name="arrowRight" />
+                  <div className="feature-cycle-node"><span className="feature-cycle-icon"><DemoIcon name="chart" /></span><strong>PROGRÈS</strong><small>À suivre</small></div>
+                </div>
+                <Link className="feature-cycle-link" to="/tutoriel">Découvrir comment ça marche <DemoIcon name="arrowRight" /></Link>
+              </div>}
+              {activeFeatureSlide === 2 && cultureVideo && cultureDestination && <Link className="feature-frame" to={cultureDestination} aria-label={cultureQuiz ? `Ouvrir le quiz associé à ${cultureVideo.title}` : `Associer ${cultureVideo.title} à un QCM`}>
+                <YouTubeThumbnail videoId={cultureVideo.id} alt={`Aperçu vidéo : ${cultureVideo.title}`} loading="lazy" />
+                <span className="feature-wash" />
+                <span className="feature-play"><DemoIcon name="plus" /></span>
+                <span className="feature-caption"><CBadge color="warning">{cultureQuiz ? 'QUIZ ASSOCIÉ' : 'AUTRE THÈME'}</CBadge><strong>{cultureVideo.title}</strong><small>{cultureVideo.theme} · {cultureQuiz ? 'Ouvrir le quiz' : 'Créer un QCM express'}</small></span>
+                <span className="feature-index">AUTRE EXEMPLE</span>
+              </Link>}
+            </div>
+            <div className="feature-carousel-controls">
+              <button type="button" className="feature-carousel-arrow" onClick={() => setActiveFeatureSlide(slide => (slide - 1 + featureSlideCount) % featureSlideCount)} aria-label="Exemple précédent"><DemoIcon name="arrowLeft" /></button>
+              <div className="feature-carousel-pagination" aria-label="Choisir un exemple">
+                {Array.from({ length: featureSlideCount }, (_, slide) => <button key={slide} type="button" className={`feature-carousel-dot${slide === activeFeatureSlide ? ' is-active' : ''}`} onClick={() => setActiveFeatureSlide(slide)} aria-label={`Afficher ${slide === 0 ? 'le quiz du code de la route' : slide === 1 ? 'le principe du parcours' : cultureVideo?.theme}`} aria-pressed={slide === activeFeatureSlide} />)}
+              </div>
+              <span className="feature-carousel-count" aria-hidden="true">{String(activeFeatureSlide + 1).padStart(2, '0')} / {String(featureSlideCount).padStart(2, '0')}</span>
+              <button type="button" className="feature-carousel-arrow" onClick={() => setActiveFeatureSlide(slide => (slide + 1) % featureSlideCount)} aria-label="Exemple suivant"><DemoIcon name="arrowRight" /></button>
+            </div>
+          </div>
         </CCard>
       </section>
 
       <section className="library-section" aria-labelledby="library-title">
         <div className="section-heading">
-          <div><span className="eyebrow">À VOUS DE JOUER</span><h2 id="library-title">Choisissez un sujet</h2></div>
+          <div><span className="eyebrow">À TOI DE JOUER</span><h2 id="library-title">Choisis un sujet</h2></div>
           <span className="section-count">{quizzes.length.toString().padStart(2, '0')} QUIZ</span>
         </div>
         <div className="library-tools" aria-label="Recherche et filtres de la bibliothèque">
@@ -135,11 +176,11 @@ export default function DemoHome({ quizzes, attempts, onDelete }) {
         </div>}
         <div className="quiz-grid">
           {visibleQuizzes.map(quiz => <QuizTile key={quiz.id} quiz={quiz} quizzes={quizzes} attempt={attempts.find(item => item.quizId === quiz.id)} onDelete={onDelete} />)}
-          {!visibleQuizzes.length && <div className="library-empty"><DemoIcon name="magnifyingGlass" /><h3>Aucun quiz trouvé</h3><p>Modifiez les filtres ou votre recherche.</p></div>}
+          {!visibleQuizzes.length && <div className="library-empty"><DemoIcon name="magnifyingGlass" /><h3>Aucun quiz trouvé</h3><p>Modifie les filtres ou ta recherche.</p></div>}
           <Link to="/create" className="create-tile">
             <span className="create-symbol"><DemoIcon name="plus" /></span>
-            <span className="eyebrow">VOTRE TOUR</span>
-            <strong>Ajoutez votre propre quiz</strong>
+            <span className="eyebrow">À TON TOUR</span>
+            <strong>Ajoute ton propre quiz</strong>
             <span>Il restera dans ce navigateur, rien ne part sur un serveur.</span>
             <span className="text-action">Créer localement <b><DemoIcon name="externalLink" /></b></span>
           </Link>
