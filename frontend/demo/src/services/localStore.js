@@ -77,7 +77,9 @@ function isAnswerMap(value, quiz) {
     if (!question) return false;
     if (question.type === 'text') return typeof answer === 'string';
     if (question.type === 'multi_choice') {
-      return Array.isArray(answer) && answer.every(index => Number.isInteger(index) && index >= 0 && index < question.options.length);
+      return Array.isArray(answer)
+        && new Set(answer).size === answer.length
+        && answer.every(index => Number.isInteger(index) && index >= 0 && index < question.options.length);
     }
     return Number.isInteger(answer) && answer >= 0 && answer < question.options.length;
   });
