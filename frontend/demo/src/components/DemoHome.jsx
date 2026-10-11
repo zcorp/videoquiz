@@ -47,8 +47,10 @@ export default function DemoHome({ quizzes, attempts, onDelete }) {
   const [modeFilter, setModeFilter] = useState('all');
   const [topicFilter, setTopicFilter] = useState('all');
   const [sort, setSort] = useState('recent');
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const [page, setPage] = useState(1);
   const pageSize = 9;
+  const activeFilterCount = Number(modeFilter !== 'all') + Number(topicFilter !== 'all');
   const topicCounts = [...new Set(videoLibrary.map(video => normalizeTopic(video.theme)))]
     .map(topic => ({ topic, count: videoLibrary.filter(video => normalizeTopic(video.theme) === topic).length }))
     .sort((left, right) => right.count - left.count || left.topic.localeCompare(right.topic, 'fr'));
@@ -103,13 +105,34 @@ export default function DemoHome({ quizzes, attempts, onDelete }) {
           <div><span className="eyebrow">À VOUS DE JOUER</span><h2 id="library-title">Choisissez un sujet</h2></div>
           <span className="section-count">{quizzes.length.toString().padStart(2, '0')} QUIZ</span>
         </div>
-        <div className="library-tools" aria-label="Filtres de la bibliothèque">
+        <div className="library-tools" aria-label="Recherche et filtres de la bibliothèque">
           <label className="library-search"><DemoIcon name="magnifyingGlass" /><CFormInput value={query} onChange={event => updateFilter(setQuery)(event.target.value)} placeholder="Rechercher un quiz…" aria-label="Rechercher un quiz" /></label>
-          <CFormSelect value={modeFilter} onChange={event => updateFilter(setModeFilter)(event.target.value)} aria-label="Filtrer par type"><option value="all">Tous les types</option><option value="prepared">Quiz préparés</option><option value="progressive">Progressifs</option><option value="qcm">QCM express</option></CFormSelect>
-          <CFormSelect value={topicFilter} onChange={event => updateFilter(setTopicFilter)(event.target.value)} aria-label="Filtrer par thème"><option value="all">Tous les thèmes</option>{topics.map(topic => <option key={topic} value={topic}>{topic}</option>)}</CFormSelect>
-          <CFormSelect value={sort} onChange={event => updateFilter(setSort)(event.target.value)} aria-label="Trier les quiz"><option value="recent">Activité récente</option><option value="title">Titre A-Z</option><option value="questions">Nombre de questions</option></CFormSelect>
+          <button
+            type="button"
+            className="btn btn-outline-secondary library-filter-toggle"
+            aria-expanded={filtersOpen}
+            aria-controls="library-filters"
+            onClick={() => setFiltersOpen(open => !open)}
+          >
+            {filtersOpen ? 'Masquer les filtres' : 'Filtres'}
+            {activeFilterCount > 0 && <span className="library-filter-count">{activeFilterCount}</span>}
+          </button>
+          <div id="library-filters" className={`library-filter-panel${filtersOpen ? ' is-open' : ''}`}>
+            <CFormSelect value={modeFilter} onChange={event => updateFilter(setModeFilter)(event.target.value)} aria-label="Filtrer par type"><option value="all">Tous les types</option><option value="prepared">Quiz préparés</option><option value="progressive">Progressifs</option><option value="qcm">QCM express</option></CFormSelect>
+            <CFormSelect value={topicFilter} onChange={event => updateFilter(setTopicFilter)(event.target.value)} aria-label="Filtrer par thème"><option value="all">Tous les thèmes</option>{topics.map(topic => <option key={topic} value={topic}>{topic}</option>)}</CFormSelect>
+          </div>
         </div>
-        <div className="library-result-line"><span>{filteredQuizzes.length} quiz affiché{filteredQuizzes.length === 1 ? '' : 's'}</span>{(query || modeFilter !== 'all' || topicFilter !== 'all') && <button type="button" className="clear-filters" onClick={() => { setQuery(''); setModeFilter('all'); setTopicFilter('all'); setPage(1); }}>Réinitialiser <DemoIcon name="x" /></button>}</div>
+        <div className="library-results-toolbar">
+          <span className="library-result-line">{filteredQuizzes.length} quiz affiché{filteredQuizzes.length === 1 ? '' : 's'}</span>
+          <div className="library-results-actions">
+            <label className="library-sort"><span>Trier</span><CFormSelect value={sort} onChange={event => updateFilter(setSort)(event.target.value)} aria-label="Trier les quiz"><option value="recent">Activité récente</option><option value="title">Titre A-Z</option><option value="questions">Nombre de questions</option></CFormSelect></label>
+            {(query || activeFilterCount > 0) && <button type="button" className="clear-filters" onClick={() => { setQuery(''); setModeFilter('all'); setTopicFilter('all'); setPage(1); }}>Réinitialiser <DemoIcon name="x" /></button>}
+          </div>
+        </div>
+        {activeFilterCount > 0 && <div className="library-active-filters" aria-label="Filtres actifs">
+          {modeFilter !== 'all' && <button type="button" className="library-filter-chip" aria-label="Retirer le filtre de type" onClick={() => updateFilter(setModeFilter)('all')}>Type : {modeFilter === 'prepared' ? 'Quiz préparés' : modeFilter === 'progressive' ? 'Progressifs' : 'QCM express'} <DemoIcon name="x" /></button>}
+          {topicFilter !== 'all' && <button type="button" className="library-filter-chip" aria-label={`Retirer le filtre de thème ${topicFilter}`} onClick={() => updateFilter(setTopicFilter)('all')}>Thème : {topicFilter} <DemoIcon name="x" /></button>}
+        </div>}
         <div className="quiz-grid">
           {visibleQuizzes.map(quiz => <QuizTile key={quiz.id} quiz={quiz} quizzes={quizzes} attempt={attempts.find(item => item.quizId === quiz.id)} onDelete={onDelete} />)}
           {!visibleQuizzes.length && <div className="library-empty"><DemoIcon name="magnifyingGlass" /><h3>Aucun quiz trouvé</h3><p>Modifiez les filtres ou votre recherche.</p></div>}
