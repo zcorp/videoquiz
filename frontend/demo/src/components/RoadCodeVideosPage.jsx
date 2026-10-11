@@ -26,7 +26,7 @@ export default function RoadCodeVideosPage({ quizzes }) {
 
   return (
     <main className="demo-page road-videos-page">
-      <div className="player-topline"><Link to="/" className="back-link"><DemoIcon name="arrowLeft" /> Bibliothèque</Link><span className="eyebrow">VIDÉOS · COLLECTIONS</span><span className="player-save-note">Sélection YouTube · contenu externe</span></div>
+      <div className="player-topline"><span className="eyebrow">VIDÉOS · COLLECTIONS</span><span className="player-save-note">Sélection YouTube · contenu externe</span></div>
       <header className="road-videos-heading"><div><span className="eyebrow">VIDÉOS POUR VOS QCM</span><h1>{themeFilter === 'all' ? 'Tous les thèmes' : themeFilter}</h1><p>Choisis une vidéo comme support, puis configure le nombre de questions et de choix de ton QCM express.</p></div><span className="road-video-count">{filteredVideos.length} vidéo{filteredVideos.length === 1 ? '' : 's'}</span></header>
       <div className="road-video-toolbar"><CFormInput value={query} onChange={event => search(event.target.value)} placeholder="Rechercher une série…" aria-label="Rechercher une vidéo" /><CFormSelect value={themeFilter} onChange={event => filterTheme(event.target.value)} aria-label="Filtrer par thème"><option value="all">Tous les thèmes</option>{themes.map(theme => <option key={theme} value={theme}>{theme}</option>)}</CFormSelect><span>Chaque vidéo ne peut être associée qu’à un seul quiz.</span></div>
       <div className="road-video-grid">

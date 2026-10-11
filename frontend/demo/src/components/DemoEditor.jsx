@@ -172,7 +172,6 @@ export default function DemoEditor({ quiz, quizzes = [], onSave }) {
   return (
     <main className="demo-page editor-page">
       <FirstVisitNotice storageKey="videoquiz-demo:first-visit:editor:v1" message="Vos quiz créés sont enregistrés dans ce navigateur." />
-      <div className="player-topline"><Link to="/" className="back-link"><DemoIcon name="arrowLeft" /> Bibliothèque</Link></div>
       <div className="editor-heading"><span className="eyebrow">CRÉATEUR DE QUIZ</span><h1>{quiz ? 'Affinez votre quiz.' : 'Une vidéo, vos questions.'}</h1><p>La vidéo se charge depuis YouTube.</p></div>
       <form className="editor-form" onSubmit={save}>
         <CCard className="editor-section" role="group">
