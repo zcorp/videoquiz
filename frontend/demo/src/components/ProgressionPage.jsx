@@ -11,7 +11,7 @@ export function formatDate(value) {
   return new Intl.DateTimeFormat('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' }).format(new Date(value));
 }
 
-export function ScoreChart({ points, compact = false }) {
+export function ScoreChart({ points, compact = false, attemptOffset = 0 }) {
   const width = 720;
   const height = 280;
   const padding = { top: 24, right: 28, bottom: 42, left: 48 };
@@ -19,7 +19,7 @@ export function ScoreChart({ points, compact = false }) {
   const xScale = scaleLinear().domain([0, Math.max(points.length - 1, 1)]).range([padding.left, width - padding.right]);
   const x = index => points.length === 1 ? width / 2 : xScale(index);
   const y = scaleLinear().domain([0, max]).range([height - padding.bottom, padding.top]);
-  const data = points.map((point, index) => ({ ...point, index }));
+  const data = points.map((point, index) => ({ ...point, index, attemptNumber: index + attemptOffset + 1 }));
   const scoreLine = line().x(point => x(point.index)).y(point => y(point.score)).curve(curveMonotoneX);
   const scoreArea = area().x(point => x(point.index)).y0(y(0)).y1(point => y(point.score)).curve(curveMonotoneX);
   const yTickStep = Math.max(1, Math.ceil(max / 4));
@@ -44,14 +44,14 @@ export function ScoreChart({ points, compact = false }) {
         </g>)}
         <path className="progression-area" d={scoreArea(data)} fill={`url(#${gradientId})`} />
         {data.length > 1 && <path className="progression-line" d={scoreLine(data)} />}
-        {data.map(point => <g className="progression-point" key={`${point.date}-${point.index}`} tabIndex="0" role="img" aria-label={`Tentative ${point.index + 1} : ${point.score} sur ${point.max}, ${point.percentage} %, ${formatDate(point.date)}`}>
+        {data.map(point => <g className="progression-point" key={`${point.date}-${point.index}`} tabIndex="0" role="img" aria-label={`Tentative ${point.attemptNumber} : ${point.score} sur ${point.max}, ${point.percentage} %, ${formatDate(point.date)}`}>
           <circle className="progression-point-hit" cx={x(point.index)} cy={y(point.score)} r="13" />
           <circle className="progression-point-marker" cx={x(point.index)} cy={y(point.score)} r="5.5" />
-          <title>{`Tentative ${point.index + 1} · ${point.score}/${point.max} · ${point.percentage}% · ${formatDate(point.date)}`}</title>
+          <title>{`Tentative ${point.attemptNumber} · ${point.score}/${point.max} · ${point.percentage}% · ${formatDate(point.date)}`}</title>
         </g>)}
         {xTicks.map(index => <g className="chart-x-tick" key={index}>
           <line x1={x(index)} x2={x(index)} y1={chartBottom} y2={chartBottom + 5} />
-          <text x={x(index)} y={height - 14} textAnchor="middle">#{index + 1}</text>
+          <text x={x(index)} y={height - 14} textAnchor="middle">#{index + attemptOffset + 1}</text>
         </g>)}
         <line className="chart-axis" x1={padding.left} x2={width - padding.right} y1={chartBottom} y2={chartBottom} />
       </svg>

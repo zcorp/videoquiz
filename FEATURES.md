@@ -31,6 +31,8 @@ Ce document décrit les fonctionnalités disponibles dans la démo statique publ
 
 **Étant donné** une ou plusieurs tentatives enregistrées, **lorsque** l’utilisateur ouvre le tableau de bord ou la progression d’un quiz, **alors** il peut consulter ses indicateurs, ses scores et leur évolution.
 
+**Étant donné** un utilisateur qui ouvre le tableau de bord pour la première fois, **lorsque** il n’a pas encore joué de quiz, **alors** il voit une invitation claire à choisir son premier quiz sans statistiques vides ni outils de filtrage superflus. Après ses premières tentatives, il peut reprendre un quiz depuis l’action principale, ouvrir recherche et filtres au besoin, consulter une tendance limitée aux six tentatives récentes et accéder à l’historique complet. Les outils de sauvegarde restent disponibles dans une section repliée.
+
 ### Choisir la mesure d’audience
 
 **Étant donné** qu’aucune préférence n’a encore été donnée, **lorsque** l’utilisateur accepte ou refuse la mesure d’audience, **alors** son choix est mémorisé et peut être modifié depuis le pied de page.
