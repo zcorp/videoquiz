@@ -54,6 +54,8 @@ For `zcorp/videoquiz`, the expected project Pages URL is:
 https://zcorp.github.io/videoquiz/
 ```
 
+The public site uses the custom domain `https://www.videoquiz.fr/`, configured by `frontend/demo/public/CNAME`. This is the canonical URL used by the SEO metadata and sitemap; the project Pages URL remains the deployment fallback.
+
 The workflow computes `DEMO_BASE_PATH=/videoquiz/` automatically for this project repository. HashRouter keeps client-side routes working on Pages.
 
 ## Push commands

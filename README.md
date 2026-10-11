@@ -36,7 +36,17 @@ Consulter [DEPLOYMENT.md](DEPLOYMENT.md) pour la procédure complète. Le workfl
 
 Il ne construit ni ne déploie Spring Boot, MongoDB, Docker Compose ou le frontend de production.
 
-URL attendue :
+## Référencement et découverte
+
+La stratégie de référencement de la démo, ses choix techniques, ses limites et son plan de mesure sont documentés dans [SEO_STRATEGY.md](SEO_STRATEGY.md). L’accueil et le tutoriel public sont déclarés dans le sitemap; le tutoriel est accessible à l’adresse https://www.videoquiz.fr/tutoriel/. La propriété du domaine doit être vérifiée manuellement dans Google Search Console et Bing Webmaster Tools pour suivre l’indexation.
+
+URL publique canonique :
+
+```text
+https://www.videoquiz.fr/
+```
+
+URL GitHub Pages du dépôt, en cas de retrait du domaine personnalisé :
 
 ```text
 https://zcorp.github.io/videoquiz/
@@ -46,7 +56,7 @@ https://zcorp.github.io/videoquiz/
 
 Consulter [FEATURES.md](FEATURES.md) pour le catalogue fonctionnel détaillé et ses limites.
 
-La démo utilise React, Vite, React Router, `HashRouter` et CoreUI pour ses composants d’interface. Elle propose une bibliothèque filtrable, un dashboard, des QCM thématiques, un lecteur vidéo, une page de suivi avec graphiques par quiz, une progression locale et des quiz créés dans le navigateur. L’accueil propose un tutoriel en trois étapes, la création directe d’un quiz et un carrousel manuel présentant des vidéos de quiz sur plusieurs thèmes ainsi que le cycle vidéo, QCM et progression; ses slides ouvrent les quiz ou le tutoriel. Le tutoriel précise que l’utilisateur peut partir d’une vidéo YouTube et que le lecteur peut être adapté selon la plateforme. Le dashboard conserve les quatre indicateurs et le graphique interactif par entraînement sur ordinateur; sur mobile et tablette, il reste allégé, avec les graphiques accessibles depuis la page « Suivi ». Sur mobile et tablette, une barre fixe en bas donne accès à « Découvrir », « Vidéos », « Suivi » et « Créer »; elle tient compte de la zone de sécurité de l’écran et se masque pendant un quiz ou la création d’un quiz. La sauvegarde et la restauration restent disponibles dans une section repliable du dashboard. La page « À propos & aide » explique la démarche et les données locales, puis donne des accès directs aux quiz, aux vidéos et au suivi; l’adresse de contact `contact@videoquiz.fr` y est accessible ainsi que dans le pied de page. La navigation, les cartes, formulaires, boutons, badges, indicateurs de progression et pied de page s’appuient sur CoreUI, avec une couche visuelle personnalisée et responsive. Le pied de page attribue les droits à ZCOORE, avec l’année courante. CoreUI est limité à la démo et n’est pas ajouté au frontend de production.
+La démo utilise React, Vite, React Router, `HashRouter` et CoreUI pour ses composants d’interface. Elle propose une bibliothèque filtrable, un dashboard, des QCM thématiques, un lecteur vidéo, une page de suivi avec graphiques par quiz, une progression locale et des quiz créés dans le navigateur. L’accueil propose un tutoriel en quatre étapes, la création directe d’un quiz et un carrousel manuel présentant des vidéos de quiz sur plusieurs thèmes ainsi que le cycle vidéo, QCM et progression; ses slides ouvrent les quiz ou le tutoriel. Le tutoriel précise que l’utilisateur peut partir d’une vidéo YouTube et que le lecteur peut être adapté selon la plateforme. Le dashboard conserve les quatre indicateurs et le graphique interactif par entraînement sur ordinateur; sur mobile et tablette, il reste allégé, avec les graphiques accessibles depuis la page « Suivi ». Sur mobile et tablette, une barre fixe en bas donne accès à « Découvrir », « Vidéos », « Suivi » et « Créer »; elle tient compte de la zone de sécurité de l’écran et se masque pendant un quiz ou la création d’un quiz. La sauvegarde et la restauration restent disponibles dans une section repliable du dashboard. La page « À propos & aide » explique la démarche et les données locales, puis donne des accès directs aux quiz, aux vidéos et au suivi; l’adresse de contact `contact@videoquiz.fr` y est accessible ainsi que dans le pied de page. La navigation, les cartes, formulaires, boutons, badges, indicateurs de progression et pied de page s’appuient sur CoreUI, avec une couche visuelle personnalisée et responsive. Le pied de page attribue les droits à ZCOORE, avec l’année courante. CoreUI est limité à la démo et n’est pas ajouté au frontend de production.
 
 La bibliothèque vidéo rassemble 35 vidéos YouTube autour de plusieurs thèmes : code de la route, culture générale, histoire, géographie, sciences, animaux, nature, football, cinéma, animation, mythologie et sport. Chaque ID vidéo n’apparaît qu’une fois dans le catalogue et ne peut être associé qu’à un quiz, quel que soit le thème ou le mode choisi. La règle est vérifiée dans le formulaire et au moment de l’enregistrement; une vidéo déjà associée renvoie vers le quiz concerné. La bibliothèque dispose d’une recherche, d’un filtre par thème et d’une pagination. L’action **Associer à un QCM** ouvre le créateur en mode QCM express, avec la vidéo, le titre et le thème préremplis; les paramètres de grille restent modifiables. Deux liens transmis sans titre précis sont rangés dans « À classer ». Ces vidéos tierces restent hébergées par leurs auteurs sur YouTube et ne sont pas présentées comme des contenus officiels.
 

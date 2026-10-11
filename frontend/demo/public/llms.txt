@@ -1,0 +1,24 @@
+# Video Quiz
+
+> Video Quiz est une démo web en français pour créer des quiz liés à des vidéos, s'entraîner avec des QCM et consulter une progression conservée dans le navigateur.
+
+La démo est publique et fonctionne sans compte. Les quiz créés et les résultats restent dans le stockage local du navigateur; ils ne sont pas synchronisés entre appareils. Les vidéos sont fournies par YouTube et nécessitent une connexion Internet. Cette démo locale n'est pas un système d'évaluation certifié.
+
+## Pages
+
+- [Accueil Video Quiz](https://www.videoquiz.fr/): présentation et accès à la démo.
+- [Tutoriel Video Quiz](https://www.videoquiz.fr/tutoriel/): explication des quatre étapes, de la vidéo au suivi.
+
+## Description du parcours
+
+1. Choisir une vidéo d'exemple ou renseigner un lien YouTube.
+2. Donner un titre au quiz et choisir un mode de révision.
+3. Préparer les questions et les choix de réponse, ou compléter progressivement la grille pendant le visionnage.
+4. Répondre aux questions et consulter les résultats enregistrés dans ce navigateur.
+
+## Limites et transparence
+
+- Les quiz et résultats locaux peuvent être perdus si les données du navigateur sont effacées.
+- Les vidéos restent hébergées et contrôlées par leurs auteurs sur YouTube.
+- La démo ne fournit ni compte, ni synchronisation, ni correction sécurisée pour une évaluation à enjeu.
+- Une comparaison de réponses déclarées par la personne qui révise est une auto-évaluation, pas une validation pédagogique indépendante.

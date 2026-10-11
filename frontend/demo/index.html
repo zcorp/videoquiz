@@ -4,14 +4,59 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#f4f3ed" />
-    <meta name="description" content="Découvrez Video Quiz : apprenez en répondant aux questions pendant une vidéo." />
-    <title>Video Quiz — Démo interactive</title>
+    <meta name="description" content="Créez un quiz vidéo interactif : associez une vidéo YouTube à un QCM, entraînez-vous à votre rythme et retrouvez votre progression dans ce navigateur." />
+    <meta name="robots" content="index,follow,max-image-preview:large" />
+    <link rel="canonical" href="https://www.videoquiz.fr/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="fr_FR" />
+    <meta property="og:site_name" content="Video Quiz" />
+    <meta property="og:title" content="Video Quiz — Créer un quiz vidéo interactif" />
+    <meta property="og:description" content="Associez une vidéo YouTube à un QCM, entraînez-vous à votre rythme et retrouvez votre progression dans ce navigateur." />
+    <meta property="og:url" content="https://www.videoquiz.fr/" />
+    <meta name="twitter:card" content="summary" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebSite",
+            "name": "Video Quiz",
+            "url": "https://www.videoquiz.fr/",
+            "inLanguage": "fr-FR",
+            "description": "Démo de création et de révision de quiz vidéo, avec des données conservées dans le navigateur."
+          },
+          {
+            "@type": "SoftwareApplication",
+            "name": "Video Quiz",
+            "url": "https://www.videoquiz.fr/",
+            "applicationCategory": "EducationalApplication",
+            "operatingSystem": "Web",
+            "inLanguage": "fr-FR",
+            "isAccessibleForFree": true,
+            "description": "Démo web permettant d’associer une vidéo YouTube à un quiz, de s’entraîner et de consulter une progression enregistrée dans le navigateur.",
+            "featureList": [
+              "Créer des quiz vidéo et des QCM dans le navigateur",
+              "S’entraîner à partir de vidéos YouTube",
+              "Retrouver localement ses quiz et sa progression"
+            ]
+          }
+        ]
+      }
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet" />
   </head>
   <body>
     <div id="demo-root"></div>
+    <noscript>
+      <main>
+        <h1>Créez un quiz vidéo interactif avec Video Quiz</h1>
+        <p>Associez une vidéo YouTube à une grille de questions, entraînez-vous à votre rythme et retrouvez vos quiz et résultats dans ce navigateur.</p>
+        <p>Cette démo fonctionne sans compte. Les quiz et les résultats restent sur l’appareil utilisé.</p>
+        <p><a href="/tutoriel/">Voir le tutoriel Video Quiz</a></p>
+      </main>
+    </noscript>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

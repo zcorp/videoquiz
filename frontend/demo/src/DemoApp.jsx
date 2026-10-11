@@ -38,6 +38,30 @@ export default function DemoApp() {
   const lastTrackedLocation = useRef(null);
   const analyticsConsentRef = useRef(analyticsConsent);
   const location = useLocation();
+  useEffect(() => {
+    const pageMetadata = {
+      '/': {
+        title: 'Video Quiz — Créer un quiz vidéo interactif',
+        description: 'Créez un quiz vidéo interactif : associez une vidéo YouTube à un QCM, entraînez-vous à votre rythme et retrouvez votre progression dans ce navigateur.',
+        canonical: 'https://www.videoquiz.fr/',
+      },
+      '/tutoriel': {
+        title: 'Tutoriel Video Quiz — Créer un quiz à partir d’une vidéo',
+        description: 'Découvrez comment choisir une vidéo, préparer un quiz, répondre aux questions et suivre votre progression avec Video Quiz.',
+        canonical: 'https://www.videoquiz.fr/tutoriel/',
+      },
+    };
+    const metadata = pageMetadata[location.pathname] ?? {
+      title: 'Video Quiz — Démo interactive',
+      description: 'Explorez la démo Video Quiz et créez des quiz vidéo conservés dans votre navigateur.',
+      canonical: 'https://www.videoquiz.fr/',
+    };
+
+    document.title = metadata.title;
+    document.querySelector('meta[name="description"]')?.setAttribute('content', metadata.description);
+    document.querySelector('link[rel="canonical"]')?.setAttribute('href', metadata.canonical);
+  }, [location.pathname]);
+
   const immersiveRoute = location.pathname.startsWith('/quiz/')
     || location.pathname === '/create'
     || location.pathname.startsWith('/edit/');
