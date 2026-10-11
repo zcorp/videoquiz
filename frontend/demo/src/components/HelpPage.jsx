@@ -91,6 +91,7 @@ export default function HelpPage({ onOpenAnalyticsPreferences }) {
           <p>La démo utilise des vidéos YouTube intégrées. Leur disponibilité et leur lecture dépendent de YouTube et de la personne qui les a publiées.</p>
           <p>La mesure d’audience est soumise à votre choix. Les réponses aux quiz et les contenus que vous saisissez ne sont pas envoyés à Google Analytics.</p>
           <button type="button" onClick={onOpenAnalyticsPreferences}>Préférences Analytics</button>
+          <p className="help-contact">Une question ? <a href="mailto:contact@videoquiz.fr">Écrivez-nous à contact@videoquiz.fr</a></p>
         </article>
       </section>
 

@@ -41,6 +41,8 @@ Ce document décrit les fonctionnalités disponibles dans la démo statique publ
 
 **Étant donné** la page d’aide, **lorsque** l’utilisateur cherche à comprendre la démarche ou à continuer, **alors** il trouve une explication simple du projet, des repères sur ses données et des accès directs à la bibliothèque, aux vidéos et à son suivi, sans devoir quitter la démo.
 
+**Étant donné** la page d’aide ou le pied de page, **lorsque** l’utilisateur souhaite contacter le projet, **alors** il peut écrire à contact@videoquiz.fr au moyen d’un lien de courriel.
+
 ### Sélectionner un entraînement sur mobile
 
 **Étant donné** plusieurs quiz joués dans le tableau de bord, **lorsque** l’utilisateur sélectionne un quiz sur petit écran, **alors** ses détails apparaissent immédiatement dans la ligne sélectionnée, sans second tap ni zone de défilement imbriquée. Sur grand écran, la présentation maître/détail reste disponible.

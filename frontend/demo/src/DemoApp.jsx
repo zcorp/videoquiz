@@ -131,6 +131,7 @@ export default function DemoApp() {
       <CFooter className="demo-footer">
         <span>VIDEO QUIZ <CBadge color="secondary">DÉMO</CBadge></span>
         <Link to="/help">À propos & aide</Link>
+        <a href="mailto:contact@videoquiz.fr">contact@videoquiz.fr</a>
         <span>© {new Date().getFullYear()} ZCOORE. Tous droits réservés.</span>
         <button className="analytics-preferences-link" type="button" onClick={() => setShowAnalyticsChoices(true)}>Préférences Analytics</button>
       </CFooter>
