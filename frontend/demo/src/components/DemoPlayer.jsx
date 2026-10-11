@@ -228,7 +228,7 @@ export default function DemoPlayer({ quizzes, onAttempt, onTrack }) {
   };
   return (
     <main className={`demo-page player-page${result ? ' has-result' : ''}`}>
-      <div className="player-topline"><Link to="/" className="back-link"><DemoIcon name="arrowLeft" /> Tous les quiz</Link><span className="eyebrow">{quiz.topic}</span><span className="player-save-note"><DemoIcon name="circle" /> Aucun compte · données locales</span></div>
+      <div className="player-topline"><span className="eyebrow">{quiz.topic}</span><span className="player-save-note"><DemoIcon name="circle" /> Aucun compte · données locales</span></div>
       {resumeActive && !result && <div className="quiz-resume-notice" role="status"><span>Reprise de votre quiz à la question {current + 1} sur {quiz.questions.length}.</span><button type="button" className="text-action" onClick={() => {
         if (!clearQuizProgress(quiz.id)) setProgressStorageWarning(true);
         setCurrent(0);

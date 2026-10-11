@@ -70,9 +70,6 @@ export default function ProgressionPage({ quizzes }) {
   return (
     <main className="demo-page progression-page">
       <FirstVisitNotice storageKey="videoquiz-demo:first-visit:progression:v1" message="L’historique de ce quiz est conservé dans ce navigateur." />
-      <div className="player-topline">
-        <Link to="/" className="back-link"><DemoIcon name="arrowLeft" /> Tous les quiz</Link>
-      </div>
       <header className="progression-heading"><span className="eyebrow">VOTRE ÉVOLUTION</span><h1>{quiz.title}</h1><p>{points.length ? `${points.length} tentative${points.length === 1 ? '' : 's'} enregistrée${points.length === 1 ? '' : 's'} pour ce quiz.` : 'Votre progression apparaîtra après votre première tentative.'}</p></header>
       {points.length ? <>
         <section className="progression-panel" aria-labelledby="progression-chart-title">
