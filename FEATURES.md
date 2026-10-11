@@ -31,7 +31,7 @@ Ce document décrit les fonctionnalités disponibles dans la démo statique publ
 
 **Étant donné** une ou plusieurs tentatives enregistrées, **lorsque** l’utilisateur ouvre « Suivi », **alors** il retrouve les graphiques de chaque quiz joué et peut consulter l’historique détaillé de chacun.
 
-**Étant donné** un utilisateur qui ouvre le tableau de bord, **lorsque** il n’a pas encore joué de quiz, **alors** il voit une invitation à commencer sans statistiques vides. Après ses premières tentatives, le dashboard met en avant la reprise du dernier quiz et quelques suggestions; les graphiques et l’historique sont accessibles dans « Suivi ». Les outils de sauvegarde restent disponibles dans une section repliée.
+**Étant donné** un utilisateur qui ouvre le tableau de bord, **lorsque** il n’a pas encore joué de quiz, **alors** il voit une invitation à commencer sans statistiques vides. Après ses premières tentatives, quatre cartes résument les quiz joués, le nombre de tentatives, le score moyen et le meilleur score; le dashboard met aussi en avant la reprise du dernier quiz et quelques suggestions. Les graphiques et l’historique sont accessibles dans « Suivi ». Les outils de sauvegarde restent disponibles dans une section repliée.
 
 **Étant donné** un appareil mobile ou une tablette, **lorsque** l’utilisateur navigue dans la démo, **alors** une barre fixe en bas donne accès à « Découvrir », « Vidéos », « Suivi » et « Créer », respecte la zone de sécurité de l’écran et reste masquée pendant un quiz et la création d’un quiz.
 

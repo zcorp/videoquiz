@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { CCard, CCardBody } from '@coreui/react';
 import { exportLocalBackup, importLocalBackup } from '../services/localStore.js';
 import DemoIcon from './DemoIcon.jsx';
 import FirstVisitNotice from './FirstVisitNotice.jsx';
@@ -20,6 +21,11 @@ export default function DashboardPage({ quizzes, attempts, onDataChanged, onTrac
   const recentQuiz = played[0];
   const recentAttempt = recentQuiz ? latestAttemptForQuiz(recentQuiz.id) : null;
   const suggestedQuizzes = quizzes.filter(quiz => !quiz.draft && !attempts.some(attempt => attempt.quizId === quiz.id)).slice(0, 2);
+  const totalAttempts = attempts.length;
+  const average = totalAttempts
+    ? Math.round(attempts.reduce((total, attempt) => total + attempt.percentage, 0) / totalAttempts)
+    : 0;
+  const bestAttempt = attempts.reduce((best, attempt) => !best || attempt.percentage > best.percentage ? attempt : best, null);
   const downloadBackup = () => {
     try {
       const backup = exportLocalBackup();
@@ -78,6 +84,12 @@ export default function DashboardPage({ quizzes, attempts, onDataChanged, onTrac
     <main className="demo-page dashboard-page">
       <FirstVisitNotice storageKey="videoquiz-demo:first-visit:dashboard:v1" message="Vos quiz et résultats restent dans ce navigateur." />
       <header className="dashboard-heading"><div><span className="eyebrow">{recentQuiz ? 'VOTRE ESPACE D’APPRENTISSAGE' : 'BIENVENUE DANS VOTRE ESPACE'}</span><h1>{recentQuiz ? 'Reprenez à votre rythme.' : 'Prêt à apprendre quelque chose ?'}</h1><p>{recentQuiz ? 'Votre dernier quiz est prêt à reprendre. Vos graphiques sont dans votre suivi.' : 'Choisissez un quiz pour commencer. Vos résultats apparaîtront dans votre suivi.'}</p></div><Link className="btn btn-success button button-dark" to={recentQuiz ? `/quiz/${recentQuiz.id}` : '/'}>{recentQuiz ? 'Reprendre le dernier quiz' : 'Découvrir les quiz'} <DemoIcon name="arrowRight" /></Link></header>
+      {played.length > 0 && <section className="dashboard-stats" aria-label="Résumé de votre activité">{[
+        ['QUIZ JOUÉS', played.length, `sur ${quizzes.length} disponibles`],
+        ['TENTATIVES', totalAttempts, 'enregistrées au total'],
+        ['MOYENNE', <>{average}<small>%</small></>, 'sur les tentatives terminées'],
+        ['MEILLEUR SCORE', bestAttempt ? `${bestAttempt.score}/${bestAttempt.max}` : '—', bestAttempt ? `${bestAttempt.percentage}%` : 'À établir'],
+      ].map(([label, value, caption]) => <CCard className="dashboard-stat-card" key={label}><CCardBody><span className="eyebrow">{label}</span><strong>{value}</strong><small>{caption}</small></CCardBody></CCard>)}</section>}
       {recentQuiz && recentAttempt && <section className="dashboard-resume-section" aria-labelledby="dashboard-resume-title">
         <div className="dashboard-section-heading"><div><span className="eyebrow">REPRENDRE</span><h2 id="dashboard-resume-title">Là où vous en étiez</h2></div><Link className="dashboard-text-link" to="/suivi">Voir mon suivi <DemoIcon name="arrowRight" /></Link></div>
         <Link className="dashboard-resume-card" to={`/quiz/${recentQuiz.id}`}>
