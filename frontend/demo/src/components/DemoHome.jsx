@@ -91,8 +91,8 @@ export default function DemoHome({ quizzes, attempts, onDelete }) {
       <section className="welcome-band">
         <div className="welcome-copy">
           <span className="eyebrow eyebrow-dark">BIBLIOTHÈQUE VIDÉO</span>
-          <h1>Choisis une série.<br /><em>Crée ton QCM.</em></h1>
-          <p>Associe n’importe quelle vidéo à une grille de réponses, puis entraîne-toi à ton rythme. Quiz et résultats restent sur cet appareil.</p>
+          <h1>Choisis une série.<br /><em>Crée ton QCM.<br />Entraîne-toi à ton rythme.</em></h1>
+          <p className="welcome-description">Associe une vidéo de ton choix à une grille de réponses, teste tes connaissances et suis ta progression. Tes quiz et tes résultats restent enregistrés sur ton appareil.</p>
           <div className="welcome-actions"><Link className="btn btn-success button button-dark" to="/create">Démarrer <DemoIcon name="arrowRight" /></Link><Link className="btn btn-outline-secondary button button-quiet" to="/tutoriel">Découvrir le principe <DemoIcon name="arrowRight" /></Link></div>
           <div className="welcome-topics" aria-label="Accès rapide aux thèmes vidéo"><span className="eyebrow">Pas d’idée ? Commence par un thème</span><div>{quickTopics.map(item => <Link key={item.topic} className="btn btn-outline-success topic-quick-chip" to={`/videos?theme=${encodeURIComponent(item.topic)}`}>{item.topic}<small>{item.count}</small></Link>)}</div></div>
         </div>
@@ -117,7 +117,7 @@ export default function DemoHome({ quizzes, attempts, onDelete }) {
                   <DemoIcon className="feature-cycle-arrow" name="arrowRight" />
                   <div className="feature-cycle-node"><span className="feature-cycle-icon"><DemoIcon name="check" /></span><strong>QCM</strong><small>À préparer</small></div>
                   <DemoIcon className="feature-cycle-arrow" name="arrowRight" />
-                  <div className="feature-cycle-node"><span className="feature-cycle-icon"><DemoIcon name="chart" /></span><strong>PROGRÈS</strong><small>À suivre</small></div>
+                  <div className="feature-cycle-node"><span className="feature-cycle-icon"><DemoIcon name="chart" /></span><strong>SUIVI</strong><small>Ta progression</small></div>
                 </div>
                 <Link className="feature-cycle-link" to="/tutoriel">Découvrir comment ça marche <DemoIcon name="arrowRight" /></Link>
               </div>}
