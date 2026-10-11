@@ -108,16 +108,18 @@ export default function DemoHome({ quizzes, attempts, onDelete }) {
               </Link>}
               {activeFeatureSlide === 1 && <div className="feature-cycle-slide">
                 <div className="feature-cycle-heading">
-                  <span className="eyebrow">LE PRINCIPE</span>
-                  <h2>Une vidéo devient un parcours actif.</h2>
-                  <p>Le lecteur s’adapte à la plateforme vidéo; le cycle d’apprentissage reste le même.</p>
+                  <span className="eyebrow">LE PARCOURS EN 4 TEMPS</span>
+                  <h2>Du visionnage à la progression.</h2>
+                  <p>Choisis une vidéo, prépare ta grille, entraîne-toi et retrouve tes résultats.</p>
                 </div>
-                <div className="feature-cycle" role="img" aria-label="Une vidéo mène à un QCM, puis à un entraînement et au suivi de la progression">
-                  <div className="feature-cycle-node"><span className="feature-cycle-icon"><DemoIcon name="mediaPlay" /></span><strong>VIDÉO</strong><small>À regarder</small></div>
+                <div className="feature-cycle" role="img" aria-label="Choisir une vidéo, préparer un quiz, s’entraîner, puis suivre sa progression">
+                  <div className="feature-cycle-node"><span className="feature-cycle-step">01</span><span className="feature-cycle-icon"><DemoIcon name="mediaPlay" /></span><strong>VIDÉO</strong><small>À choisir</small></div>
                   <DemoIcon className="feature-cycle-arrow" name="arrowRight" />
-                  <div className="feature-cycle-node"><span className="feature-cycle-icon"><DemoIcon name="check" /></span><strong>QCM</strong><small>À préparer</small></div>
+                  <div className="feature-cycle-node"><span className="feature-cycle-step">02</span><span className="feature-cycle-icon"><DemoIcon name="pencil" /></span><strong>QUIZ</strong><small>À préparer</small></div>
                   <DemoIcon className="feature-cycle-arrow" name="arrowRight" />
-                  <div className="feature-cycle-node"><span className="feature-cycle-icon"><DemoIcon name="chart" /></span><strong>SUIVI</strong><small>Ta progression</small></div>
+                  <div className="feature-cycle-node"><span className="feature-cycle-step">03</span><span className="feature-cycle-icon"><DemoIcon name="check" /></span><strong>RÉPONSES</strong><small>À ton rythme</small></div>
+                  <DemoIcon className="feature-cycle-arrow" name="arrowRight" />
+                  <div className="feature-cycle-node"><span className="feature-cycle-step">04</span><span className="feature-cycle-icon"><DemoIcon name="chart" /></span><strong>SUIVI</strong><small>Tes progrès</small></div>
                 </div>
                 <Link className="feature-cycle-link" to="/tutoriel">Découvrir comment ça marche <DemoIcon name="arrowRight" /></Link>
               </div>}
