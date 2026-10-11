@@ -68,7 +68,16 @@ export default function ProgressionPage({ quizzes }) {
 
   return (
     <main className="demo-page progression-page">
-      <div className="player-topline"><Link to="/" className="back-link"><DemoIcon name="arrowLeft" /> Tous les quiz</Link><span className="eyebrow">SUIVI LOCAL</span><span className="player-save-note"><DemoIcon name="circle" /> Historique sur cet appareil</span></div>
+      <div className="player-topline local-data-topline">
+        <Link to="/" className="back-link"><DemoIcon name="arrowLeft" /> Tous les quiz</Link>
+        <div className="local-data-status">
+          <span className="local-data-indicator"><DemoIcon name="check" /></span>
+          <span className="local-data-copy">
+            <span className="local-data-label">Suivi local</span>
+            <span className="local-data-message">Historique sur cet appareil</span>
+          </span>
+        </div>
+      </div>
       <header className="progression-heading"><span className="eyebrow">VOTRE ÉVOLUTION</span><h1>{quiz.title}</h1><p>{points.length ? `${points.length} tentative${points.length === 1 ? '' : 's'} enregistrée${points.length === 1 ? '' : 's'} pour ce quiz.` : 'Votre progression apparaîtra après votre première tentative.'}</p></header>
       {points.length ? <>
         <section className="progression-panel" aria-labelledby="progression-chart-title">

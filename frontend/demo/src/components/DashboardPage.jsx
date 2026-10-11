@@ -12,6 +12,13 @@ function QuizSummary({ quiz, attempts, selected, onSelect }) {
 
   return (
     <article className={`dashboard-quiz-row${selected ? ' is-selected' : ''}`}>
+      <button
+        type="button"
+        className="dashboard-row-select"
+        onClick={() => onSelect(quiz.id)}
+        aria-label={`Afficher les détails de ${quiz.title}`}
+        aria-pressed={selected}
+      />
       <div className="dashboard-quiz-title">
         <span className="eyebrow">{quiz.topic}</span>
         <h3>{quiz.title}</h3>
@@ -21,7 +28,7 @@ function QuizSummary({ quiz, attempts, selected, onSelect }) {
       <div className="dashboard-metric"><span>Meilleur</span><strong>{best ? `${best.score}/${best.max}` : '—'}</strong><small>{best ? `${best.percentage}%` : 'Commencer'}</small></div>
       <div className="dashboard-row-actions" aria-label={`Actions pour ${quiz.title}`}>
         <Link className="icon-action icon-play" to={`/quiz/${quiz.id}`} aria-label={`Lancer ${quiz.title}`} title="Lancer"><DemoIcon name="mediaPlay" /></Link>
-        {latest && <button type="button" className="icon-action" onClick={() => onSelect(quiz.id)} aria-label={`Afficher l’évolution de ${quiz.title}`} aria-pressed={selected} title="Afficher l’évolution"><DemoIcon name="externalLink" /></button>}
+        {latest && <Link className="icon-action" to={`/progression/${quiz.id}`} aria-label={`Afficher l’évolution de ${quiz.title}`} title="Afficher l’évolution"><DemoIcon name="externalLink" /></Link>}
       </div>
     </article>
   );
@@ -134,13 +141,13 @@ export default function DashboardPage({ quizzes, attempts, onDataChanged, onTrac
 
   return (
     <main className="demo-page dashboard-page">
-      <div className="player-topline dashboard-topline">
+      <div className="player-topline local-data-topline">
         <Link to="/" className="back-link"><DemoIcon name="arrowLeft" /> Bibliothèque</Link>
-        <div className="dashboard-local-status">
-          <span className="dashboard-local-indicator"><DemoIcon name="check" /></span>
-          <span className="dashboard-local-copy">
-            <span className="dashboard-local-label">Espace local</span>
-            <span className="dashboard-local-message">Données conservées sur cet appareil</span>
+        <div className="local-data-status">
+          <span className="local-data-indicator"><DemoIcon name="check" /></span>
+          <span className="local-data-copy">
+            <span className="local-data-label">Espace local</span>
+            <span className="local-data-message">Données conservées sur cet appareil</span>
           </span>
         </div>
       </div>
