@@ -134,7 +134,16 @@ export default function DashboardPage({ quizzes, attempts, onDataChanged, onTrac
 
   return (
     <main className="demo-page dashboard-page">
-      <div className="player-topline"><Link to="/" className="back-link"><DemoIcon name="arrowLeft" /> Bibliothèque</Link><span className="eyebrow">VOTRE ESPACE LOCAL</span><span className="player-save-note"><DemoIcon name="circle" /> Données conservées sur cet appareil</span></div>
+      <div className="player-topline dashboard-topline">
+        <Link to="/" className="back-link"><DemoIcon name="arrowLeft" /> Bibliothèque</Link>
+        <div className="dashboard-local-status">
+          <span className="dashboard-local-indicator"><DemoIcon name="check" /></span>
+          <span className="dashboard-local-copy">
+            <span className="dashboard-local-label">Espace local</span>
+            <span className="dashboard-local-message">Données conservées sur cet appareil</span>
+          </span>
+        </div>
+      </div>
       <header className="dashboard-heading"><div><span className="eyebrow">TABLEAU DE BORD</span><h1>Votre progression, en un coup d’œil.</h1><p>Retrouvez vos quiz, vos résultats et les prochaines révisions à poursuivre.</p></div><Link className="btn btn-success button button-dark" to="/create">Créer un quiz <DemoIcon name="plus" /></Link></header>
       <section className="dashboard-stats" aria-label="Résumé de votre activité">{[
         ['QUIZ JOUÉS', played.length, `sur ${quizzes.length} disponibles`],

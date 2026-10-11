@@ -814,6 +814,21 @@ body { background: var(--paper); }
 .demo-icon { display: inline-block; width: 1em; height: 1em; flex: 0 0 auto; fill: currentColor; font-size: inherit; vertical-align: -.125em; }
 .back-link > .demo-icon { margin-right: 4px; }
 .road-video-source > .demo-icon { margin-left: 3px; }
+
+.dashboard-topline { min-height: 48px; justify-content: space-between; gap: 16px; }
+.dashboard-topline .back-link { display: inline-flex; min-height: 42px; align-items: center; gap: 7px; padding: 0 12px; border: 1px solid var(--rule); border-radius: 9px; background: #fff; color: var(--navy); text-decoration: none; }
+.dashboard-topline .back-link > .demo-icon { margin: 0; }
+.dashboard-local-status { display: flex; min-width: 0; max-width: 360px; align-items: center; gap: 10px; padding: 8px 13px; border: 1px solid #cce5e1; border-radius: 12px; background: #eef8f6; }
+.dashboard-local-indicator { display: grid; width: 30px; height: 30px; flex: 0 0 auto; place-items: center; border-radius: 50%; background: #d8efeb; color: var(--turquoise); }
+.dashboard-local-indicator .demo-icon { width: 15px; height: 15px; }
+.dashboard-local-copy { display: grid; min-width: 0; gap: 1px; }
+.dashboard-local-label { color: var(--green); font: 600 10px/1.3 var(--mono); letter-spacing: .08em; text-transform: uppercase; }
+.dashboard-local-message { color: var(--muted); font-size: 13px; line-height: 1.35; }
+@media (max-width: 540px) {
+  .dashboard-topline { display: grid; grid-template-columns: minmax(0, 1fr); justify-items: start; gap: 12px; }
+  .dashboard-local-status { width: 100%; max-width: none; padding: 10px 12px; }
+}
+
 :root {
   --cui-font-sans-serif: 'DM Sans', sans-serif;
   --cui-font-monospace: 'DM Mono', monospace;
