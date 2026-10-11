@@ -1529,10 +1529,10 @@ body, .demo-shell { background: var(--paper); color: var(--ink); }
   .feature-frame, .feature-cycle-slide { min-height: 360px; aspect-ratio: auto; }
 }
 
-@media (max-width: 760px) {
+@media (max-width: 900px) {
   .welcome-band { grid-template-columns: minmax(0, 1fr); gap: 22px; }
   .welcome-copy { max-width: 640px; }
-  .welcome-copy h1 { max-width: 640px; font-size: clamp(42px, 8vw, 58px); }
+  .welcome-copy h1 { max-width: 640px; font-size: clamp(42px, 6vw, 56px); }
   .demo-page .welcome-copy > .welcome-description { max-width: 640px; font-size: 20px; line-height: 1.5; }
   .feature-card { order: -1; }
   .feature-frame { min-height: 0; aspect-ratio: 16 / 9; }
