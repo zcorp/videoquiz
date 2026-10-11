@@ -29,9 +29,11 @@ Ce document décrit les fonctionnalités disponibles dans la démo statique publ
 
 ### Suivre sa progression
 
-**Étant donné** une ou plusieurs tentatives enregistrées, **lorsque** l’utilisateur ouvre le tableau de bord ou la progression d’un quiz, **alors** il peut consulter ses indicateurs, ses scores et leur évolution.
+**Étant donné** une ou plusieurs tentatives enregistrées, **lorsque** l’utilisateur ouvre « Suivi », **alors** il retrouve les graphiques de chaque quiz joué et peut consulter l’historique détaillé de chacun.
 
-**Étant donné** un utilisateur qui ouvre le tableau de bord pour la première fois, **lorsque** il n’a pas encore joué de quiz, **alors** il voit une invitation claire à choisir son premier quiz sans statistiques vides ni outils de filtrage superflus. Après ses premières tentatives, il peut reprendre un quiz depuis l’action principale, ouvrir recherche et filtres au besoin, consulter une tendance limitée aux six tentatives récentes et accéder à l’historique complet. Les outils de sauvegarde restent disponibles dans une section repliée.
+**Étant donné** un utilisateur qui ouvre le tableau de bord, **lorsque** il n’a pas encore joué de quiz, **alors** il voit une invitation à commencer sans statistiques vides. Après ses premières tentatives, le dashboard met en avant la reprise du dernier quiz et quelques suggestions; les graphiques et l’historique sont accessibles dans « Suivi ». Les outils de sauvegarde restent disponibles dans une section repliée.
+
+**Étant donné** un appareil mobile ou une tablette, **lorsque** l’utilisateur navigue dans la démo, **alors** une barre fixe en bas donne accès à « Découvrir », « Vidéos », « Suivi » et « Créer », respecte la zone de sécurité de l’écran et reste masquée pendant un quiz et la création d’un quiz.
 
 ### Choisir la mesure d’audience
 
@@ -43,9 +45,9 @@ Ce document décrit les fonctionnalités disponibles dans la démo statique publ
 
 **Étant donné** la page d’aide ou le pied de page, **lorsque** l’utilisateur souhaite contacter le projet, **alors** il peut écrire à contact@videoquiz.fr au moyen d’un lien de courriel.
 
-### Sélectionner un entraînement sur mobile
+### Accéder au suivi et à la navigation mobile
 
-**Étant donné** plusieurs quiz joués dans le tableau de bord, **lorsque** l’utilisateur sélectionne un quiz sur petit écran, **alors** ses détails apparaissent immédiatement dans la ligne sélectionnée, sans second tap ni zone de défilement imbriquée. Sur grand écran, la présentation maître/détail reste disponible.
+**Étant donné** plusieurs quiz joués, **lorsque** l’utilisateur ouvre « Suivi », **alors** les graphiques sont présentés par quiz avec un accès direct à l’historique complet.
 
 ## Catalogue des fonctionnalités
 
@@ -94,7 +96,7 @@ Ce document décrit les fonctionnalités disponibles dans la démo statique publ
 - **REQ-029 — Mesurer les interactions consenties :** après acceptation seulement, Analytics peut recevoir des événements sans paramètre utilisateur pour le démarrage, la reprise, l’abandon ou la fin d’un quiz, l’ouverture du mode lecture et les actions de sauvegarde. Aucune réponse, correction, titre, identifiant de quiz ni donnée saisie n’est inclus.
 - **REQ-030 — Rendre les parcours accessibles :** les commandes et retours sont utilisables au clavier et annoncés aux technologies d’assistance, les erreurs sont identifiables, les animations sont réduites selon la préférence du système et les textes courants restent lisibles sur petit écran.
 - **REQ-031 — Guider sans détourner :** la page d’aide explique simplement l’objectif et les principes du projet, puis propose des liens internes vers la bibliothèque, la collection de vidéos et le tableau de bord; les informations sur le stockage local et la confidentialité y restent faciles à trouver.
-- **REQ-032 — Sélectionner un entraînement d’un seul geste :** sur mobile et tablette, un seul tap sur un entraînement affiche ses détails dans la ligne sélectionnée, sans panneau séparé à rechercher ni liste à défilement imbriqué. Sur ordinateur, la vue maître/détail est conservée.
+- **REQ-032 — Simplifier l’accès mobile aux parcours :** sur mobile et tablette, une barre fixe donne accès à la découverte, aux vidéos, au suivi et à la création, tient compte des zones de sécurité de l’écran et ne masque pas les pages de quiz ou de création.
 
 ## Entités fonctionnelles
 
@@ -131,7 +133,9 @@ Ce document décrit les fonctionnalités disponibles dans la démo statique publ
 - **SC-021 :** la démo utilise une identité de marque cohérente bleu nuit, turquoise et corail dans son en-tête, ses actions, ses états de réponse, sa progression et ses accents; les fonds clairs et les contrastes maintiennent la lisibilité.
 - **SC-022 :** sur téléphone et tablette, les pages utilisent la largeur disponible avec des marges cohérentes, une hiérarchie de titres lisible et des informations clés alignées; les grilles et actions restent utilisables sans défilement horizontal, et le lecteur vidéo reste épinglé sous la barre de navigation pendant le défilement du quiz.
 - **SC-023 :** depuis la page d’aide, l’utilisateur peut en un clic atteindre la bibliothèque, les vidéos ou le tableau de bord; les principes du projet, le stockage local et les choix de confidentialité sont expliqués sans lien vers une page externe.
-- **SC-024 :** avec au moins deux quiz joués, un tap sur une ligne d’entraînement à 900 px CSS ou moins sélectionne le quiz et affiche ses détails dans cette ligne; aucun second tap ni défilement dans une zone interne n’est requis. Au-delà de 900 px, le panneau maître/détail desktop reste visible et utilisable.
+- **SC-024 :** sur une largeur de 900 px CSS ou moins, la navigation basse fixe contient les liens Découvrir, Vidéos, Suivi et Créer, reste au-dessus de la zone de sécurité, et réserve un espace de contenu équivalent. Sur une page de quiz ou du créateur, la navigation basse est masquée et l’espace réservé est retiré.
+- **SC-025 :** la page Suivi affiche les courbes de chaque quiz joué et permet d’ouvrir son historique complet; sans tentative, elle propose un accès direct à la bibliothèque.
+- **SC-026 :** le dashboard ne montre ni statistiques vides ni graphiques; après une tentative, il met en évidence le quiz le plus récemment joué, son dernier score et une action pour le reprendre.
 
 ## Hors périmètre et limites connues
 

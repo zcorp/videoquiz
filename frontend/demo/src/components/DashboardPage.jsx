@@ -1,103 +1,25 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { CBadge, CCard, CCardBody, CFormInput, CFormSelect, CProgress } from '@coreui/react';
-import { formatDate, ScoreChart } from './ProgressionPage.jsx';
-import { exportLocalBackup, getQuizProgression, importLocalBackup } from '../services/localStore.js';
+import { exportLocalBackup, importLocalBackup } from '../services/localStore.js';
 import DemoIcon from './DemoIcon.jsx';
 import FirstVisitNotice from './FirstVisitNotice.jsx';
 
-function QuizSummary({ quiz, attempts, selected, onSelect }) {
-  const progression = getQuizProgression(quiz.id);
-  const latest = progression.at(-1);
-  const best = progression.reduce((current, point) => !current || point.percentage > current.percentage ? point : current, null);
-
-  return (
-    <article className={`dashboard-quiz-row${selected ? ' is-selected' : ''}`}>
-      <button
-        type="button"
-        className="dashboard-row-select"
-        onClick={() => onSelect(quiz.id)}
-        aria-label={`Afficher les détails de ${quiz.title}`}
-        aria-pressed={selected}
-      />
-      <div className="dashboard-quiz-title">
-        <span className="eyebrow">{quiz.topic}</span>
-        <h3>{quiz.title}</h3>
-        <span>{quiz.questionCount ?? quiz.questions.length} questions · {attempts} tentative{attempts === 1 ? '' : 's'}</span>
-      </div>
-      <div className="dashboard-metric"><span>Dernier</span><strong>{latest ? `${latest.score}/${latest.max}` : '—'}</strong><small>{latest ? `${latest.percentage}%` : 'Pas encore joué'}</small></div>
-      <div className="dashboard-metric"><span>Meilleur</span><strong>{best ? `${best.score}/${best.max}` : '—'}</strong><small>{best ? `${best.percentage}%` : 'Commencer'}</small></div>
-      <div className="dashboard-row-actions" aria-label={`Actions pour ${quiz.title}`}>
-        <Link className="icon-action icon-play" to={`/quiz/${quiz.id}`} aria-label={`Lancer ${quiz.title}`} title="Lancer"><DemoIcon name="mediaPlay" /></Link>
-        {latest && <Link className="icon-action" to={`/progression/${quiz.id}`} aria-label={`Afficher l’évolution de ${quiz.title}`} title="Afficher l’évolution"><DemoIcon name="externalLink" /></Link>}
-      </div>
-      {selected && <div className="dashboard-mobile-progress-detail"><DashboardProgressDetail quiz={quiz} points={progression} /></div>}
-    </article>
-  );
-}
-
-function DashboardProgressDetail({ quiz, points }) {
-  if (!quiz) return <div className="dashboard-empty"><h3>Aucun entraînement sélectionné.</h3><p>Modifiez les filtres ou lancez un quiz pour commencer.</p></div>;
-  const latest = points.at(-1);
-  const recentPoints = points.slice(-6);
-
-  return (
-    <CCard className="dashboard-progress-detail" aria-live="polite">
-      <CCardBody>
-        <div className="dashboard-detail-heading">
-          <div><span className="eyebrow">ÉVOLUTION</span><h3>{quiz.title}</h3><span>{points.length} tentative{points.length === 1 ? '' : 's'}</span></div>
-          <Link className="icon-action" to={`/progression/${quiz.id}`} aria-label={`Ouvrir la progression complète de ${quiz.title}`} title="Ouvrir la progression complète"><DemoIcon name="externalLink" /></Link>
-        </div>
-        {latest ? <>
-          <div className="dashboard-detail-score"><span>Dernier score</span><strong>{latest.score}/{latest.max}</strong><CBadge color="success">{latest.percentage}%</CBadge></div>
-          <CProgress className="dashboard-score-progress" value={latest.percentage} max={100} color="success" aria-label={`Dernier score : ${latest.percentage}%`} />
-          <div className="dashboard-trend-heading"><span className="eyebrow">TENDANCE RÉCENTE</span><Link to={`/progression/${quiz.id}`}>Tout l’historique <DemoIcon name="arrowRight" /></Link></div>
-          <ScoreChart points={recentPoints} compact attemptOffset={points.length - recentPoints.length} />
-          <div className="dashboard-detail-history">{points.slice().reverse().slice(0, 5).map((point, index) => <span key={`${point.date}-${index}`}><small>{formatDate(point.date)}</small><strong>{point.score}/{point.max}</strong></span>)}</div>
-        </> : <p className="dashboard-filter-empty">Aucune tentative enregistrée pour ce quiz.</p>}
-      </CCardBody>
-    </CCard>
-  );
-}
-
 export default function DashboardPage({ quizzes, attempts, onDataChanged, onTrack }) {
-  const played = quizzes.filter(quiz => attempts.some(attempt => attempt.quizId === quiz.id));
-  const [selectedId, setSelectedId] = useState(() => played[0]?.id ?? null);
-  const [query, setQuery] = useState('');
-  const [modeFilter, setModeFilter] = useState('all');
-  const [topicFilter, setTopicFilter] = useState('all');
-  const [sort, setSort] = useState('recent');
-  const [filtersOpen, setFiltersOpen] = useState(false);
+  const latestAttemptForQuiz = quizId => attempts
+    .filter(attempt => attempt.quizId === quizId)
+    .reduce((latest, attempt) => !latest || attempt.completedAt.localeCompare(latest.completedAt) > 0 ? attempt : latest, null);
+  const played = quizzes
+    .filter(quiz => attempts.some(attempt => attempt.quizId === quiz.id))
+    .sort((left, right) => (
+      (latestAttemptForQuiz(right.id)?.completedAt ?? '')
+      .localeCompare(latestAttemptForQuiz(left.id)?.completedAt ?? '')
+    ));
   const backupInput = useRef(null);
   const [backupStatus, setBackupStatus] = useState(null);
   const [backupError, setBackupError] = useState(false);
-  const totalAttempts = attempts.length;
-  const bestAttempt = attempts.reduce((current, attempt) => !current || attempt.percentage > current.percentage ? attempt : current, null);
-  const average = attempts.length ? Math.round(attempts.reduce((total, attempt) => total + attempt.percentage, 0) / attempts.length) : 0;
-  const topics = [...new Set(played.map(quiz => quiz.topic))].sort();
-  const activeFilterCount = Number(Boolean(query.trim())) + Number(modeFilter !== 'all') + Number(topicFilter !== 'all') + Number(sort !== 'recent');
-  const filteredPlayed = useMemo(() => {
-    const normalizedQuery = query.trim().toLocaleLowerCase();
-    return played.filter(quiz => {
-      const matchesQuery = !normalizedQuery || [quiz.title, quiz.topic, quiz.description].some(value => value?.toLocaleLowerCase().includes(normalizedQuery));
-      return matchesQuery && (modeFilter === 'all' || quiz.mode === modeFilter) && (topicFilter === 'all' || quiz.topic === topicFilter);
-    }).sort((left, right) => {
-      if (sort === 'title') return left.title.localeCompare(right.title, 'fr');
-      if (sort === 'score') return (attempts.find(attempt => attempt.quizId === right.id)?.percentage ?? 0) - (attempts.find(attempt => attempt.quizId === left.id)?.percentage ?? 0);
-      const leftDate = attempts.find(attempt => attempt.quizId === left.id)?.completedAt ?? '';
-      const rightDate = attempts.find(attempt => attempt.quizId === right.id)?.completedAt ?? '';
-      return rightDate.localeCompare(leftDate);
-    });
-  }, [attempts, modeFilter, played, query, sort, topicFilter]);
-  const selectedQuiz = filteredPlayed.find(quiz => quiz.id === selectedId) ?? filteredPlayed[0];
-  const selectedPoints = selectedQuiz ? getQuizProgression(selectedQuiz.id) : [];
+  const recentQuiz = played[0];
+  const recentAttempt = recentQuiz ? latestAttemptForQuiz(recentQuiz.id) : null;
   const suggestedQuizzes = quizzes.filter(quiz => !quiz.draft && !attempts.some(attempt => attempt.quizId === quiz.id)).slice(0, 2);
-  const resetFilters = () => {
-    setQuery('');
-    setModeFilter('all');
-    setTopicFilter('all');
-    setSort('recent');
-  };
   const downloadBackup = () => {
     try {
       const backup = exportLocalBackup();
@@ -155,35 +77,16 @@ export default function DashboardPage({ quizzes, attempts, onDataChanged, onTrac
   return (
     <main className="demo-page dashboard-page">
       <FirstVisitNotice storageKey="videoquiz-demo:first-visit:dashboard:v1" message="Vos quiz et résultats restent dans ce navigateur." />
-      <header className="dashboard-heading"><div><span className="eyebrow">{played.length ? 'VOTRE ESPACE D’APPRENTISSAGE' : 'BIENVENUE DANS VOTRE ESPACE'}</span><h1>{played.length ? 'Votre progression, en un coup d’œil.' : 'Prêt à apprendre quelque chose ?'}</h1><p>{played.length ? 'Reprenez là où vous en étiez et avancez à votre rythme.' : 'Choisissez un quiz pour commencer. Vos résultats et votre parcours apparaîtront ici.'}</p></div><Link className="btn btn-success button button-dark" to={selectedQuiz ? `/quiz/${selectedQuiz.id}` : '/'}>{selectedQuiz ? 'Reprendre un quiz' : 'Découvrir les quiz'} <DemoIcon name="arrowRight" /></Link></header>
-      {played.length > 0 && <section className="dashboard-stats" aria-label="Résumé de votre activité">{[
-        ['QUIZ JOUÉS', played.length, `sur ${quizzes.length} disponibles`],
-        ['TENTATIVES', totalAttempts, 'enregistrées au total'],
-        ['MOYENNE', <>{average}<small>%</small></>, 'sur les tentatives terminées'],
-        ['MEILLEUR SCORE', bestAttempt ? `${bestAttempt.score}/${bestAttempt.max}` : '—', bestAttempt ? `${bestAttempt.percentage}%` : 'À établir'],
-      ].map(([label, value, caption]) => <CCard className="dashboard-stat-card" key={label}><CCardBody><span className="eyebrow">{label}</span><strong>{value}</strong><small>{caption}</small></CCardBody></CCard>)}</section>}
-      <section className="dashboard-section" aria-labelledby="dashboard-quiz-title">
-        <div className="dashboard-section-heading"><div><span className="eyebrow">{played.length ? 'VOTRE PARCOURS' : 'PREMIER PAS'}</span><h2 id="dashboard-quiz-title">{played.length ? 'Vos entraînements' : 'Votre premier quiz vous attend'}</h2></div>{played.length > 0 && <Link className="dashboard-text-link" to="/">Voir toute la bibliothèque <DemoIcon name="arrowRight" /></Link>}</div>
-        {played.length ? <>
-          <div className="dashboard-filter-tools">
-            <button type="button" className="dashboard-filter-toggle" aria-expanded={filtersOpen} aria-controls="dashboard-filters" onClick={() => setFiltersOpen(open => !open)}>
-              <DemoIcon name="magnifyingGlass" /> {filtersOpen ? 'Masquer la recherche et les filtres' : 'Rechercher ou filtrer'}{activeFilterCount > 0 && <span>{activeFilterCount}</span>}
-            </button>
-            {activeFilterCount > 0 && <button type="button" className="dashboard-filter-reset" onClick={resetFilters}>Tout effacer</button>}
-          </div>
-          <div id="dashboard-filters" className="dashboard-filters" hidden={!filtersOpen}>
-            <CFormInput value={query} onChange={event => setQuery(event.target.value)} placeholder="Nom ou thème du quiz" aria-label="Rechercher dans vos entraînements" />
-            <CFormSelect value={modeFilter} onChange={event => setModeFilter(event.target.value)} aria-label="Filtrer les entraînements par type"><option value="all">Tous les types</option><option value="prepared">Préparés</option><option value="progressive">Progressifs</option><option value="qcm">QCM</option></CFormSelect>
-            <CFormSelect value={topicFilter} onChange={event => setTopicFilter(event.target.value)} aria-label="Filtrer les entraînements par thème"><option value="all">Tous les thèmes</option>{topics.map(topic => <option key={topic} value={topic}>{topic}</option>)}</CFormSelect>
-            <CFormSelect value={sort} onChange={event => setSort(event.target.value)} aria-label="Trier les entraînements"><option value="recent">Plus récents</option><option value="score">Meilleur score</option><option value="title">Titre A-Z</option></CFormSelect>
-          </div>
-          <div className="dashboard-master-detail">
-            <div className="dashboard-quiz-list">{filteredPlayed.map(quiz => <QuizSummary key={quiz.id} quiz={quiz} attempts={attempts.filter(attempt => attempt.quizId === quiz.id).length} selected={selectedQuiz?.id === quiz.id} onSelect={setSelectedId} />)}{!filteredPlayed.length && <div className="dashboard-filter-empty">Aucun entraînement ne correspond aux filtres.</div>}</div>
-            <DashboardProgressDetail quiz={selectedQuiz} points={selectedPoints} />
-          </div>
-        </> : <div className="dashboard-empty"><p>Faites une première tentative : votre score et votre évolution viendront naturellement s’afficher ici.</p></div>}
-      </section>
-      {suggestedQuizzes.length > 0 && <section className="dashboard-section dashboard-all-quizzes" aria-labelledby="dashboard-all-title"><div className="dashboard-section-heading"><div><span className="eyebrow">{played.length ? 'À DÉCOUVRIR ENSUITE' : 'POUR COMMENCER'}</span><h2 id="dashboard-all-title">{played.length ? 'À votre rythme, la suite vous attend.' : 'Un sujet pour commencer'}</h2></div><Link className="dashboard-text-link" to="/">Tous les quiz <DemoIcon name="arrowRight" /></Link></div><div className="dashboard-quick-grid">{suggestedQuizzes.map(quiz => <Link key={quiz.id} to={`/quiz/${quiz.id}`}><span>{quiz.topic}</span><strong>{quiz.title}</strong><small>{quiz.questionCount ?? quiz.questions.length} questions <b><DemoIcon name="externalLink" /></b></small></Link>)}</div></section>}
+      <header className="dashboard-heading"><div><span className="eyebrow">{recentQuiz ? 'VOTRE ESPACE D’APPRENTISSAGE' : 'BIENVENUE DANS VOTRE ESPACE'}</span><h1>{recentQuiz ? 'Reprenez à votre rythme.' : 'Prêt à apprendre quelque chose ?'}</h1><p>{recentQuiz ? 'Votre dernier quiz est prêt à reprendre. Vos graphiques sont dans votre suivi.' : 'Choisissez un quiz pour commencer. Vos résultats apparaîtront dans votre suivi.'}</p></div><Link className="btn btn-success button button-dark" to={recentQuiz ? `/quiz/${recentQuiz.id}` : '/'}>{recentQuiz ? 'Reprendre le dernier quiz' : 'Découvrir les quiz'} <DemoIcon name="arrowRight" /></Link></header>
+      {recentQuiz && recentAttempt && <section className="dashboard-resume-section" aria-labelledby="dashboard-resume-title">
+        <div className="dashboard-section-heading"><div><span className="eyebrow">REPRENDRE</span><h2 id="dashboard-resume-title">Là où vous en étiez</h2></div><Link className="dashboard-text-link" to="/suivi">Voir mon suivi <DemoIcon name="arrowRight" /></Link></div>
+        <Link className="dashboard-resume-card" to={`/quiz/${recentQuiz.id}`}>
+          <span><span className="eyebrow">{recentQuiz.topic}</span><strong>{recentQuiz.title}</strong><small>{recentQuiz.questionCount ?? recentQuiz.questions.length} questions · dernier score {recentAttempt.score}/{recentAttempt.max} ({recentAttempt.percentage}%)</small></span>
+          <span className="dashboard-resume-action">Reprendre <DemoIcon name="arrowRight" /></span>
+        </Link>
+      </section>}
+      {!recentQuiz && <section className="dashboard-empty dashboard-first-step" aria-label="Commencer un quiz"><p>Faites une première tentative : vos résultats et graphiques apparaîtront automatiquement dans « Suivi ».</p><Link className="dashboard-text-link" to="/suivi">Découvrir votre suivi <DemoIcon name="arrowRight" /></Link></section>}
+      {suggestedQuizzes.length > 0 && <section className="dashboard-section dashboard-all-quizzes" aria-labelledby="dashboard-all-title"><div className="dashboard-section-heading"><div><span className="eyebrow">{recentQuiz ? 'À DÉCOUVRIR ENSUITE' : 'POUR COMMENCER'}</span><h2 id="dashboard-all-title">{recentQuiz ? 'Envie d’un autre sujet ?' : 'Un sujet pour commencer'}</h2></div><Link className="dashboard-text-link" to="/">Tous les quiz <DemoIcon name="arrowRight" /></Link></div><div className="dashboard-quick-grid">{suggestedQuizzes.map(quiz => <Link key={quiz.id} to={`/quiz/${quiz.id}`}><span>{quiz.topic}</span><strong>{quiz.title}</strong><small>{quiz.questionCount ?? quiz.questions.length} questions <b><DemoIcon name="externalLink" /></b></small></Link>)}</div></section>}
       <section className="dashboard-section backup-section" aria-labelledby="backup-title">
         <details className="dashboard-backup-details">
           <summary><span><span className="eyebrow">VOS DONNÉES</span><strong id="backup-title">Sauvegarder ou restaurer</strong></span><DemoIcon name="arrowRight" /></summary>

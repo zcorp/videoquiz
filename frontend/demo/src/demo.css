@@ -1177,12 +1177,78 @@ body, .demo-shell { background: var(--paper); color: var(--ink); }
   .demo-header-inner, .demo-page, .demo-footer.footer { width: calc(100% - 28px); }
   .player-page, .editor-page { padding-right: 14px; padding-left: 14px; }
   .road-video-grid { grid-template-columns: minmax(0, 1fr); }
+}
+
+.tracking-heading { padding: 42px 0 24px; }
+.tracking-heading h1 { margin: 7px 0; font: 750 46px/1.1 'DM Sans', sans-serif; letter-spacing: -.035em; }
+.tracking-heading p { margin: 0; color: var(--muted); font-size: 14px; }
+.tracking-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; padding-bottom: 35px; }
+.tracking-card { min-width: 0; padding: 20px; border: 1px solid #e4e7e0; border-radius: 10px; background: var(--surface); box-shadow: 0 3px 12px rgba(32,40,36,.04); }
+.tracking-card-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.tracking-card-heading > div { min-width: 0; }
+.tracking-card-heading h2 { margin: 6px 0 4px; font: 700 20px/1.25 'DM Sans', sans-serif; overflow-wrap: anywhere; }
+.tracking-card-heading p { margin: 0; color: var(--muted); font-size: 12px; }
+.tracking-card-heading .badge { flex: 0 0 auto; padding: 7px 9px; border-radius: 999px; font-size: 12px; }
+.tracking-card-score { display: flex; align-items: baseline; gap: 10px; margin-top: 16px; }
+.tracking-card-score span { color: var(--muted); font-size: 12px; }
+.tracking-card-score strong { color: var(--green); font: 700 20px var(--mono); }
+.tracking-card .progression-chart-wrap { margin-top: 10px; }
+.tracking-history-link { display: inline-flex; align-items: center; gap: 7px; margin-top: 12px; color: var(--green); font-size: 13px; font-weight: 700; text-decoration: none; }
+.tracking-history-link:hover { color: var(--turquoise); text-decoration: underline; }
+.tracking-empty { max-width: 680px; margin: 18px 0 70px; padding: 30px; border: 1px solid #e4e7e0; border-radius: 10px; background: var(--surface); }
+.tracking-empty h2 { margin: 8px 0; font: 700 25px/1.25 'DM Sans', sans-serif; }
+.tracking-empty p { color: var(--muted); line-height: 1.6; }
+
+.dashboard-resume-section { padding: 10px 0 28px; }
+.dashboard-resume-card { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 20px; border: 1px solid #e4e7e0; border-radius: 10px; background: var(--surface); color: var(--ink); box-shadow: 0 3px 12px rgba(32,40,36,.04); text-decoration: none; }
+.dashboard-resume-card:hover { border-color: var(--turquoise); color: var(--ink); box-shadow: 0 8px 24px rgba(0,109,117,.1); }
+.dashboard-resume-card > span:first-child { display: grid; gap: 7px; min-width: 0; }
+.dashboard-resume-card strong { font: 700 20px/1.25 'DM Sans', sans-serif; overflow-wrap: anywhere; }
+.dashboard-resume-card small { color: var(--muted); font-size: 12px; }
+.dashboard-resume-action { display: inline-flex; align-items: center; gap: 8px; flex: 0 0 auto; color: var(--green); font-size: 13px; font-weight: 700; }
+.dashboard-first-step { margin-bottom: 24px; padding: 20px; border: 1px solid #e4e7e0; border-radius: 10px; background: var(--surface); }
+.dashboard-first-step .dashboard-text-link { margin-top: 8px; }
+.mobile-bottom-nav { display: none; }
+
+@media (max-width: 900px) {
+  .demo-shell:not(.is-immersive) { padding-bottom: calc(78px + env(safe-area-inset-bottom)); }
+  .mobile-bottom-nav { position: fixed; right: 0; bottom: 0; left: 0; z-index: 25; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); min-height: 66px; padding: 6px 8px calc(6px + env(safe-area-inset-bottom)); border-top: 1px solid #dce4df; background: rgba(255,255,255,.97); box-shadow: 0 -5px 20px rgba(16,42,67,.08); backdrop-filter: blur(14px); }
+  .mobile-bottom-nav-link { display: flex; min-width: 0; min-height: 48px; align-items: center; justify-content: center; flex-direction: column; gap: 4px; border-radius: 8px; color: #58675f; font: 650 11px 'DM Sans', sans-serif; text-decoration: none; touch-action: manipulation; }
+  .mobile-bottom-nav-link .demo-icon { width: 20px; height: 20px; }
+  .mobile-bottom-nav-link.active { background: #eaf3ee; color: #174737; }
+  .mobile-bottom-nav-link.active .demo-icon { color: var(--turquoise); }
+  .tracking-grid { grid-template-columns: minmax(0, 1fr); }
+  .tracking-heading { padding: 30px 0 19px; }
+  .tracking-heading h1 { font-size: 36px; }
+  .tracking-card { padding: 16px; }
+}
+
+@media (max-width: 680px) {
+  .dashboard-heading { padding-top: 28px; }
+  .dashboard-resume-section { padding-top: 5px; }
+  .dashboard-resume-card { align-items: flex-start; flex-direction: column; gap: 14px; padding: 16px;   }
+  .dashboard-resume-action { min-height: 40px; }
+  .tracking-heading p { font-size: 15px; line-height: 1.5; }
+  .tracking-empty { margin-top: 10px; padding: 20px; }
   .road-video-card-copy.card-body { padding: 14px; }
   .progression-panel-heading { align-items: flex-start; flex-direction: column; }
   .progression-latest { display: flex; align-items: baseline; gap: 8px; text-align: left; }
   .progression-latest strong { margin: 0; }
   .result-score { grid-template-columns: auto auto; }
   .result-score > span:last-child { grid-column: 1 / -1; grid-row: 3; }
+}
+
+@media (min-width: 681px) and (max-width: 900px) {
+  .demo-header-inner { position: relative; }
+  .demo-menu-toggle { display: inline-grid; place-items: center; width: 44px; height: 44px; flex: 0 0 auto; padding: 0; border: 1px solid var(--rule); border-radius: 8px; background: #fff; color: var(--green); }
+  .demo-menu-toggle .demo-icon { width: 21px; height: 21px; }
+  .demo-menu-toggle:focus-visible { outline: 3px solid rgba(36,92,75,.35); outline-offset: 2px; }
+  .demo-nav { position: absolute; top: calc(100% + 8px); right: 0; z-index: 20; display: none; width: min(280px, calc(100vw - 32px)); align-items: stretch; flex-direction: column; gap: 5px; padding: 10px; border: 1px solid var(--rule); border-radius: 10px; background: #fff; box-shadow: 0 14px 34px rgba(32,40,36,.16); font-size: 14px; }
+  .demo-nav.is-open { display: flex; }
+  .demo-nav a:not(.nav-create) { color: var(--navy); }
+  .demo-nav a.active:not(.nav-create), .demo-nav > a:not(.nav-create):hover { border-left: 3px solid var(--turquoise); background: #e6f4f3; color: var(--navy); }
+  .demo-nav > a:not(.nav-create) { display: flex; min-height: 44px; align-items: center; padding: 0 12px; border-radius: 7px; }
+  .demo-nav .nav-create { width: 100%; min-height: 44px; justify-content: flex-start; margin: 2px 0 0; padding: 0 12px; border: 0; font-size: 14px; }
 }
 
 @media (max-width: 900px) {

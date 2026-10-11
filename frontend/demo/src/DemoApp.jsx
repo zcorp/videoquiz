@@ -10,6 +10,8 @@ import DashboardPage from './components/DashboardPage.jsx';
 import WelcomeGuide from './components/WelcomeGuide.jsx';
 import RoadCodeVideosPage from './components/RoadCodeVideosPage.jsx';
 import HelpPage from './components/HelpPage.jsx';
+import TrackingPage from './components/TrackingPage.jsx';
+import MobileBottomNavigation from './components/MobileBottomNavigation.jsx';
 import { demoQuizzes } from './data/demoQuizzes.js';
 import { deleteLocalQuiz, getAttempts, getLocalQuizzes, saveAttempt, saveLocalQuiz } from './services/localStore.js';
 
@@ -35,6 +37,9 @@ export default function DemoApp() {
   const lastTrackedLocation = useRef(null);
   const analyticsConsentRef = useRef(analyticsConsent);
   const location = useLocation();
+  const immersiveRoute = location.pathname.startsWith('/quiz/')
+    || location.pathname === '/create'
+    || location.pathname.startsWith('/edit/');
   const quizzes = useMemo(() => [...localQuizzes, ...demoQuizzes], [localQuizzes]);
   const trackInteraction = useCallback(eventName => {
     if (analyticsConsentRef.current === 'accepted' && window.gtag) window.gtag('event', eventName);
@@ -114,11 +119,12 @@ export default function DemoApp() {
   };
 
   return (
-    <div className="demo-shell">
+    <div className={`demo-shell${immersiveRoute ? ' is-immersive' : ''}`}>
       <DemoHeader />
       <Routes>
         <Route path="/" element={<DemoHome quizzes={quizzes} attempts={attempts} onDelete={id => { deleteLocalQuiz(id); setLocalQuizzes(getLocalQuizzes()); }} />} />
         <Route path="/dashboard" element={<DashboardPage quizzes={quizzes} attempts={attempts} onDataChanged={refreshLocalData} onTrack={trackInteraction} />} />
+        <Route path="/suivi" element={<TrackingPage quizzes={quizzes} attempts={attempts} />} />
         <Route path="/help" element={<HelpPage onOpenAnalyticsPreferences={() => setShowAnalyticsChoices(true)} />} />
         <Route path="/videos" element={<RoadCodeVideosPage quizzes={quizzes} />} />
         <Route path="/videos/code-route" element={<RoadCodeVideosPage quizzes={quizzes} />} />
@@ -128,6 +134,7 @@ export default function DemoApp() {
         <Route path="/edit/:quizId" element={<DemoEditor quiz={localQuizzes.find(quiz => quiz.id === location.pathname.split('/').pop())} quizzes={quizzes} onSave={addQuiz} />} />
         <Route path="*" element={<DemoHome quizzes={quizzes} attempts={attempts} />} />
       </Routes>
+      <MobileBottomNavigation />
       <CFooter className="demo-footer">
         <span>VIDEO QUIZ <CBadge color="secondary">DÉMO</CBadge></span>
         <Link to="/help">À propos & aide</Link>
