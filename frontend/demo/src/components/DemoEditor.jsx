@@ -5,6 +5,7 @@ import { formatChoiceLabel, formatTime, getVideoUrl } from '../data/demoQuizzes.
 import { getQuizUsingVideo } from '../services/localStore.js';
 import { extractYouTubeVideoId } from '../services/youtube.js';
 import DemoIcon from './DemoIcon.jsx';
+import FirstVisitNotice from './FirstVisitNotice.jsx';
 
 function createId() {
   if (typeof globalThis.crypto?.randomUUID === 'function') return globalThis.crypto.randomUUID();
@@ -170,8 +171,9 @@ export default function DemoEditor({ quiz, quizzes = [], onSave }) {
 
   return (
     <main className="demo-page editor-page">
-      <div className="player-topline"><Link to="/" className="back-link"><DemoIcon name="arrowLeft" /> Bibliothèque</Link><span className="eyebrow">VOTRE ESPACE LOCAL</span><span className="player-save-note"><DemoIcon name="circle" /> Enregistrement dans ce navigateur</span></div>
-      <div className="editor-heading"><span className="eyebrow">CRÉATEUR DE QUIZ</span><h1>{quiz ? 'Affinez votre quiz.' : 'Une vidéo, vos questions.'}</h1><p>Votre quiz reste dans ce navigateur. La vidéo se charge depuis YouTube.</p></div>
+      <FirstVisitNotice storageKey="videoquiz-demo:first-visit:editor:v1" message="Vos quiz créés sont enregistrés dans ce navigateur." />
+      <div className="player-topline"><Link to="/" className="back-link"><DemoIcon name="arrowLeft" /> Bibliothèque</Link></div>
+      <div className="editor-heading"><span className="eyebrow">CRÉATEUR DE QUIZ</span><h1>{quiz ? 'Affinez votre quiz.' : 'Une vidéo, vos questions.'}</h1><p>La vidéo se charge depuis YouTube.</p></div>
       <form className="editor-form" onSubmit={save}>
         <CCard className="editor-section" role="group">
           <div className="editor-section-title"><CBadge className="editor-section-number" color="success">01</CBadge><div><h2>La vidéo</h2><p>Collez le lien YouTube que vous souhaitez accompagner.</p></div></div>

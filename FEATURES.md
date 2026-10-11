@@ -35,6 +35,14 @@ Ce document décrit les fonctionnalités disponibles dans la démo statique publ
 
 **Étant donné** qu’aucune préférence n’a encore été donnée, **lorsque** l’utilisateur accepte ou refuse la mesure d’audience, **alors** son choix est mémorisé et peut être modifié depuis le pied de page.
 
+### Comprendre le projet et poursuivre son parcours
+
+**Étant donné** la page d’aide, **lorsque** l’utilisateur cherche à comprendre la démarche ou à continuer, **alors** il trouve une explication simple du projet, des repères sur ses données et des accès directs à la bibliothèque, aux vidéos et à son suivi, sans devoir quitter la démo.
+
+### Sélectionner un entraînement sur mobile
+
+**Étant donné** plusieurs quiz joués dans le tableau de bord, **lorsque** l’utilisateur sélectionne un quiz sur petit écran, **alors** ses détails apparaissent immédiatement dans la ligne sélectionnée, sans second tap ni zone de défilement imbriquée. Sur grand écran, la présentation maître/détail reste disponible.
+
 ## Catalogue des fonctionnalités
 
 ### Bibliothèque de quiz
@@ -81,6 +89,8 @@ Ce document décrit les fonctionnalités disponibles dans la démo statique publ
 - **REQ-028 — Signaler les erreurs de sauvegarde :** un format non reconnu, un fichier illisible ou une erreur de stockage est annoncé dans l’interface et n’est pas présenté comme un import réussi.
 - **REQ-029 — Mesurer les interactions consenties :** après acceptation seulement, Analytics peut recevoir des événements sans paramètre utilisateur pour le démarrage, la reprise, l’abandon ou la fin d’un quiz, l’ouverture du mode lecture et les actions de sauvegarde. Aucune réponse, correction, titre, identifiant de quiz ni donnée saisie n’est inclus.
 - **REQ-030 — Rendre les parcours accessibles :** les commandes et retours sont utilisables au clavier et annoncés aux technologies d’assistance, les erreurs sont identifiables, les animations sont réduites selon la préférence du système et les textes courants restent lisibles sur petit écran.
+- **REQ-031 — Guider sans détourner :** la page d’aide explique simplement l’objectif et les principes du projet, puis propose des liens internes vers la bibliothèque, la collection de vidéos et le tableau de bord; les informations sur le stockage local et la confidentialité y restent faciles à trouver.
+- **REQ-032 — Sélectionner un entraînement d’un seul geste :** sur mobile et tablette, un seul tap sur un entraînement affiche ses détails dans la ligne sélectionnée, sans panneau séparé à rechercher ni liste à défilement imbriqué. Sur ordinateur, la vue maître/détail est conservée.
 
 ## Entités fonctionnelles
 
@@ -116,6 +126,8 @@ Ce document décrit les fonctionnalités disponibles dans la démo statique publ
 - **SC-020 :** les écrans de la démo appliquent une typographie cohérente avec CoreUI; les formulaires gardent une taille de saisie de 16 px et les numérotations de questions, étapes et tentatives utilisent une hiérarchie visuelle lisible et uniforme.
 - **SC-021 :** la démo utilise une identité de marque cohérente bleu nuit, turquoise et corail dans son en-tête, ses actions, ses états de réponse, sa progression et ses accents; les fonds clairs et les contrastes maintiennent la lisibilité.
 - **SC-022 :** sur téléphone et tablette, les pages utilisent la largeur disponible avec des marges cohérentes, une hiérarchie de titres lisible et des informations clés alignées; les grilles et actions restent utilisables sans défilement horizontal, et le lecteur vidéo reste épinglé sous la barre de navigation pendant le défilement du quiz.
+- **SC-023 :** depuis la page d’aide, l’utilisateur peut en un clic atteindre la bibliothèque, les vidéos ou le tableau de bord; les principes du projet, le stockage local et les choix de confidentialité sont expliqués sans lien vers une page externe.
+- **SC-024 :** avec au moins deux quiz joués, un tap sur une ligne d’entraînement à 900 px CSS ou moins sélectionne le quiz et affiche ses détails dans cette ligne; aucun second tap ni défilement dans une zone interne n’est requis. Au-delà de 900 px, le panneau maître/détail desktop reste visible et utilisable.
 
 ## Hors périmètre et limites connues
 

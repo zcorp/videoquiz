@@ -4,6 +4,7 @@ import { CBadge, CCard, CCardBody, CFormInput, CFormSelect, CProgress } from '@c
 import { formatDate, ScoreChart } from './ProgressionPage.jsx';
 import { exportLocalBackup, getQuizProgression, importLocalBackup } from '../services/localStore.js';
 import DemoIcon from './DemoIcon.jsx';
+import FirstVisitNotice from './FirstVisitNotice.jsx';
 
 function QuizSummary({ quiz, attempts, selected, onSelect }) {
   const progression = getQuizProgression(quiz.id);
@@ -30,6 +31,7 @@ function QuizSummary({ quiz, attempts, selected, onSelect }) {
         <Link className="icon-action icon-play" to={`/quiz/${quiz.id}`} aria-label={`Lancer ${quiz.title}`} title="Lancer"><DemoIcon name="mediaPlay" /></Link>
         {latest && <Link className="icon-action" to={`/progression/${quiz.id}`} aria-label={`Afficher l’évolution de ${quiz.title}`} title="Afficher l’évolution"><DemoIcon name="externalLink" /></Link>}
       </div>
+      {selected && <div className="dashboard-mobile-progress-detail"><DashboardProgressDetail quiz={quiz} points={progression} /></div>}
     </article>
   );
 }
@@ -141,20 +143,11 @@ export default function DashboardPage({ quizzes, attempts, onDataChanged, onTrac
 
   return (
     <main className="demo-page dashboard-page">
-      <div className="player-topline local-data-topline">
-        <Link to="/" className="back-link"><DemoIcon name="arrowLeft" /> Bibliothèque</Link>
-        <div className="local-data-status">
-          <span className="local-data-indicator"><DemoIcon name="check" /></span>
-          <span className="local-data-copy">
-            <span className="local-data-label">Espace local</span>
-            <span className="local-data-message">Données conservées sur cet appareil</span>
-          </span>
-        </div>
-      </div>
+      <FirstVisitNotice storageKey="videoquiz-demo:first-visit:dashboard:v1" message="Vos quiz et résultats restent dans ce navigateur." />
       <header className="dashboard-heading"><div><span className="eyebrow">TABLEAU DE BORD</span><h1>Votre progression, en un coup d’œil.</h1><p>Retrouvez vos quiz, vos résultats et les prochaines révisions à poursuivre.</p></div><Link className="btn btn-success button button-dark" to="/create">Créer un quiz <DemoIcon name="plus" /></Link></header>
       <section className="dashboard-stats" aria-label="Résumé de votre activité">{[
         ['QUIZ JOUÉS', played.length, `sur ${quizzes.length} disponibles`],
-        ['TENTATIVES', totalAttempts, 'conservées localement'],
+        ['TENTATIVES', totalAttempts, 'enregistrées au total'],
         ['MOYENNE', <>{average}<small>%</small></>, 'sur les tentatives terminées'],
         ['MEILLEUR SCORE', bestAttempt ? `${bestAttempt.score}/${bestAttempt.max}` : '—', bestAttempt ? `${bestAttempt.percentage}%` : 'À établir'],
       ].map(([label, value, caption]) => <CCard className="dashboard-stat-card" key={label}><CCardBody><span className="eyebrow">{label}</span><strong>{value}</strong><small>{caption}</small></CCardBody></CCard>)}</section>

@@ -51,6 +51,7 @@ export default function DemoHeader() {
           <nav id="primary-navigation" className={`demo-nav${menuOpen ? ' is-open' : ''}`} aria-label="Navigation principale">
             <NavLink to="/" end onClick={closeMenu}>Découvrir</NavLink>
             <NavLink to="/dashboard" onClick={closeMenu}>Dashboard</NavLink>
+            <NavLink to="/help" onClick={closeMenu}>Aide</NavLink>
             <NavLink className="btn btn-outline-success nav-create" to="/create" onClick={closeMenu}><DemoIcon name="plus" /> Créer un quiz</NavLink>
           </nav>
         </CContainer>

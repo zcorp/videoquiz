@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Route, Routes, useLocation } from 'react-router-dom';
+import { Link, Route, Routes, useLocation } from 'react-router-dom';
 import { CBadge, CFooter } from '@coreui/react';
 import DemoHeader from './components/DemoHeader.jsx';
 import DemoHome from './components/DemoHome.jsx';
@@ -9,6 +9,7 @@ import ProgressionPage from './components/ProgressionPage.jsx';
 import DashboardPage from './components/DashboardPage.jsx';
 import WelcomeGuide from './components/WelcomeGuide.jsx';
 import RoadCodeVideosPage from './components/RoadCodeVideosPage.jsx';
+import HelpPage from './components/HelpPage.jsx';
 import { demoQuizzes } from './data/demoQuizzes.js';
 import { deleteLocalQuiz, getAttempts, getLocalQuizzes, saveAttempt, saveLocalQuiz } from './services/localStore.js';
 
@@ -118,6 +119,7 @@ export default function DemoApp() {
       <Routes>
         <Route path="/" element={<DemoHome quizzes={quizzes} attempts={attempts} onDelete={id => { deleteLocalQuiz(id); setLocalQuizzes(getLocalQuizzes()); }} />} />
         <Route path="/dashboard" element={<DashboardPage quizzes={quizzes} attempts={attempts} onDataChanged={refreshLocalData} onTrack={trackInteraction} />} />
+        <Route path="/help" element={<HelpPage onOpenAnalyticsPreferences={() => setShowAnalyticsChoices(true)} />} />
         <Route path="/videos" element={<RoadCodeVideosPage quizzes={quizzes} />} />
         <Route path="/videos/code-route" element={<RoadCodeVideosPage quizzes={quizzes} />} />
         <Route path="/quiz/:quizId" element={<DemoPlayer quizzes={quizzes} onAttempt={addAttempt} onTrack={trackInteraction} />} />
@@ -128,7 +130,7 @@ export default function DemoApp() {
       </Routes>
       <CFooter className="demo-footer">
         <span>VIDEO QUIZ <CBadge color="secondary">DÉMO</CBadge></span>
-        <span>Quiz et scores enregistrés sur cet appareil.</span>
+        <Link to="/help">À propos & aide</Link>
         <span>© {new Date().getFullYear()} ZCOORE. Tous droits réservés.</span>
         <button className="analytics-preferences-link" type="button" onClick={() => setShowAnalyticsChoices(true)}>Préférences Analytics</button>
       </CFooter>

@@ -5,6 +5,7 @@ import { area, curveMonotoneX, line, scaleLinear } from 'd3';
 import { demoQuizzes } from '../data/demoQuizzes.js';
 import { getQuizProgression } from '../services/localStore.js';
 import DemoIcon from './DemoIcon.jsx';
+import FirstVisitNotice from './FirstVisitNotice.jsx';
 
 export function formatDate(value) {
   return new Intl.DateTimeFormat('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' }).format(new Date(value));
@@ -68,15 +69,9 @@ export default function ProgressionPage({ quizzes }) {
 
   return (
     <main className="demo-page progression-page">
-      <div className="player-topline local-data-topline">
+      <FirstVisitNotice storageKey="videoquiz-demo:first-visit:progression:v1" message="L’historique de ce quiz est conservé dans ce navigateur." />
+      <div className="player-topline">
         <Link to="/" className="back-link"><DemoIcon name="arrowLeft" /> Tous les quiz</Link>
-        <div className="local-data-status">
-          <span className="local-data-indicator"><DemoIcon name="check" /></span>
-          <span className="local-data-copy">
-            <span className="local-data-label">Suivi local</span>
-            <span className="local-data-message">Historique sur cet appareil</span>
-          </span>
-        </div>
       </div>
       <header className="progression-heading"><span className="eyebrow">VOTRE ÉVOLUTION</span><h1>{quiz.title}</h1><p>{points.length ? `${points.length} tentative${points.length === 1 ? '' : 's'} enregistrée${points.length === 1 ? '' : 's'} pour ce quiz.` : 'Votre progression apparaîtra après votre première tentative.'}</p></header>
       {points.length ? <>
