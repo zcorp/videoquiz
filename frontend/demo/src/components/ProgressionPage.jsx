@@ -11,10 +11,10 @@ export function formatDate(value) {
   return new Intl.DateTimeFormat('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' }).format(new Date(value));
 }
 
-export function ScoreChart({ points, compact = false, attemptOffset = 0 }) {
-  const width = 720;
-  const height = 280;
-  const padding = { top: 24, right: 28, bottom: 42, left: 48 };
+export function ScoreChart({ points, compact = false, mini = false, attemptOffset = 0 }) {
+  const width = mini ? 360 : 720;
+  const height = mini ? 100 : 280;
+  const padding = mini ? { top: 10, right: 10, bottom: 10, left: 10 } : { top: 24, right: 28, bottom: 42, left: 48 };
   const max = points[0]?.max || 1;
   const xScale = scaleLinear().domain([0, Math.max(points.length - 1, 1)]).range([padding.left, width - padding.right]);
   const x = index => points.length === 1 ? width / 2 : xScale(index);
@@ -23,15 +23,15 @@ export function ScoreChart({ points, compact = false, attemptOffset = 0 }) {
   const scoreLine = line().x(point => x(point.index)).y(point => y(point.score)).curve(curveMonotoneX);
   const scoreArea = area().x(point => x(point.index)).y0(y(0)).y1(point => y(point.score)).curve(curveMonotoneX);
   const yTickStep = Math.max(1, Math.ceil(max / 4));
-  const yTicks = [...Array.from({ length: Math.ceil(max / yTickStep) }, (_, index) => index * yTickStep), max];
+  const yTicks = mini ? [] : [...Array.from({ length: Math.ceil(max / yTickStep) }, (_, index) => index * yTickStep), max];
   const xTickStep = Math.max(1, Math.ceil((points.length - 1) / 5));
-  const xTicks = [...new Set([0, ...points.map((_, index) => index).filter(index => index % xTickStep === 0), points.length - 1])];
+  const xTicks = mini ? [] : [...new Set([0, ...points.map((_, index) => index).filter(index => index % xTickStep === 0), points.length - 1])];
   const gradientId = `score-area-${useId().replace(/:/g, '')}`;
   const chartBottom = height - padding.bottom;
 
   return (
     <div className="progression-chart-wrap">
-      <svg className={`progression-chart${compact ? ' is-compact' : ''}`} viewBox={`0 0 ${width} ${height}`} role="img" aria-label={`Évolution du score sur ${points.length} tentative${points.length === 1 ? '' : 's'}`}>
+      <svg className={`progression-chart${compact ? ' is-compact' : ''}${mini ? ' is-mini' : ''}`} viewBox={`0 0 ${width} ${height}`} role="img" aria-label={`Évolution du score sur ${points.length} tentative${points.length === 1 ? '' : 's'}`}>
         <defs>
           <linearGradient id={gradientId} x1="0" x2="0" y1="0" y2="1">
             <stop offset="0%" stopColor="var(--green)" stopOpacity=".22" />
@@ -42,7 +42,7 @@ export function ScoreChart({ points, compact = false, attemptOffset = 0 }) {
           <line x1={padding.left} x2={width - padding.right} y1={y(value)} y2={y(value)} />
           <text x={padding.left - 12} y={y(value) + 4} textAnchor="end">{value}</text>
         </g>)}
-        <path className="progression-area" d={scoreArea(data)} fill={`url(#${gradientId})`} />
+        {!mini && <path className="progression-area" d={scoreArea(data)} fill={`url(#${gradientId})`} />}
         {data.length > 1 && <path className="progression-line" d={scoreLine(data)} />}
         {data.map(point => <g className="progression-point" key={`${point.date}-${point.index}`} tabIndex="0" role="img" aria-label={`Tentative ${point.attemptNumber} : ${point.score} sur ${point.max}, ${point.percentage} %, ${formatDate(point.date)}`}>
           <circle className="progression-point-hit" cx={x(point.index)} cy={y(point.score)} r="13" />
@@ -55,7 +55,7 @@ export function ScoreChart({ points, compact = false, attemptOffset = 0 }) {
         </g>)}
         <line className="chart-axis" x1={padding.left} x2={width - padding.right} y1={chartBottom} y2={chartBottom} />
       </svg>
-      <div className="progression-chart-legend"><span><i /> Score brut</span><span>{points.length} tentative{points.length === 1 ? '' : 's'} · maximum {max}</span></div>
+      {!mini && <div className="progression-chart-legend"><span><i /> Score brut</span><span>{points.length} tentative{points.length === 1 ? '' : 's'} · maximum {max}</span></div>}
     </div>
   );
 }
