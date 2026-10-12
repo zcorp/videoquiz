@@ -1748,3 +1748,43 @@ body, .demo-shell { background: var(--paper); color: var(--ink); }
   from { opacity: 0; transform: translateY(12px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+@media (max-width: 900px) {
+  .road-videos-page.is-road-code-theme .road-video-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (min-width: 681px) and (max-width: 900px) {
+  .road-videos-page.is-road-code-theme .road-video-toolbar:not(.road-video-toolbar-guide) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(200px, 230px);
+    align-items: stretch;
+  }
+  .road-videos-page.is-road-code-theme .road-video-toolbar:not(.road-video-toolbar-guide) input {
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+  }
+  .road-videos-page.is-road-code-theme .road-video-toolbar:not(.road-video-toolbar-guide) select {
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+  }
+  .road-videos-page.is-road-code-theme .road-video-toolbar:not(.road-video-toolbar-guide) > span {
+    grid-column: 1 / -1;
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 900px) {
+  .road-videos-page.is-road-code-theme .road-prep-tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .road-videos-page.is-road-code-theme .road-prep-tabs button { min-height: 58px; }
+}
+
+@media (min-width: 381px) and (max-width: 680px) {
+  .road-videos-page.is-road-code-theme .road-neph-switch { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 380px) {
+  .road-videos-page.is-road-code-theme .road-video-grid { grid-template-columns: minmax(0, 1fr); }
+  .road-videos-page.is-road-code-theme .road-neph-switch { grid-template-columns: minmax(0, 1fr); }
+}
