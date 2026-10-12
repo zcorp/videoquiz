@@ -1,5 +1,5 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import DemoIcon from './DemoIcon.jsx';
 
 const steps = [
@@ -86,6 +86,17 @@ function StepVisual({ type }) {
 }
 
 export default function TutorialPage() {
+  const { hash } = useLocation();
+
+  useEffect(() => {
+    const stepId = hash.slice(1);
+    if (!/^tutorial-step-\d{2}$/.test(stepId)) return;
+    document.getElementById(stepId)?.scrollIntoView({
+      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+      block: 'start',
+    });
+  }, [hash]);
+
   return (
     <main className="demo-page tutorial-page">
       <header className="tutorial-hero">
@@ -99,10 +110,10 @@ export default function TutorialPage() {
 
       <nav className="tutorial-flow" aria-label="Les étapes du parcours">
         {steps.map((step, index) => (
-          <a className="tutorial-flow-step" href={`#tutorial-step-${step.number}`} key={step.number}>
+          <Link className="tutorial-flow-step" to={`/tutoriel#tutorial-step-${step.number}`} key={step.number}>
             <span>{step.number}</span><strong>{step.label}</strong>
             {index < steps.length - 1 && <DemoIcon className="tutorial-flow-arrow" name="arrowRight" />}
-          </a>
+          </Link>
         ))}
       </nav>
 

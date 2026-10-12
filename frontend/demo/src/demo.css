@@ -1799,6 +1799,15 @@ body, .demo-shell { background: var(--paper); color: var(--ink); }
     max-width: 320px;
     width: 100%;
   }
+  .road-videos-page.is-road-code-theme .road-video-toolbar-guide .form-select {
+    align-self: flex-start;
+    box-sizing: border-box;
+    flex: 0 1 320px;
+    height: 44px;
+    min-height: 44px;
+    max-height: 44px;
+    max-width: 100%;
+  }
   .tracking-custom-dates {
     min-width: 0;
     grid-template-columns: repeat(2, minmax(0, 1fr));
