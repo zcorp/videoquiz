@@ -119,6 +119,102 @@ button:disabled { cursor: not-allowed; opacity: .45; }
 .road-video-open.btn-outline-success:active { color: #fff; }
 .road-video-card-copy .card-text { margin: 0; }
 .road-video-source { color: var(--muted); font-size: 10px; }
+.road-video-toolbar-guide { justify-content: flex-end; }
+.road-video-toolbar-guide select { flex: 0 1 230px; }
+.road-prep-tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 0 0 23px; border-bottom: 1px solid var(--rule); }
+.road-prep-tabs button { position: relative; display: flex; min-width: 0; min-height: 64px; align-items: center; gap: 11px; padding: 10px 16px 12px 0; border: 0; background: transparent; color: #647067; font: 650 14px 'DM Sans', sans-serif; text-align: left; cursor: pointer; }
+.road-prep-tabs button > span { display: grid; width: 32px; height: 32px; flex: 0 0 auto; place-items: center; border: 1px solid #c9d4ca; border-radius: 50%; color: var(--green); font: 700 10px 'DM Sans', sans-serif; }
+.road-prep-tabs button::after { position: absolute; right: 16px; bottom: -1px; left: 0; height: 2px; background: transparent; content: ''; }
+.road-prep-tabs button:hover, .road-prep-tabs button.is-active { color: var(--green); }
+.road-prep-tabs button.is-active::after { background: var(--green); }
+.road-prep-tabs button.is-active > span { border-color: var(--green); background: #eaf1eb; }
+.road-prep-tabs button:focus-visible, .road-neph-switch button:focus-visible { outline: 3px solid rgba(36,92,75,.3); outline-offset: 3px; }
+.road-tabpanel { min-width: 0; }
+.road-tabpanel:focus { outline: none; }
+.road-guide-step { margin: 0; }
+.road-guide-step .tutorial-step-copy { align-items: flex-start; }
+.road-guide-step .tutorial-step-copy > .eyebrow { margin-top: 0; }
+.road-guide-step .tutorial-step-copy h2 { font-size: clamp(28px, 3.4vw, 42px); }
+.road-guide-step .tutorial-step-copy > p { margin-bottom: 18px; }
+.road-neph-switch { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; width: 100%; margin: 3px 0 12px; }
+.road-neph-switch button { min-height: 48px; padding: 8px 12px; border: 1px solid #dce1d8; border-radius: 6px; background: #fff; color: #536057; font: 650 13px/1.35 'DM Sans', sans-serif; text-align: left; cursor: pointer; }
+.road-neph-switch button:hover { border-color: #9db8a5; }
+.road-neph-switch button.is-selected { border-color: var(--green); background: #eaf1eb; color: var(--green); box-shadow: inset 0 0 0 1px var(--green); }
+.road-guide-step .tutorial-step-copy > .road-neph-guidance { margin: 0 0 17px; padding: 11px 14px; border-left: 2px solid #91b5a0; background: #f4f7f2; color: #526258; font-size: 14px; line-height: 1.55; }
+.road-guide-link { width: auto; min-height: 48px; justify-content: center; margin: 2px 0 0; }
+.road-guide-step .tutorial-step-copy > .road-prep-privacy { margin: 12px 0 0; }
+.road-guide-visual { min-height: 350px; }
+.road-neph-mock { display: grid; gap: 15px; width: min(100%, 480px); margin: 3px auto 0; padding: 21px; border: 1px solid #dce1d8; border-radius: 8px; background: rgba(255,255,255,.93); box-shadow: 0 8px 24px rgba(32,40,36,.06); }
+.road-neph-mock > strong { max-width: 340px; font: 700 21px/1.25 'DM Sans', sans-serif; letter-spacing: -.025em; }
+.road-neph-mock > div { display: flex; min-width: 0; align-items: center; gap: 12px; padding-top: 13px; border-top: 1px solid #e8ece5; }
+.road-mock-number { display: grid; width: 30px; height: 30px; flex: 0 0 auto; place-items: center; border-radius: 50%; background: #eaf1eb; color: var(--green); font: 700 10px 'DM Sans', sans-serif; }
+.road-neph-mock > div > span:last-child { display: grid; gap: 3px; }
+.road-neph-mock b { font-size: 13px; }
+.road-neph-mock small, .road-neph-mock > p { color: var(--muted); font-size: 12px; line-height: 1.45; }
+.road-neph-mock > p { display: flex; align-items: center; gap: 7px; margin: 0; padding-top: 11px; border-top: 1px solid #e8ece5; }
+.road-neph-mock > p .demo-icon { width: 15px; height: 15px; flex: 0 0 auto; color: var(--green); }
+.road-guide-list { display: grid; gap: 10px; margin: 0 0 20px; padding: 0; list-style: none; }
+.road-guide-list li { display: flex; align-items: center; gap: 10px; color: #536057; font-size: 14px; line-height: 1.45; }
+.road-guide-list li > span { display: grid; width: 24px; height: 24px; flex: 0 0 auto; place-items: center; border: 1px solid #b9cfc0; border-radius: 50%; color: var(--green); font: 700 10px 'DM Sans', sans-serif; }
+.road-map-art { position: relative; display: flex; min-height: 260px; flex: 1; align-items: flex-end; overflow: hidden; padding: 0 0 2px; }
+.road-map-art::before { position: absolute; inset: -20px; background: repeating-linear-gradient(35deg, transparent 0 37px, rgba(72,115,91,.12) 38px 43px, transparent 44px 80px), repeating-linear-gradient(125deg, transparent 0 50px, rgba(72,115,91,.1) 51px 56px, transparent 57px 100px); content: ''; transform: rotate(-8deg) scale(1.1); }
+.road-map-lines { position: absolute; inset: 0; }
+.road-map-lines i { position: absolute; width: 120%; height: 11px; border: 1px solid rgba(112,135,111,.18); border-right: 0; border-left: 0; border-radius: 50%; background: rgba(255,255,255,.52); transform: rotate(-22deg); }
+.road-map-lines i:nth-child(1) { top: 22%; left: -10%; }
+.road-map-lines i:nth-child(2) { top: 42%; left: -5%; transform: rotate(15deg); }
+.road-map-lines i:nth-child(3) { top: 61%; left: -15%; transform: rotate(-8deg); }
+.road-map-lines i:nth-child(4) { top: 5%; left: 5%; transform: rotate(68deg); }
+.road-map-lines i:nth-child(5) { top: -5%; right: -3%; transform: rotate(76deg); }
+.road-map-pin { position: absolute; z-index: 1; display: block; width: 24px; height: 24px; border: 6px solid #fff; border-radius: 50% 50% 50% 0; background: var(--green); box-shadow: 0 3px 10px rgba(32,40,36,.19); transform: rotate(-45deg); }
+.road-map-pin-main { top: 23%; left: 58%; width: 36px; height: 36px; background: #d79244; }
+.road-map-pin-secondary { top: 43%; left: 27%; }
+.road-map-result { position: relative; z-index: 2; display: grid; gap: 5px; width: min(100%, 390px); margin: 0 auto; padding: 14px 16px; border: 1px solid #e1e4dc; border-radius: 7px; background: rgba(255,255,255,.96); box-shadow: 0 7px 19px rgba(32,40,36,.08); }
+.road-map-result > span { color: var(--green); font: 700 9px 'DM Sans', sans-serif; letter-spacing: .08em; }
+.road-map-result strong { font: 650 14px 'DM Sans', sans-serif; }
+.road-map-result small { color: var(--muted); font-size: 11px; }
+.road-day-step .tutorial-step-copy > p { margin-bottom: 15px; }
+.road-day-label { margin-bottom: 10px; color: #647067; font: 700 10px 'DM Sans', sans-serif; letter-spacing: .08em; }
+.road-day-step .road-guide-list { gap: 8px; margin-bottom: 17px; }
+.road-day-step .road-guide-list li { align-items: flex-start; font-size: 13px; }
+.road-day-checklist { display: grid; gap: 12px; margin: 0 0 15px; padding: 0; list-style: none; }
+.road-day-checklist li { display: flex; align-items: flex-start; gap: 10px; }
+.road-day-checklist li > span { display: grid; width: 22px; height: 22px; flex: 0 0 auto; place-items: center; border-radius: 50%; background: #e6f1eb; color: var(--green); font-size: 13px; font-weight: 800; }
+.road-day-checklist li div { display: grid; gap: 2px; }
+.road-day-checklist strong { color: var(--ink); font-size: 14px; }
+.road-day-checklist small { color: var(--muted); font-size: 12px; line-height: 1.45; }
+.road-guide-secondary-link { display: inline-flex; align-items: center; gap: 7px; color: var(--green); font-size: 13px; font-weight: 700; text-decoration: none; }
+.road-guide-secondary-link:hover { text-decoration: underline; }
+.road-prep-video { overflow: hidden; aspect-ratio: 16 / 9; border-radius: 9px; background: #102a43; }
+.road-prep-video iframe { display: block; width: 100%; height: 100%; border: 0; }
+.road-day-visual { justify-content: flex-start; }
+.road-day-visual .road-prep-video { width: 100%; margin-top: 31px; }
+.road-day-visual .road-prep-privacy { margin-top: 11px; }
+.road-revisions { scroll-margin-top: 82px; }
+.road-revisions-heading { display: flex; align-items: end; justify-content: space-between; gap: 16px; margin: 0 0 18px; }
+.road-revisions-heading h2 { margin: 5px 0 4px; color: var(--navy); font: 750 clamp(25px, 3vw, 34px)/1.15 'DM Sans', sans-serif; letter-spacing: -.04em; }
+.road-revisions-heading p { margin: 0; color: var(--muted); font-size: 15px; }
+.road-revisions-heading > a { display: inline-flex; align-items: center; gap: 7px; flex: 0 0 auto; color: var(--green); font-size: 14px; font-weight: 700; text-decoration: none; }
+.road-revisions-heading > a:hover { text-decoration: underline; }
+@media (max-width: 680px) {
+  .road-prep-tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .road-prep-tabs button { min-height: 55px; font-size: 13px; }
+  .road-prep-tabs button::after { right: 12px; }
+  .road-neph-switch { grid-template-columns: minmax(0, 1fr); }
+  .road-guide-visual { min-height: 300px; }
+  .road-map-art { min-height: 220px; }
+  .road-guide-link { width: 100%; }
+  .road-revisions-heading { align-items: flex-start; flex-direction: column; }
+}
+@media (max-width: 360px) {
+  .road-prep-tabs button { gap: 7px; padding-right: 5px; font-size: 11px; }
+  .road-prep-tabs button > span { width: 27px; height: 27px; }
+  .road-guide-step { padding: 16px; }
+  .road-guide-step .tutorial-step-number { margin-bottom: 18px; }
+  .road-guide-step .tutorial-step-copy h2 { font-size: 25px; }
+  .road-neph-mock { padding: 15px; }
+  .road-neph-mock > strong { font-size: 18px; }
+  .road-revisions-heading > a { flex-wrap: wrap; }
+}
 .library-section { padding: 42px 0 68px; border-top: 1px solid var(--rule); }
 .section-heading { display: flex; align-items: end; justify-content: space-between; margin-bottom: 22px; }
 .section-heading h2 { margin: 5px 0 0; font: 600 32px var(--serif); }
