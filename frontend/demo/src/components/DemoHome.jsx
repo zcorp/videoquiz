@@ -3,12 +3,14 @@ import { Link } from 'react-router-dom';
 import { CBadge, CCard, CCardBody, CFormInput, CFormSelect } from '@coreui/react';
 import { videoLibrary } from '../data/demoQuizzes.js';
 import { getQuizUsingVideo } from '../services/localStore.js';
+import { translateTopic, useLanguage } from '../i18n.jsx';
 import YouTubeThumbnail from './YouTubeThumbnail.jsx';
 import DemoIcon from './DemoIcon.jsx';
 
 const normalizeTopic = value => value.toLocaleUpperCase('fr-FR');
 
 function QuizTile({ quiz, quizzes, attempt, onDelete }) {
+  const { t, language } = useLanguage();
   const conflictingQuiz = quiz.local ? getQuizUsingVideo(quiz.videoId, quizzes, quiz.id) : undefined;
   const quizPath = quiz.draft || conflictingQuiz ? `/edit/${quiz.id}` : `/quiz/${quiz.id}`;
   const isProgressive = quiz.mode === 'progressive' || quiz.mode === 'qcm';
@@ -17,23 +19,23 @@ function QuizTile({ quiz, quizzes, attempt, onDelete }) {
        : quiz.questions?.filter(question => question.prompt?.trim() && question.options?.filter(option => option.trim()).length >= 2).length ?? 0;
   return (
     <CCard className={`quiz-tile${quiz.exam ? ' exam-tile' : ''}`}>
-      <Link to={quizPath} className="tile-image-link" aria-label={`${conflictingQuiz ? 'Corriger l’association vidéo de' : quiz.draft ? 'Reprendre' : 'Ouvrir'} ${quiz.title}`}>
-        <YouTubeThumbnail className="tile-image" videoId={quiz.videoId} alt={`Vidéo : ${quiz.videoLabel}`} />
+      <Link to={quizPath} className="tile-image-link" aria-label={`${t(conflictingQuiz ? 'Corriger l’association vidéo de' : quiz.draft ? 'Reprendre' : 'Ouvrir')} ${quiz.title}`}>
+        <YouTubeThumbnail className="tile-image" videoId={quiz.videoId} alt={`${t('Vidéo :')} ${quiz.videoLabel}`} />
         <span className="tile-play"><DemoIcon name="mediaPlay" /></span>
-        <span className="tile-count">{isProgressive ? `${quiz.questionCount ?? quiz.questions.length} questions` : `${quiz.questions.length} ${quiz.questions.length === 1 ? 'question' : 'questions'}`}</span>
+        <span className="tile-count">{isProgressive ? `${quiz.questionCount ?? quiz.questions.length} ${t('questions')}` : `${quiz.questions.length} ${t(quiz.questions.length === 1 ? 'question' : 'questions')}`}</span>
       </Link>
       <CCardBody className="tile-copy">
-        <span className="eyebrow">{quiz.topic}</span>
-        {quiz.exam && <CBadge className="exam-tile-label" color="danger">EXAMEN BLANC · CORRECTION PAR QUESTION</CBadge>}
-        {quiz.draft && <CBadge className="draft-tile-label" color="warning">BROUILLON {quiz.mode === 'qcm' ? 'QCM EXPRESS' : 'PROGRESSIF'} · {answeredSlots}/{quiz.questionCount ?? quiz.questions.length} COMPLÈTES</CBadge>}
+        <span className="eyebrow">{translateTopic(quiz.topic, language)}</span>
+        {quiz.exam && <CBadge className="exam-tile-label" color="danger">{t('EXAMEN BLANC · CORRECTION PAR QUESTION')}</CBadge>}
+        {quiz.draft && <CBadge className="draft-tile-label" color="warning">{t('BROUILLON')} {t(quiz.mode === 'qcm' ? 'QCM EXPRESS' : 'PROGRESSIF')} · {answeredSlots}/{quiz.questionCount ?? quiz.questions.length} {t('COMPLÈTES')}</CBadge>}
         <h3><Link to={`/quiz/${quiz.id}`}>{quiz.title}</Link></h3>
         <p>{quiz.description}</p>
         <div className="tile-footer">
-          {attempt ? <span className="last-score">Dernier score <strong>{attempt.score}/{attempt.max}</strong> <small>({attempt.percentage}%)</small></span> : <span className="tile-meta">Vidéo + quiz interactif</span>}
-          <div className="tile-actions" aria-label={`Actions pour ${quiz.title}`}>
-            {quiz.local && <><Link className="icon-action" to={`/edit/${quiz.id}`} aria-label={`${quiz.draft ? 'Reprendre' : 'Modifier'} ${quiz.title}`} title={quiz.draft ? 'Reprendre' : 'Modifier'}><DemoIcon name="pencil" /></Link><button className="icon-action tile-delete" onClick={() => window.confirm(`Supprimer « ${quiz.title} » de ce navigateur ?`) && onDelete(quiz.id)} aria-label={`Supprimer ${quiz.title}`} title="Supprimer"><DemoIcon name="trash" /></button></>}
-            {attempt && <Link className="icon-action" to={`/progression/${quiz.id}`} aria-label={`Voir la progression de ${quiz.title}`} title="Voir la progression"><DemoIcon name="externalLink" /></Link>}
-            <Link className="icon-action icon-play" to={quizPath} aria-label={`${quiz.draft ? 'Compléter' : 'Lancer'} ${quiz.title}`} title={quiz.draft ? 'Compléter' : 'Lancer'}><DemoIcon name="mediaPlay" /></Link>
+          {attempt ? <span className="last-score">{t('Dernier score')} <strong>{attempt.score}/{attempt.max}</strong> <small>({attempt.percentage}%)</small></span> : <span className="tile-meta">{t('Vidéo + quiz interactif')}</span>}
+          <div className="tile-actions" aria-label={`${t('Actions pour')} ${quiz.title}`}>
+            {quiz.local && <><Link className="icon-action" to={`/edit/${quiz.id}`} aria-label={`${t(quiz.draft ? 'Reprendre' : 'Modifier')} ${quiz.title}`} title={t(quiz.draft ? 'Reprendre' : 'Modifier')}><DemoIcon name="pencil" /></Link><button className="icon-action tile-delete" onClick={() => window.confirm(`${t('Supprimer')} « ${quiz.title} » ${t('de ce navigateur ?')}`) && onDelete(quiz.id)} aria-label={`${t('Supprimer')} ${quiz.title}`} title={t('Supprimer')}><DemoIcon name="trash" /></button></>}
+            {attempt && <Link className="icon-action" to={`/progression/${quiz.id}`} aria-label={`${t('Voir la progression de')} ${quiz.title}`} title={t('Voir la progression')}><DemoIcon name="externalLink" /></Link>}
+            <Link className="icon-action icon-play" to={quizPath} aria-label={`${t(quiz.draft ? 'Compléter' : 'Lancer')} ${quiz.title}`} title={t(quiz.draft ? 'Compléter' : 'Lancer')}><DemoIcon name="mediaPlay" /></Link>
           </div>
         </div>
       </CCardBody>
@@ -42,6 +44,7 @@ function QuizTile({ quiz, quizzes, attempt, onDelete }) {
 }
 
 export default function DemoHome({ quizzes, attempts, onDelete }) {
+  const { t, language } = useLanguage();
   const featuredVideo = videoLibrary.find(video => video.theme === 'Code de la route') ?? videoLibrary[0];
   const [query, setQuery] = useState('');
   const [modeFilter, setModeFilter] = useState('all');
@@ -53,7 +56,7 @@ export default function DemoHome({ quizzes, attempts, onDelete }) {
   const pageSize = 9;
   const activeFilterCount = Number(modeFilter !== 'all') + Number(topicFilter !== 'all');
   const topicCounts = [...new Set(videoLibrary.map(video => normalizeTopic(video.theme)))]
-    .map(topic => ({ topic, count: videoLibrary.filter(video => normalizeTopic(video.theme) === topic).length }))
+    .map(topic => ({ topic, sourceTopic: topic, count: videoLibrary.filter(video => normalizeTopic(video.theme) === topic).length }))
     .sort((left, right) => right.count - left.count || left.topic.localeCompare(right.topic, 'fr'));
   const topics = [...new Set(quizzes.map(quiz => quiz.topic))].sort();
   const quickTopics = topicCounts.slice(0, 5);
@@ -90,15 +93,15 @@ export default function DemoHome({ quizzes, attempts, onDelete }) {
     <main className="demo-page">
       <section className="welcome-band">
         <div className="welcome-copy">
-          <div className="welcome-kicker"><span className="eyebrow eyebrow-dark">APPRENDRE EN REGARDANT</span><span>VIDÉO <i /> QUIZ <i /> PROGRESSION</span></div>
-          <h1><span>Choisis une série.</span><span>Crée ton QCM.</span><span>Entraîne-toi à ton rythme.</span></h1>
-          <p className="welcome-description">Associe une vidéo de ton choix à une grille de réponses, teste tes connaissances et suis ta progression. Tes quiz et tes résultats restent enregistrés sur ton appareil.</p>
-          <div className="welcome-actions"><Link className="btn btn-success button button-dark" to="/videos">Choisir une vidéo <DemoIcon name="arrowRight" /></Link><Link className="btn btn-outline-secondary button button-quiet" to="/create">Créer un quiz <DemoIcon name="plus" /></Link></div>
-          <p className="welcome-data-note">Vos quiz et résultats restent dans ce navigateur. <Link to="/dashboard?section=backup">Télécharger une sauvegarde</Link></p>
-          <Link className="welcome-tutorial-link" to="/tutoriel">Découvrir le principe <DemoIcon name="arrowRight" /></Link>
+          <div className="welcome-kicker"><span className="eyebrow eyebrow-dark">{t('APPRENDRE EN REGARDANT')}</span><span>{t('VIDÉO')} <i /> {t('QUIZ')} <i /> {t('PROGRESSION')}</span></div>
+          <h1><span>{t('Choisis une série.')}</span><span>{t('Crée ton QCM.')}</span><span>{t('Entraîne-toi à ton rythme.')}</span></h1>
+          <p className="welcome-description">{t('Associe une vidéo de ton choix à une grille de réponses, teste tes connaissances et suis ta progression. Tes quiz et tes résultats restent enregistrés sur ton appareil.')}</p>
+          <div className="welcome-actions"><Link className="btn btn-success button button-dark" to="/videos">{t('Choisir une vidéo')} <DemoIcon name="arrowRight" /></Link><Link className="btn btn-outline-secondary button button-quiet" to="/create">{t('Créer un quiz')} <DemoIcon name="plus" /></Link></div>
+          <p className="welcome-data-note">{t('Vos quiz et résultats restent dans ce navigateur.')} <Link to="/dashboard?section=backup">{t('Télécharger une sauvegarde')}</Link></p>
+          <Link className="welcome-tutorial-link" to="/tutoriel">{t('Découvrir le principe')} <DemoIcon name="arrowRight" /></Link>
         </div>
         <CCard className="feature-card">
-          <div className="feature-carousel" role="region" aria-label="Exemples de quiz vidéo" aria-roledescription="carrousel">
+          <div className="feature-carousel" role="region" aria-label={t('Exemples de quiz vidéo')} aria-roledescription={t('carrousel')}>
             <div className="feature-carousel-content" aria-live="polite">
               {activeFeatureSlide === 0 && <Link className="feature-frame" to={featuredDestination} aria-label={featuredQuiz ? `Ouvrir le quiz associé à ${featuredVideo.title}` : `Associer ${featuredVideo.title} à un QCM`}>
                 <YouTubeThumbnail videoId={featuredVideo.id} alt={`Aperçu vidéo : ${featuredVideo.title}`} loading="eager" />
@@ -109,49 +112,49 @@ export default function DemoHome({ quizzes, attempts, onDelete }) {
               </Link>}
               {activeFeatureSlide === 1 && <div className="feature-cycle-slide">
                 <div className="feature-cycle-heading">
-                  <span className="eyebrow">LE PARCOURS EN 4 TEMPS</span>
-                  <h2>Du visionnage à la progression.</h2>
-                  <p>Choisis une vidéo, prépare ta grille, entraîne-toi et retrouve tes résultats.</p>
+                  <span className="eyebrow">{t('LE PARCOURS EN 4 TEMPS')}</span>
+                  <h2>{t('Du visionnage à la progression.')}</h2>
+                  <p>{t('Choisis une vidéo, prépare ta grille, entraîne-toi et retrouve tes résultats.')}</p>
                 </div>
-                <div className="feature-cycle" role="img" aria-label="Choisir une vidéo, préparer un quiz, s’entraîner, puis suivre sa progression">
-                  <div className="feature-cycle-node"><span className="feature-cycle-step">01</span><span className="feature-cycle-icon"><DemoIcon name="mediaPlay" /></span><strong>VIDÉO</strong><small>À choisir</small></div>
+                <div className="feature-cycle" role="img" aria-label={t('Choisir une vidéo, préparer un quiz, s’entraîner, puis suivre sa progression')}>
+                  <div className="feature-cycle-node"><span className="feature-cycle-step">01</span><span className="feature-cycle-icon"><DemoIcon name="mediaPlay" /></span><strong>{t('VIDÉO')}</strong><small>{t('À choisir')}</small></div>
                   <DemoIcon className="feature-cycle-arrow" name="arrowRight" />
-                  <div className="feature-cycle-node"><span className="feature-cycle-step">02</span><span className="feature-cycle-icon"><DemoIcon name="pencil" /></span><strong>QUIZ</strong><small>À préparer</small></div>
+                  <div className="feature-cycle-node"><span className="feature-cycle-step">02</span><span className="feature-cycle-icon"><DemoIcon name="pencil" /></span><strong>{t('QUIZ')}</strong><small>{t('À préparer')}</small></div>
                   <DemoIcon className="feature-cycle-arrow" name="arrowRight" />
-                  <div className="feature-cycle-node"><span className="feature-cycle-step">03</span><span className="feature-cycle-icon"><DemoIcon name="check" /></span><strong>RÉPONSES</strong><small>À ton rythme</small></div>
+                  <div className="feature-cycle-node"><span className="feature-cycle-step">03</span><span className="feature-cycle-icon"><DemoIcon name="check" /></span><strong>{t('RÉPONSES')}</strong><small>{t('À ton rythme')}</small></div>
                   <DemoIcon className="feature-cycle-arrow" name="arrowRight" />
-                  <div className="feature-cycle-node"><span className="feature-cycle-step">04</span><span className="feature-cycle-icon"><DemoIcon name="chart" /></span><strong>SUIVI</strong><small>Tes progrès</small></div>
+                  <div className="feature-cycle-node"><span className="feature-cycle-step">04</span><span className="feature-cycle-icon"><DemoIcon name="chart" /></span><strong>{t('SUIVI')}</strong><small>{t('Tes progrès')}</small></div>
                 </div>
-                <Link className="feature-cycle-link" to="/tutoriel">Découvrir comment ça marche <DemoIcon name="arrowRight" /></Link>
+                <Link className="feature-cycle-link" to="/tutoriel">{t('Découvrir comment ça marche')} <DemoIcon name="arrowRight" /></Link>
               </div>}
               {activeFeatureSlide === 2 && cultureVideo && cultureDestination && <Link className="feature-frame" to={cultureDestination} aria-label={cultureQuiz ? `Ouvrir le quiz associé à ${cultureVideo.title}` : `Associer ${cultureVideo.title} à un QCM`}>
                 <YouTubeThumbnail videoId={cultureVideo.id} alt={`Aperçu vidéo : ${cultureVideo.title}`} loading="lazy" />
                 <span className="feature-wash" />
                 <span className="feature-play"><DemoIcon name="plus" /></span>
-                <span className="feature-caption"><CBadge color="warning">{cultureQuiz ? 'QUIZ ASSOCIÉ' : 'AUTRE THÈME'}</CBadge><strong>{cultureVideo.title}</strong><small>{cultureVideo.theme} · {cultureQuiz ? 'Ouvrir le quiz' : 'Créer un QCM express'}</small></span>
-                <span className="feature-index">AUTRE EXEMPLE</span>
+                <span className="feature-caption"><CBadge color="warning">{t(cultureQuiz ? 'QUIZ ASSOCIÉ' : 'AUTRE THÈME')}</CBadge><strong>{cultureVideo.title}</strong><small>{translateTopic(cultureVideo.theme, language)} · {t(cultureQuiz ? 'Ouvrir le quiz' : 'Créer un QCM express')}</small></span>
+                <span className="feature-index">{t('AUTRE EXEMPLE')}</span>
               </Link>}
             </div>
             <div className="feature-carousel-controls">
-              <button type="button" className="feature-carousel-arrow" onClick={() => setActiveFeatureSlide(slide => (slide - 1 + featureSlideCount) % featureSlideCount)} aria-label="Exemple précédent"><DemoIcon name="arrowLeft" /></button>
-              <div className="feature-carousel-pagination" aria-label="Choisir un exemple">
+              <button type="button" className="feature-carousel-arrow" onClick={() => setActiveFeatureSlide(slide => (slide - 1 + featureSlideCount) % featureSlideCount)} aria-label={t('Exemple précédent')}><DemoIcon name="arrowLeft" /></button>
+              <div className="feature-carousel-pagination" aria-label={t('Choisir un exemple')}>
                 {Array.from({ length: featureSlideCount }, (_, slide) => <button key={slide} type="button" className={`feature-carousel-dot${slide === activeFeatureSlide ? ' is-active' : ''}`} onClick={() => setActiveFeatureSlide(slide)} aria-label={`Afficher ${slide === 0 ? 'le quiz du code de la route' : slide === 1 ? 'le principe du parcours' : cultureVideo?.theme}`} aria-pressed={slide === activeFeatureSlide} />)}
               </div>
               <span className="feature-carousel-count" aria-hidden="true">{String(activeFeatureSlide + 1).padStart(2, '0')} / {String(featureSlideCount).padStart(2, '0')}</span>
-              <button type="button" className="feature-carousel-arrow" onClick={() => setActiveFeatureSlide(slide => (slide + 1) % featureSlideCount)} aria-label="Exemple suivant"><DemoIcon name="arrowRight" /></button>
+              <button type="button" className="feature-carousel-arrow" onClick={() => setActiveFeatureSlide(slide => (slide + 1) % featureSlideCount)} aria-label={t('Exemple suivant')}><DemoIcon name="arrowRight" /></button>
             </div>
           </div>
         </CCard>
       </section>
-      <nav className="welcome-topics" aria-label="Accès rapide aux thèmes vidéo"><span className="eyebrow">Ou explore par thème</span><div>{quickTopics.map(item => <Link key={item.topic} className="btn btn-outline-success topic-quick-chip" to={`/videos?theme=${encodeURIComponent(item.topic)}`}>{item.topic}<small>{item.count}</small></Link>)}</div></nav>
+      <nav className="welcome-topics" aria-label="Accès rapide aux thèmes vidéo">      <span className="eyebrow">{t('Ou explore par thème')}</span><div>{quickTopics.map(item => <Link key={item.sourceTopic} className="btn btn-outline-success topic-quick-chip" to={`/videos?theme=${encodeURIComponent(item.sourceTopic)}`}>{translateTopic(item.topic, language)}<small>{item.count}</small></Link>)}</div></nav>
 
       <section className="library-section" aria-labelledby="library-title">
         <div className="section-heading">
-          <div><span className="eyebrow">À TOI DE JOUER</span><h2 id="library-title">Choisis un sujet</h2></div>
+          <div><span className="eyebrow">{t('À TOI DE JOUER')}</span><h2 id="library-title">{t('Choisis un sujet')}</h2></div>
           <span className="section-count">{quizzes.length.toString().padStart(2, '0')} QUIZ</span>
         </div>
-        <div className="library-tools" aria-label="Recherche et filtres de la bibliothèque">
-          <label className="library-search"><DemoIcon name="magnifyingGlass" /><CFormInput value={query} onChange={event => updateFilter(setQuery)(event.target.value)} placeholder="Rechercher un quiz…" aria-label="Rechercher un quiz" /></label>
+        <div className="library-tools" aria-label={t('Recherche et filtres de la bibliothèque')}>
+          <label className="library-search"><DemoIcon name="magnifyingGlass" /><CFormInput value={query} onChange={event => updateFilter(setQuery)(event.target.value)} placeholder={t('Rechercher un quiz…')} aria-label={t('Rechercher un quiz')} /></label>
           <button
             type="button"
             className="btn btn-outline-secondary library-filter-toggle"
@@ -159,37 +162,37 @@ export default function DemoHome({ quizzes, attempts, onDelete }) {
             aria-controls="library-filters"
             onClick={() => setFiltersOpen(open => !open)}
           >
-            {filtersOpen ? 'Masquer les filtres' : 'Filtres'}
+            {t(filtersOpen ? 'Masquer les filtres' : 'Filtres')}
             {activeFilterCount > 0 && <span className="library-filter-count">{activeFilterCount}</span>}
           </button>
           <div id="library-filters" className={`library-filter-panel${filtersOpen ? ' is-open' : ''}`}>
-            <CFormSelect value={modeFilter} onChange={event => updateFilter(setModeFilter)(event.target.value)} aria-label="Filtrer par type"><option value="all">Tous les types</option><option value="prepared">Quiz préparés</option><option value="progressive">Progressifs</option><option value="qcm">QCM express</option></CFormSelect>
-            <CFormSelect value={topicFilter} onChange={event => updateFilter(setTopicFilter)(event.target.value)} aria-label="Filtrer par thème"><option value="all">Tous les thèmes</option>{topics.map(topic => <option key={topic} value={topic}>{topic}</option>)}</CFormSelect>
+            <CFormSelect value={modeFilter} onChange={event => updateFilter(setModeFilter)(event.target.value)} aria-label={t('Filtrer par type')}><option value="all">{t('Tous les types')}</option><option value="prepared">{t('Quiz préparés')}</option><option value="progressive">{t('Progressifs')}</option><option value="qcm">{t('QCM express')}</option></CFormSelect>
+            <CFormSelect value={topicFilter} onChange={event => updateFilter(setTopicFilter)(event.target.value)} aria-label={t('Filtrer par thème')}><option value="all">{t('Tous les thèmes')}</option>{topics.map(topic => <option key={topic} value={topic}>{translateTopic(topic, language)}</option>)}</CFormSelect>
           </div>
         </div>
         <div className="library-results-toolbar">
-          <span className="library-result-line">{filteredQuizzes.length} quiz affiché{filteredQuizzes.length === 1 ? '' : 's'}</span>
+          <span className="library-result-line">{filteredQuizzes.length} {t(filteredQuizzes.length === 1 ? 'quiz affiché' : 'quiz affichés')}</span>
           <div className="library-results-actions">
-            <label className="library-sort"><span>Trier</span><CFormSelect value={sort} onChange={event => updateFilter(setSort)(event.target.value)} aria-label="Trier les quiz"><option value="recent">Activité récente</option><option value="title">Titre A-Z</option><option value="questions">Nombre de questions</option></CFormSelect></label>
-            {(query || activeFilterCount > 0) && <button type="button" className="clear-filters" onClick={() => { setQuery(''); setModeFilter('all'); setTopicFilter('all'); setPage(1); }}>Réinitialiser <DemoIcon name="x" /></button>}
+            <label className="library-sort"><span>{t('Trier')}</span><CFormSelect value={sort} onChange={event => updateFilter(setSort)(event.target.value)} aria-label={t('Trier les quiz')}><option value="recent">{t('Activité récente')}</option><option value="title">{t('Titre A-Z')}</option><option value="questions">{t('Nombre de questions')}</option></CFormSelect></label>
+            {(query || activeFilterCount > 0) && <button type="button" className="clear-filters" onClick={() => { setQuery(''); setModeFilter('all'); setTopicFilter('all'); setPage(1); }}>{t('Réinitialiser')} <DemoIcon name="x" /></button>}
           </div>
         </div>
-        {activeFilterCount > 0 && <div className="library-active-filters" aria-label="Filtres actifs">
-          {modeFilter !== 'all' && <button type="button" className="library-filter-chip" aria-label="Retirer le filtre de type" onClick={() => updateFilter(setModeFilter)('all')}>Type : {modeFilter === 'prepared' ? 'Quiz préparés' : modeFilter === 'progressive' ? 'Progressifs' : 'QCM express'} <DemoIcon name="x" /></button>}
-          {topicFilter !== 'all' && <button type="button" className="library-filter-chip" aria-label={`Retirer le filtre de thème ${topicFilter}`} onClick={() => updateFilter(setTopicFilter)('all')}>Thème : {topicFilter} <DemoIcon name="x" /></button>}
+        {activeFilterCount > 0 && <div className="library-active-filters" aria-label={t('Filtres actifs')}>
+          {modeFilter !== 'all' && <button type="button" className="library-filter-chip" aria-label={t('Retirer le filtre de type')} onClick={() => updateFilter(setModeFilter)('all')}>{t('Type')} : {t(modeFilter === 'prepared' ? 'Quiz préparés' : modeFilter === 'progressive' ? 'Progressifs' : 'QCM express')} <DemoIcon name="x" /></button>}
+          {topicFilter !== 'all' && <button type="button" className="library-filter-chip" aria-label={`${t('Retirer le filtre de thème')} ${translateTopic(topicFilter, language)}`} onClick={() => updateFilter(setTopicFilter)('all')}>{t('Thème')} : {translateTopic(topicFilter, language)} <DemoIcon name="x" /></button>}
         </div>}
         <div className="quiz-grid">
           {visibleQuizzes.map(quiz => <QuizTile key={quiz.id} quiz={quiz} quizzes={quizzes} attempt={attempts.find(item => item.quizId === quiz.id)} onDelete={onDelete} />)}
-          {!visibleQuizzes.length && <div className="library-empty"><DemoIcon name="magnifyingGlass" /><h3>Aucun quiz trouvé</h3><p>Modifie les filtres ou ta recherche.</p></div>}
+          {!visibleQuizzes.length && <div className="library-empty"><DemoIcon name="magnifyingGlass" /><h3>{t('Aucun quiz trouvé')}</h3><p>{t('Modifie les filtres ou ta recherche.')}</p></div>}
           <Link to="/create" className="create-tile">
             <span className="create-symbol"><DemoIcon name="plus" /></span>
-            <span className="eyebrow">À TON TOUR</span>
-            <strong>Ajoute ton propre quiz</strong>
-            <span>Il restera dans ce navigateur, rien ne part sur un serveur.</span>
-            <span className="text-action">Créer localement <b><DemoIcon name="externalLink" /></b></span>
+            <span className="eyebrow">{t('À TON TOUR')}</span>
+            <strong>{t('Ajoute ton propre quiz')}</strong>
+            <span>{t('Il restera dans ce navigateur, rien ne part sur un serveur.')}</span>
+            <span className="text-action">{t('Créer localement')} <b><DemoIcon name="externalLink" /></b></span>
           </Link>
         </div>
-        {pageCount > 1 && <nav className="library-pagination" aria-label="Pagination des quiz"><button type="button" className="icon-action" onClick={() => setPage(value => Math.max(1, value - 1))} disabled={page === 1} aria-label="Page précédente" title="Page précédente"><DemoIcon name="arrowLeft" /></button><span>Page {Math.min(page, pageCount)} / {pageCount}</span><button type="button" className="icon-action" onClick={() => setPage(value => Math.min(pageCount, value + 1))} disabled={page === pageCount} aria-label="Page suivante" title="Page suivante"><DemoIcon name="arrowRight" /></button></nav>}
+        {pageCount > 1 && <nav className="library-pagination" aria-label={t('Pagination des quiz')}><button type="button" className="icon-action" onClick={() => setPage(value => Math.max(1, value - 1))} disabled={page === 1} aria-label={t('Page précédente')} title={t('Page précédente')}><DemoIcon name="arrowLeft" /></button><span>{t('Page')} {Math.min(page, pageCount)} / {pageCount}</span><button type="button" className="icon-action" onClick={() => setPage(value => Math.min(pageCount, value + 1))} disabled={page === pageCount} aria-label={t('Page suivante')} title={t('Page suivante')}><DemoIcon name="arrowRight" /></button></nav>}
       </section>
     </main>
   );

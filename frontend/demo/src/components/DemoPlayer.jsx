@@ -5,6 +5,7 @@ import { formatChoiceLabel, formatTime } from '../data/demoQuizzes.js';
 import { clearQuizProgress, getQuizCorrections, getQuizProgress, getQuizUsingVideo, saveQuizCorrection, saveQuizProgress } from '../services/localStore.js';
 import YouTubePlayer from './YouTubePlayer.jsx';
 import DemoIcon from './DemoIcon.jsx';
+import { useLanguage } from '../i18n.jsx';
 
 function grade(quiz, answers, selfKeys = {}) {
   const details = quiz.questions.map(question => {
@@ -76,6 +77,7 @@ function isProgressiveMode(quiz) {
 }
 
 export default function DemoPlayer({ quizzes, onAttempt, onTrack }) {
+  const { t } = useLanguage();
   const { quizId } = useParams();
   const quiz = quizzes.find(item => item.id === quizId);
   const [progressLoadedQuizId, setProgressLoadedQuizId] = useState(null);
@@ -146,10 +148,10 @@ export default function DemoPlayer({ quizzes, onAttempt, onTrack }) {
     previousQuestion.current = current;
   }, [current]);
 
-  if (!quiz) return <main className="demo-page"><div className="empty-state"><span>404</span><h1>Quiz introuvable</h1><Link className="button button-dark" to="/">Revenir aux quiz</Link></div></main>;
-  if (progressLoadedQuizId !== quizId) return <main className="demo-page player-page" role="status">Chargement de votre quiz…</main>;
-  if (conflictingQuiz) return <main className="demo-page"><div className="empty-state"><span>VIDÉO DÉJÀ ASSOCIÉE</span><h1>Cette vidéo est déjà utilisée par « {conflictingQuiz.title} ».</h1><p>Pour conserver une seule association vidéo, choisissez une autre vidéo avant de reprendre ce quiz.</p><Link className="button button-dark" to={`/edit/${quiz.id}`}>Corriger l’association <DemoIcon name="arrowRight" /></Link></div></main>;
-  if (quiz.draft) return <main className="demo-page"><div className="empty-state"><span>BROUILLON</span><h1>Ce quiz n’est pas encore complet.</h1><Link className="button button-dark" to={`/edit/${quiz.id}`}>Reprendre la grille</Link></div></main>;
+  if (!quiz) return <main className="demo-page"><div className="empty-state"><span>404</span><h1>{t('Quiz introuvable')}</h1><Link className="button button-dark" to="/">{t('Revenir aux quiz')}</Link></div></main>;
+  if (progressLoadedQuizId !== quizId) return <main className="demo-page player-page" role="status">{t('Chargement de votre quiz…')}</main>;
+  if (conflictingQuiz) return <main className="demo-page"><div className="empty-state"><span>{t('VIDÉO DÉJÀ ASSOCIÉE')}</span><h1>{t('Cette vidéo est déjà utilisée par « {title} ».').replace('{title}', conflictingQuiz.title)}</h1><p>{t('Pour conserver une seule association vidéo, choisissez une autre vidéo avant de reprendre ce quiz.')}</p><Link className="button button-dark" to={`/edit/${quiz.id}`}>{t('Corriger l’association')} <DemoIcon name="arrowRight" /></Link></div></main>;
+  if (quiz.draft) return <main className="demo-page"><div className="empty-state"><span>{t('BROUILLON')}</span><h1>{t('Ce quiz n’est pas encore complet.')}</h1><Link className="button button-dark" to={`/edit/${quiz.id}`}>{t('Reprendre la grille')}</Link></div></main>;
 
   const question = quiz.questions[current];
   const reviewItem = result?.details[current];
@@ -228,8 +230,8 @@ export default function DemoPlayer({ quizzes, onAttempt, onTrack }) {
   };
   return (
     <main className={`demo-page player-page${result ? ' has-result' : ''}`}>
-      <div className="player-topline"><span className="eyebrow">{quiz.topic}</span><span className="player-save-note"><DemoIcon name="circle" /> Aucun compte · données locales</span></div>
-      {resumeActive && !result && <div className="quiz-resume-notice" role="status"><span>Reprise de votre quiz à la question {current + 1} sur {quiz.questions.length}.</span><button type="button" className="text-action" onClick={() => {
+      <div className="player-topline"><span className="eyebrow">{quiz.topic}</span><span className="player-save-note"><DemoIcon name="circle" /> {t('Aucun compte · données locales')}</span></div>
+      {resumeActive && !result && <div className="quiz-resume-notice" role="status"><span>{t('Reprise de votre quiz à la question {current} sur {total}.').replace('{current}', current + 1).replace('{total}', quiz.questions.length)}</span><button type="button" className="text-action" onClick={() => {
         if (!clearQuizProgress(quiz.id)) setProgressStorageWarning(true);
         setCurrent(0);
         setAnswers({});
@@ -238,26 +240,26 @@ export default function DemoPlayer({ quizzes, onAttempt, onTrack }) {
         setCorrectionShown(false);
         setResumeActive(false);
         onTrack?.('quiz_restarted');
-      }}>Recommencer</button></div>}
+      }}>{t('Recommencer')}</button></div>}
       {!result || reviewingAnswers ? (
         <>
-          <header className="player-title-row"><div><h1>{reviewingAnswers ? 'Revoir vos réponses.' : quiz.title}</h1><p>{reviewingAnswers ? 'Mode lecture : vos réponses et auto-corrections ne peuvent plus être modifiées.' : quiz.description}</p></div><CBadge className="question-counter" color="success">{String(current + 1).padStart(2, '0')} <span>/ {String(quiz.questions.length).padStart(2, '0')}</span></CBadge></header>
+          <header className="player-title-row"><div><h1>{reviewingAnswers ? t('Revoir vos réponses.') : quiz.title}</h1><p>{reviewingAnswers ? t('Mode lecture : vos réponses et auto-corrections ne peuvent plus être modifiées.') : quiz.description}</p></div><CBadge className="question-counter" color="success">{String(current + 1).padStart(2, '0')} <span>/ {String(quiz.questions.length).padStart(2, '0')}</span></CBadge></header>
           <div className="player-grid">
-            <section className="video-column" aria-label="Vidéo de cours">
-              {showVideo ? <div className="video-shell"><YouTubePlayer key={quiz.videoId} videoId={quiz.videoId} startAt={questionAt} title={`Vidéo : ${quiz.videoLabel}, à ${formatTime(question.at)}`} /></div> : <div className="video-disabled"><span>Vidéo masquée</span><button className="text-action" onClick={() => setShowVideo(true)}>Afficher</button></div>}
-              <div className="video-caption"><span>{reviewingAnswers ? 'REVOYEZ LES PASSAGES À VOTRE RYTHME' : 'REGARDEZ, PUIS RÉPONDEZ'}</span><button onClick={() => setShowVideo(value => !value)}>{showVideo ? 'Masquer la vidéo' : 'Afficher la vidéo'}</button></div>
+            <section className="video-column" aria-label={t('Vidéo de cours')}>
+              {showVideo ? <div className="video-shell"><YouTubePlayer key={quiz.videoId} videoId={quiz.videoId} startAt={questionAt} title={`${t('Vidéo :')} ${quiz.videoLabel}, ${t('à')} ${formatTime(question.at)}`} /></div> : <div className="video-disabled"><span>{t('Vidéo masquée')}</span><button className="text-action" onClick={() => setShowVideo(true)}>{t('Afficher')}</button></div>}
+              <div className="video-caption"><span>{reviewingAnswers ? t('REVOYEZ LES PASSAGES À VOTRE RYTHME') : t('REGARDEZ, PUIS RÉPONDEZ')}</span><button onClick={() => setShowVideo(value => !value)}>{t(showVideo ? 'Masquer la vidéo' : 'Afficher la vidéo')}</button></div>
               {(!quiz.exam && !progressive || reviewingAnswers) && <div className="chapter-list"><span className="eyebrow">LES ARRÊTS DU QUIZ</span>{quiz.questions.map((item, index) => {
                 const answered = hasAnswer(item, answers[item.id]);
                 return <button key={item.id} className={`chapter-row${index === current ? ' is-current' : ''}${answered ? ' is-done' : ''}`} onClick={() => setCurrent(index)}><span className="chapter-time">{formatTime(item.at)}</span><span>{item.prompt}</span><i>{answered ? <DemoIcon name="check" /> : index + 1}</i></button>;
               })}</div>}
             </section>
             <CCard key={current} className="question-column" role="region" aria-labelledby="quiz-question-title" aria-live="polite">
-              <div className="question-card-head"><span className="eyebrow">{reviewingAnswers ? `MODE LECTURE · QUESTION ${String(current + 1).padStart(2, '0')}` : `QUESTION ${String(current + 1).padStart(2, '0')}`}</span><span className={`time-chip${reviewingAnswers ? reviewItem.correct ? ' is-review-correct' : ' is-review-wrong' : ''}`}><DemoIcon name="mediaPlay" /> {formatTime(question.at)}{reviewingAnswers && <> · {reviewItem.correct ? 'Concordante' : 'À revoir'}</>}</span></div>
+              <div className="question-card-head"><span className="eyebrow">{reviewingAnswers ? `${t('MODE LECTURE · QUESTION')} ${String(current + 1).padStart(2, '0')}` : `${t('QUESTION')} ${String(current + 1).padStart(2, '0')}`}</span><span className={`time-chip${reviewingAnswers ? reviewItem.correct ? ' is-review-correct' : ' is-review-wrong' : ''}`}><DemoIcon name="mediaPlay" /> {formatTime(question.at)}{reviewingAnswers && <> · {t(reviewItem.correct ? 'Concordante' : 'À revoir')}</>}</span></div>
               <h2 ref={questionHeading} id="quiz-question-title" tabIndex={-1}>{questionPrompt}</h2>
-              <p className="question-hint">{reviewingAnswers ? 'Comparez votre réponse initiale avec votre auto-correction.' : question.type === 'text' ? 'Répondez en quelques mots.' : question.type === 'multi_choice' ? 'Une ou plusieurs réponses possibles.' : 'Choisissez la réponse qui vous semble juste.'}</p>
+              <p className="question-hint">{reviewingAnswers ? t('Comparez votre réponse initiale avec votre auto-correction.') : question.type === 'text' ? t('Répondez en quelques mots.') : question.type === 'multi_choice' ? t('Une ou plusieurs réponses possibles.') : t('Choisissez la réponse qui vous semble juste.')}</p>
               {progressive && question.type === 'multi_choice' ? (
                 <div className="progressive-answer-grid">
-                  {[{ title: 'Ma réponse', value: reviewingAnswers ? reviewItem.givenAnswer : value, onPick: selectOption, className: 'learner-grid' }, ...(answerSubmitted || reviewingAnswers ? [{ title: 'Auto-correction d’après la vidéo', value: reviewingAnswers ? reviewItem.correctAnswer : keyValue, onPick: selectSelfKey, className: 'key-grid' }] : [])].map(grid => (
+                  {[{ title: t('Ma réponse'), value: reviewingAnswers ? reviewItem.givenAnswer : value, onPick: selectOption, className: 'learner-grid' }, ...(answerSubmitted || reviewingAnswers ? [{ title: t('Auto-correction d’après la vidéo'), value: reviewingAnswers ? reviewItem.correctAnswer : keyValue, onPick: selectSelfKey, className: 'key-grid' }] : [])].map(grid => (
                     <div className={`progressive-grid ${grid.className}`} key={grid.className} role="group" aria-label={grid.title}>
                       <h3>{grid.title}</h3>
                       {question.options.map((option, index) => {
@@ -273,19 +275,19 @@ export default function DemoPlayer({ quizzes, onAttempt, onTrack }) {
                         const mark = reviewingAnswers ? extra ? 'wrong' : missed || correct ? 'correct' : '' : correctionShown ? correct ? 'correct' : missed || extra ? 'wrong' : '' : selected ? 'correct' : '';
                         return <button type="button" key={index} className={`answer-option${selected ? ' is-selected' : ''}${correct ? ' is-correct' : ''}${missed ? ' is-missed' : ''}${extra ? ' is-incorrect' : ''}`} role="checkbox" aria-checked={selected} aria-pressed={selected} disabled={reviewingAnswers || correctionShown || (grid.className === 'learner-grid' && answerSubmitted) || (grid.className === 'key-grid' && !answerSubmitted)} onClick={() => grid.onPick(index)}><span>{formatChoiceLabel(index)}</span>{option}<i>{mark && <DemoIcon name={mark === 'correct' ? 'check' : 'x'} />}</i></button>;
                       })}
-                      {grid.className === 'key-grid' && !isAnswerFilled && <p className="grid-instruction">Choisissez d’abord votre réponse.</p>}
+                      {grid.className === 'key-grid' && !isAnswerFilled && <p className="grid-instruction">{t('Choisissez d’abord votre réponse.')}</p>}
                     </div>
                   ))}
                 </div>
               ) : progressive && question.type === 'text' ? (
                 <div className="progressive-answer-grid">
-                  <label className={`answer-field${reviewingAnswers ? reviewItem.correct ? ' is-review-correct' : ' is-review-wrong' : ''}`}><span>Ma réponse</span><CFormInput autoComplete="off" value={reviewingAnswers ? reviewItem.givenAnswer || '' : value || ''} onChange={event => setAnswers(state => ({ ...state, [question.id]: event.target.value }))} placeholder="Écrivez ce que vous retenez…" disabled={reviewingAnswers || answerSubmitted || correctionShown} /></label>
-                  {(answerSubmitted || reviewingAnswers) && <label className={`answer-field${reviewingAnswers ? ' is-review-correction' : ''}`}><span>Auto-correction d’après la vidéo</span><CFormInput autoComplete="off" value={reviewingAnswers ? reviewItem.correctAnswer || '' : keyValue || ''} onChange={event => updateSelfKeyText(event.target.value)} placeholder="Complétez après avoir regardé…" disabled={reviewingAnswers || correctionShown} /></label>}
+                  <label className={`answer-field${reviewingAnswers ? reviewItem.correct ? ' is-review-correct' : ' is-review-wrong' : ''}`}><span>{t('Ma réponse')}</span><CFormInput autoComplete="off" value={reviewingAnswers ? reviewItem.givenAnswer || '' : value || ''} onChange={event => setAnswers(state => ({ ...state, [question.id]: event.target.value }))} placeholder={t('Écrivez ce que vous retenez…')} disabled={reviewingAnswers || answerSubmitted || correctionShown} /></label>
+                  {(answerSubmitted || reviewingAnswers) && <label className={`answer-field${reviewingAnswers ? ' is-review-correction' : ''}`}><span>{t('Auto-correction d’après la vidéo')}</span><CFormInput autoComplete="off" value={reviewingAnswers ? reviewItem.correctAnswer || '' : keyValue || ''} onChange={event => updateSelfKeyText(event.target.value)} placeholder={t('Complétez après avoir regardé…')} disabled={reviewingAnswers || correctionShown} /></label>}
                 </div>
               ) : reviewingAnswers && question.type === 'text' ? (
                 <div className="progressive-answer-grid">
-                  <label className={`answer-field${reviewItem.correct ? ' is-review-correct' : ' is-review-wrong'}`}><span>Ma réponse</span><CFormInput autoComplete="off" value={reviewItem.givenAnswer || ''} disabled /></label>
-                  <label className="answer-field is-review-correction"><span>Réponse attendue</span><CFormInput autoComplete="off" value={String(reviewItem.correctAnswer ?? '')} disabled /></label>
+                  <label className={`answer-field${reviewItem.correct ? ' is-review-correct' : ' is-review-wrong'}`}><span>{t('Ma réponse')}</span><CFormInput autoComplete="off" value={reviewItem.givenAnswer || ''} disabled /></label>
+                  <label className="answer-field is-review-correction"><span>{t('Réponse attendue')}</span><CFormInput autoComplete="off" value={String(reviewItem.correctAnswer ?? '')} disabled /></label>
                 </div>
               ) : reviewingAnswers ? (
                 <div className="answer-list" role={question.type === 'multi_choice' ? 'group' : 'radiogroup'} aria-label={question.prompt}>{question.options.map((option, index) => {
@@ -301,7 +303,7 @@ export default function DemoPlayer({ quizzes, onAttempt, onTrack }) {
                   return <button type="button" key={index} className={optionClass} role={question.type === 'multi_choice' ? 'checkbox' : 'radio'} aria-checked={selected} disabled><span>{formatChoiceLabel(index)}</span>{option}<i>{expected ? <DemoIcon name="check" /> : selected ? <DemoIcon name="x" /> : null}</i></button>;
                 })}</div>
               ) : question.type === 'text' ? (
-                <label className="answer-field"><span>Votre réponse</span><CFormInput autoComplete="off" value={value || ''} onChange={event => setAnswers(state => ({ ...state, [question.id]: event.target.value }))} placeholder="Écrivez votre réponse…" /></label>
+                <label className="answer-field"><span>{t('Votre réponse')}</span><CFormInput autoComplete="off" value={value || ''} onChange={event => setAnswers(state => ({ ...state, [question.id]: event.target.value }))} placeholder={t('Écrivez votre réponse…')} /></label>
               ) : (
                 <div className="answer-list" role={question.type === 'multi_choice' ? 'group' : 'radiogroup'} aria-label={question.prompt}>{question.options.map((option, index) => {
                   const selected = question.type === 'multi_choice' ? (value ?? []).includes(index) : value === index;
@@ -315,40 +317,40 @@ export default function DemoPlayer({ quizzes, onAttempt, onTrack }) {
               )}
               {reviewingAnswers ? (
                 <>
-                  {question.explanation && <div className={`instant-feedback${reviewItem.correct ? '' : ' is-wrong'}`}><strong>{reviewItem.correct ? 'Grilles concordantes' : 'Grilles différentes'}</strong><p>{question.explanation}</p></div>}
-                  <div className="question-actions review-navigation"><button type="button" className="button button-quiet" onClick={() => setCurrent(index => Math.max(0, index - 1))} disabled={current === 0}><DemoIcon name="arrowLeft" /> Précédente</button><button type="button" className="button button-dark" onClick={() => { if (current === quiz.questions.length - 1) setReviewMode(false); else setCurrent(index => index + 1); }}>{current === quiz.questions.length - 1 ? 'Retour au résultat' : 'Question suivante'} <DemoIcon name="arrowRight" /></button></div>
+                  {question.explanation && <div className={`instant-feedback${reviewItem.correct ? '' : ' is-wrong'}`}><strong>{t(reviewItem.correct ? 'Grilles concordantes' : 'Grilles différentes')}</strong><p>{question.explanation}</p></div>}
+                  <div className="question-actions review-navigation"><button type="button" className="button button-quiet" onClick={() => setCurrent(index => Math.max(0, index - 1))} disabled={current === 0}><DemoIcon name="arrowLeft" /> {t('Précédente')}</button><button type="button" className="button button-dark" onClick={() => { if (current === quiz.questions.length - 1) setReviewMode(false); else setCurrent(index => index + 1); }}>{t(current === quiz.questions.length - 1 ? 'Retour au résultat' : 'Question suivante')} <DemoIcon name="arrowRight" /></button></div>
                 </>
               ) : (
                 <>
-                  <div className="question-actions"><button className="button button-quiet" onClick={() => { if (current > 0) { setCurrent(index => index - 1); setAnswerSubmitted(false); setCorrectionShown(false); } }} disabled={quiz.exam || current === 0}><DemoIcon name="arrowLeft" /> Précédent</button><button className="button button-dark" onClick={next} disabled={!isAnswered}>{quiz.exam ? correctionShown ? current === quiz.questions.length - 1 ? 'Voir mon résultat' : 'Question suivante' : 'Voir la correction' : progressive ? !answerSubmitted ? 'Valider ma réponse' : current === quiz.questions.length - 1 ? 'Voir mon résultat' : 'Question suivante' : current === quiz.questions.length - 1 ? 'Voir mon résultat' : 'Question suivante'} <DemoIcon name="arrowRight" /></button></div>
-                  {progressive && <p className={`correction-save-status${storageWarning ? ' is-warning' : ''}`} aria-live="polite">{storageWarning ? 'Impossible d’enregistrer la correction dans ce navigateur.' : `Corrections mémorisées sur cet appareil : ${savedCorrectionCount}/${quiz.questions.length}.`}</p>}
-                  {(quiz.exam || progressive) && <div className="exam-progress"><span>Question <strong>{current + 1} / {quiz.questions.length}</strong></span><span><strong>{completedQuestionCount}</strong> complétée{completedQuestionCount === 1 ? '' : 's'}</span></div>}
+                  <div className="question-actions"><button className="button button-quiet" onClick={() => { if (current > 0) { setCurrent(index => index - 1); setAnswerSubmitted(false); setCorrectionShown(false); } }} disabled={quiz.exam || current === 0}><DemoIcon name="arrowLeft" /> {t('Précédent')}</button><button className="button button-dark" onClick={next} disabled={!isAnswered}>{t(quiz.exam ? correctionShown ? current === quiz.questions.length - 1 ? 'Voir mon résultat' : 'Question suivante' : 'Voir la correction' : progressive ? !answerSubmitted ? 'Valider ma réponse' : current === quiz.questions.length - 1 ? 'Voir mon résultat' : 'Question suivante' : current === quiz.questions.length - 1 ? 'Voir mon résultat' : 'Question suivante')} <DemoIcon name="arrowRight" /></button></div>
+                  {progressive && <p className={`correction-save-status${storageWarning ? ' is-warning' : ''}`} aria-live="polite">{storageWarning ? t('Impossible d’enregistrer la correction dans ce navigateur.') : t('Corrections mémorisées sur cet appareil : {saved}/{total}.').replace('{saved}', savedCorrectionCount).replace('{total}', quiz.questions.length)}</p>}
+                  {(quiz.exam || progressive) && <div className="exam-progress"><span>{t('Question')} <strong>{current + 1} / {quiz.questions.length}</strong></span><span><strong>{completedQuestionCount}</strong> {t(completedQuestionCount === 1 ? 'complétée' : 'complétées')}</span></div>}
                 </>
               )}
-              <div className="privacy-note"><DemoIcon name="home" /> Quiz et scores restent sur cet appareil. La vidéo est chargée depuis YouTube.</div>
-              {progressStorageWarning && <p className="backup-status is-error" role="alert">Impossible d’enregistrer la reprise de votre quiz dans ce navigateur.</p>}
+              <div className="privacy-note"><DemoIcon name="home" /> {t('Quiz et scores restent sur cet appareil. La vidéo est chargée depuis YouTube.')}</div>
+              {progressStorageWarning && <p className="backup-status is-error" role="alert">{t('Impossible d’enregistrer la reprise de votre quiz dans ce navigateur.')}</p>}
             </CCard>
           </div>
         </>
       ) : (
         <section className="result-view animate-in">
-          <div className="result-score"><span className="eyebrow">{quiz.exam ? 'EXAMEN BLANC' : progressive ? 'CONCORDANCE DES GRILLES' : 'VOTRE RÉSULTAT'}</span><strong>{result.score}<small>/{result.max}</small></strong><span className="result-percentage">{result.percentage}%</span><span>{progressive ? `${result.score} grilles concordantes sur ${result.max}` : `${result.score} bonne${result.score === 1 ? '' : 's'} réponse${result.score === 1 ? '' : 's'} sur ${result.max}`}</span>{quiz.exam && <b className={`pass-status ${result.passed ? 'is-pass' : 'is-fail'}`}>{result.passed ? 'Seuil atteint' : 'Encore un effort'} · {result.score}/40 (35 requis)</b>}</div>
-          <div className="result-copy"><span className="eyebrow">{quiz.exam ? 'CORRECTION DES 40 QUESTIONS' : progressive ? 'AUTO-CORRECTION APRÈS VISIONNAGE' : 'ÇA SE RETIENT MIEUX EN PRATIQUANT'}</span><h1>{quiz.exam ? result.passed ? 'Reçu pour l’entraînement.' : 'À reprendre.' : progressive ? result.percentage === 100 ? 'Vos grilles concordent.' : 'Votre révision est notée.' : result.percentage === 100 ? 'Impeccable.' : result.percentage >= 50 ? 'Bien joué.' : 'Une autre passe ?'}</h1><p>{quiz.exam ? 'Le seuil d’entraînement reprend le format de l’épreuve théorique : au moins 35 bonnes réponses sur 40. Ce quiz est une révision non officielle.' : progressive ? 'Le résultat compare vos réponses initiales avec les auto-corrections déclarées d’après la vidéo. Parcourez le mode lecture pour revoir chaque passage sans modifier vos réponses.' : 'Revoir l’idée au moment où elle apparaît aide à l’ancrer. Repassez les questions ou explorez un autre sujet.'}</p><div className="result-actions">{progressive && <button className="button button-dark" onClick={() => { setCurrent(0); setReviewMode(true); onTrack?.('quiz_review_opened'); }}>Revoir mes réponses <DemoIcon name="mediaPlay" /></button>}<button className={`button ${progressive ? 'button-quiet' : 'button-dark'}`} onClick={() => { if (!clearQuizProgress(quiz.id)) setProgressStorageWarning(true); didComplete.current = false; setCurrent(0); setAnswers({}); setSelfKeys(progressive ? getQuizCorrections(quiz) : {}); setResult(null); setReviewMode(false); setAnswerSubmitted(false); setCorrectionShown(false); setResumeActive(false); onTrack?.('quiz_restarted'); }}>Recommencer <DemoIcon name="reload" /></button><Link className="button button-quiet" to={`/progression/${quiz.id}`} aria-label={`Voir la progression de ${quiz.title}`} title="Voir la progression"><DemoIcon name="externalLink" /> <span className="visually-hidden">Voir la progression</span></Link><Link className="button button-quiet" to="/">Choisir un autre quiz</Link></div></div>
+          <div className="result-score"><span className="eyebrow">{t(quiz.exam ? 'EXAMEN BLANC' : progressive ? 'CONCORDANCE DES GRILLES' : 'VOTRE RÉSULTAT')}</span><strong>{result.score}<small>/{result.max}</small></strong><span className="result-percentage">{result.percentage}%</span><span>{progressive ? t('{score} concordant grids out of {max}.').replace('{score}', result.score).replace('{max}', result.max) : t('{score} correct answers out of {max}.').replace('{score}', result.score).replace('{max}', result.max)}</span>{quiz.exam && <b className={`pass-status ${result.passed ? 'is-pass' : 'is-fail'}`}>{t(result.passed ? 'Seuil atteint' : 'Encore un effort')} · {result.score}/40 {t('(35 requis)')}</b>}</div>
+          <div className="result-copy"><span className="eyebrow">{t(quiz.exam ? 'CORRECTION DES 40 QUESTIONS' : progressive ? 'AUTO-CORRECTION APRÈS VISIONNAGE' : 'ÇA SE RETIENT MIEUX EN PRATIQUANT')}</span><h1>{t(quiz.exam ? result.passed ? 'Reçu pour l’entraînement.' : 'À reprendre.' : progressive ? result.percentage === 100 ? 'Vos grilles concordent.' : 'Votre révision est notée.' : result.percentage === 100 ? 'Impeccable.' : result.percentage >= 50 ? 'Bien joué.' : 'Une autre passe ?')}</h1><p>{t(quiz.exam ? 'Le seuil d’entraînement reprend le format de l’épreuve théorique : au moins 35 bonnes réponses sur 40. Ce quiz est une révision non officielle.' : progressive ? 'Le résultat compare vos réponses initiales avec les auto-corrections déclarées d’après la vidéo. Parcourez le mode lecture pour revoir chaque passage sans modifier vos réponses.' : 'Revoir l’idée au moment où elle apparaît aide à l’ancrer. Repassez les questions ou explorez un autre sujet.')}</p><div className="result-actions">{progressive && <button className="button button-dark" onClick={() => { setCurrent(0); setReviewMode(true); onTrack?.('quiz_review_opened'); }}>{t('Revoir mes réponses')} <DemoIcon name="mediaPlay" /></button>}<button className={`button ${progressive ? 'button-quiet' : 'button-dark'}`} onClick={() => { if (!clearQuizProgress(quiz.id)) setProgressStorageWarning(true); didComplete.current = false; setCurrent(0); setAnswers({}); setSelfKeys(progressive ? getQuizCorrections(quiz) : {}); setResult(null); setReviewMode(false); setAnswerSubmitted(false); setCorrectionShown(false); setResumeActive(false); onTrack?.('quiz_restarted'); }}>{t('Recommencer')} <DemoIcon name="reload" /></button><Link className="button button-quiet" to={`/progression/${quiz.id}`} aria-label={`${t('Voir la progression de')} ${quiz.title}`} title={t('Voir la progression')}><DemoIcon name="externalLink" /> <span className="visually-hidden">{t('Voir la progression')}</span></Link><Link className="button button-quiet" to="/">{t('Choisir un autre quiz')}</Link></div></div>
           <div className="answer-review">{result.details.map((item, index) => {
             const givenAnswer = formatReviewAnswer(item.givenAnswer, item.type, item.options);
             const expectedAnswer = formatReviewAnswer(item.correctAnswer, item.type, item.options);
             return <article key={item.questionId} className="review-row">
               <span className={`review-mark${item.correct ? ' correct' : ''}`}><DemoIcon name={item.correct ? 'check' : 'reload'} /></span>
               <div>
-                <span className="eyebrow">QUESTION {String(index + 1).padStart(2, '0')}</span>
+                <span className="eyebrow">{t('QUESTION')} {String(index + 1).padStart(2, '0')}</span>
                 <h3>{item.prompt}</h3>
                 <div className="review-answers">
-                  <div className="review-answer"><strong>Votre réponse</strong><span>{givenAnswer ?? 'Aucune réponse saisie'}</span></div>
-                  <div className="review-answer"><strong>{progressive ? 'Auto-correction d’après la vidéo' : 'Réponse attendue'}</strong><span>{expectedAnswer ?? 'Non disponible'}</span></div>
+                  <div className="review-answer"><strong>{t('Votre réponse')}</strong><span>{givenAnswer ?? t('Aucune réponse saisie')}</span></div>
+                  <div className="review-answer"><strong>{t(progressive ? 'Auto-correction d’après la vidéo' : 'Réponse attendue')}</strong><span>{expectedAnswer ?? t('Non disponible')}</span></div>
                 </div>
                 {item.explanation && <p>{item.explanation}</p>}
               </div>
-              <strong>{item.correct ? 'Juste' : 'À revoir'}</strong>
+              <strong>{t(item.correct ? 'Juste' : 'À revoir')}</strong>
             </article>;
           })}</div>
         </section>

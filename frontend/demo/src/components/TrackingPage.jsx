@@ -4,6 +4,7 @@ import { CBadge, CFormInput } from '@coreui/react';
 import { ScoreChart, formatDate } from './ProgressionPage.jsx';
 import DemoIcon from './DemoIcon.jsx';
 import FirstVisitNotice from './FirstVisitNotice.jsx';
+import { useLanguage, translateTopic } from '../i18n.jsx';
 
 const PAGE_SIZE = 6;
 const DATE_RANGES = [
@@ -14,6 +15,7 @@ const DATE_RANGES = [
 ];
 
 export default function TrackingPage({ quizzes, attempts }) {
+  const { t, language } = useLanguage();
   const [query, setQuery] = useState('');
   const [dateRange, setDateRange] = useState('all');
   const [topicFilter, setTopicFilter] = useState('all');
@@ -94,54 +96,54 @@ export default function TrackingPage({ quizzes, attempts }) {
       <FirstVisitNotice storageKey="videoquiz-demo:first-visit:tracking:v1" message="Vos graphiques et historiques sont enregistrés dans ce navigateur." />
       <header className="tracking-heading">
         <div>
-          <span className="eyebrow">VOTRE PARCOURS</span>
-          <h1>Votre suivi</h1>
-          <p>Un aperçu rapide de vos scores, avec le détail de chaque quiz à portée de main.</p>
+          <span className="eyebrow">{t('VOTRE PARCOURS')}</span>
+          <h1>{t('Votre suivi')}</h1>
+          <p>{t('Un aperçu rapide de vos scores, avec le détail de chaque quiz à portée de main.')}</p>
         </div>
-        {attempts.length > 0 && <span className="tracking-heading-mark"><DemoIcon name="chart" /> Mis à jour après chaque quiz</span>}
+        {attempts.length > 0 && <span className="tracking-heading-mark"><DemoIcon name="chart" /> {t('Mis à jour après chaque quiz')}</span>}
       </header>
       {attempts.length ? (
         <>
-          <section className="tracking-overview" aria-label="Résumé de votre progression">
-            <article><span className="eyebrow">QUIZ SUIVIS</span><strong>{filteredPlayed.length}</strong><small>{filteredPlayed.length === 1 ? 'quiz avec un résultat' : 'quiz avec des résultats'}</small></article>
-            <article><span className="eyebrow">TENTATIVES</span><strong>{matchingAttempts.length}</strong><small>{matchingAttempts.length === 1 ? 'entraînement enregistré' : 'entraînements enregistrés'}</small></article>
-            <article><span className="eyebrow">SCORE MOYEN</span><strong>{averagePercentage}<i>%</i></strong><small>sur les résultats affichés</small></article>
+          <section className="tracking-overview" aria-label={t('Résumé de votre progression')}>
+            <article><span className="eyebrow">{t('QUIZ SUIVIS')}</span><strong>{filteredPlayed.length}</strong><small>{t(filteredPlayed.length === 1 ? 'quiz avec un résultat' : 'quiz avec des résultats')}</small></article>
+            <article><span className="eyebrow">{t('TENTATIVES')}</span><strong>{matchingAttempts.length}</strong><small>{t(matchingAttempts.length === 1 ? 'entraînement enregistré' : 'entraînements enregistrés')}</small></article>
+            <article><span className="eyebrow">{t('SCORE MOYEN')}</span><strong>{averagePercentage}<i>%</i></strong><small>{t('sur les résultats affichés')}</small></article>
           </section>
-          <section className="tracking-library" aria-label="Vos graphiques de progression par quiz">
+          <section className="tracking-library" aria-label={t('Vos graphiques de progression par quiz')}>
             <div className="tracking-library-heading">
-              <div><span className="eyebrow">VOS QUIZ</span><h2>Les scores, en un coup d’œil.</h2></div>
-              <CFormInput className="tracking-search" value={query} onChange={event => { setQuery(event.target.value); setPage(1); }} placeholder="Rechercher un quiz…" aria-label="Rechercher un quiz suivi" />
+              <div><span className="eyebrow">{t('VOS QUIZ')}</span><h2>{t('Les scores, en un coup d’œil.')}</h2></div>
+              <CFormInput className="tracking-search" value={query} onChange={event => { setQuery(event.target.value); setPage(1); }} placeholder={t('Rechercher un quiz…')} aria-label={t('Rechercher un quiz suivi')} />
             </div>
-            <section className="tracking-filters" aria-label="Filtres des résultats">
+            <section className="tracking-filters" aria-label={t('Filtres des résultats')}>
               <div className="tracking-range-filter">
-                <span className="tracking-filter-label">PÉRIODE</span>
-                <div role="group" aria-label="Filtrer par période" className="tracking-range-options">
-                  {DATE_RANGES.map(range => <button type="button" key={range.value} className={dateRange === range.value ? 'is-active' : ''} aria-pressed={dateRange === range.value} onClick={() => { setDateRange(range.value); setPage(1); }}>{range.label}</button>)}
+                <span className="tracking-filter-label">{t('PÉRIODE')}</span>
+                <div role="group" aria-label={t('Filtrer par période')} className="tracking-range-options">
+                  {DATE_RANGES.map(range => <button type="button" key={range.value} className={dateRange === range.value ? 'is-active' : ''} aria-pressed={dateRange === range.value} onClick={() => { setDateRange(range.value); setPage(1); }}>{t(range.label)}</button>)}
                 </div>
               </div>
               {dateRange === 'custom' && <div className="tracking-custom-dates">
-                <label>Du <input type="date" value={customFrom} max={customTo || undefined} onChange={event => { setCustomFrom(event.target.value); setPage(1); }} /></label>
-                <label>Au <input type="date" value={customTo} min={customFrom || undefined} onChange={event => { setCustomTo(event.target.value); setPage(1); }} /></label>
+                <label>{t('Du')} <input type="date" value={customFrom} max={customTo || undefined} onChange={event => { setCustomFrom(event.target.value); setPage(1); }} /></label>
+                <label>{t('Au')} <input type="date" value={customTo} min={customFrom || undefined} onChange={event => { setCustomTo(event.target.value); setPage(1); }} /></label>
               </div>}
               <div className="tracking-select-filters">
-                <label>Thème
-                  <select value={topicFilter} onChange={event => { setTopicFilter(event.target.value); setPage(1); }} aria-label="Filtrer par thème">
-                    <option value="all">Tous les thèmes</option>
-                    {topics.map(topic => <option key={topic} value={topic}>{topic}</option>)}
+                <label>{t('Thème')}
+                  <select value={topicFilter} onChange={event => { setTopicFilter(event.target.value); setPage(1); }} aria-label={t('Filtrer par thème')}>
+                    <option value="all">{t('Tous les thèmes')}</option>
+                    {topics.map(topic => <option key={topic} value={topic}>{translateTopic(topic, language)}</option>)}
                   </select>
                 </label>
-                <label>Trier par
-                  <select value={sortBy} onChange={event => { setSortBy(event.target.value); setPage(1); }} aria-label="Trier les quiz">
-                    <option value="recent">Activité récente</option>
-                    <option value="best">Meilleur score</option>
-                    <option value="needs-work">À retravailler</option>
+                <label>{t('Trier par')}
+                  <select value={sortBy} onChange={event => { setSortBy(event.target.value); setPage(1); }} aria-label={t('Trier les quiz')}>
+                    <option value="recent">{t('Activité récente')}</option>
+                    <option value="best">{t('Meilleur score')}</option>
+                    <option value="needs-work">{t('À retravailler')}</option>
                   </select>
                 </label>
               </div>
-              {hasActiveFilters && <button className="tracking-reset-filters" type="button" onClick={resetFilters}>Tout réinitialiser <DemoIcon name="x" /></button>}
-              <p className="tracking-filter-note">Les scores, graphiques et totaux s’adaptent aux filtres choisis. La démo conserve jusqu’à 30 tentatives récentes.</p>
+              {hasActiveFilters && <button className="tracking-reset-filters" type="button" onClick={resetFilters}>{t('Tout réinitialiser')} <DemoIcon name="x" /></button>}
+              <p className="tracking-filter-note">{t('Les scores, graphiques et totaux s’adaptent aux filtres choisis. La démo conserve jusqu’à 30 tentatives récentes.')}</p>
             </section>
-            {rangeIsInvalid && <p className="tracking-date-error" role="alert">La date de début doit précéder la date de fin.</p>}
+            {rangeIsInvalid && <p className="tracking-date-error" role="alert">{t('La date de début doit précéder la date de fin.')}</p>}
             {visiblePlayed.length ? <div className="tracking-grid">
           {visiblePlayed.map(({ quiz, points, latest }) => {
             return (
@@ -153,31 +155,31 @@ export default function TrackingPage({ quizzes, attempts }) {
                   </div>
                   <CBadge color="success">{latest.percentage}%</CBadge>
                 </div>
-                <div className="tracking-card-meta"><span>{points.length} tentative{points.length === 1 ? '' : 's'}</span><span>Dernière · {formatDate(latest.date)}</span></div>
+                <div className="tracking-card-meta"><span>{points.length} {t(points.length === 1 ? 'tentative' : 'tentatives')}</span><span>{t('Dernière')} · {formatDate(latest.date, language)}</span></div>
                 <ScoreChart points={points} mini />
-                <div className="tracking-card-score"><span>Dernier score</span><strong>{latest.score}<i>/{latest.max}</i></strong></div>
+                <div className="tracking-card-score"><span>{t('Dernier score')}</span><strong>{latest.score}<i>/{latest.max}</i></strong></div>
                 <Link className="tracking-history-link" to={`/progression/${quiz.id}`}>
-                  Historique détaillé <DemoIcon name="arrowRight" />
+                  {t('Historique détaillé')} <DemoIcon name="arrowRight" />
                 </Link>
               </article>
             );
           })}
-            </div> : <div className="tracking-filter-empty"><h3>{rangeIsInvalid ? 'Période invalide' : dateRange === 'custom' && !customFrom && !customTo ? 'Choisissez une date' : 'Aucun résultat pour ces filtres'}</h3><p>{rangeIsInvalid ? 'La date de début doit précéder la date de fin.' : dateRange === 'custom' && !customFrom && !customTo ? 'Indiquez une date de début, une date de fin, ou les deux.' : 'Essayez une autre période, un autre thème ou une autre recherche.'}</p></div>}
+            </div> : <div className="tracking-filter-empty"><h3>{t(rangeIsInvalid ? 'Période invalide' : dateRange === 'custom' && !customFrom && !customTo ? 'Choisissez une date' : 'Aucun résultat pour ces filtres')}</h3><p>{t(rangeIsInvalid ? 'La date de début doit précéder la date de fin.' : dateRange === 'custom' && !customFrom && !customTo ? 'Indiquez une date de début, une date de fin, ou les deux.' : 'Essayez une autre période, un autre thème ou une autre recherche.')}</p></div>}
             {pageCount > 1 && (
-              <nav className="tracking-pagination" aria-label="Pages des graphiques de progression">
-                <button type="button" onClick={() => setPage(value => Math.max(1, value - 1))} disabled={page === 1}><DemoIcon name="arrowLeft" /> Précédent</button>
-                <span>Page <strong>{page}</strong> sur {pageCount}<i> · {filteredPlayed.length} quiz</i></span>
-                <button type="button" onClick={() => setPage(value => Math.min(pageCount, value + 1))} disabled={page === pageCount}>Suivant <DemoIcon name="arrowRight" /></button>
+              <nav className="tracking-pagination" aria-label={t('Pages des graphiques de progression')}>
+                <button type="button" onClick={() => setPage(value => Math.max(1, value - 1))} disabled={page === 1}><DemoIcon name="arrowLeft" /> {t('Précédent')}</button>
+                <span>{t('Page')} <strong>{page}</strong> {t('sur')} {pageCount}<i> · {filteredPlayed.length} {t('quiz')}</i></span>
+                <button type="button" onClick={() => setPage(value => Math.min(pageCount, value + 1))} disabled={page === pageCount}>{t('Suivant')} <DemoIcon name="arrowRight" /></button>
               </nav>
             )}
           </section>
         </>
       ) : (
         <section className="tracking-empty">
-          <span className="eyebrow">PREMIER PAS</span>
-          <h2>Vos graphiques commenceront après un quiz.</h2>
-          <p>Choisissez un sujet et faites une première tentative. Vos scores apparaîtront ici automatiquement.</p>
-          <Link className="button button-dark" to="/">Découvrir les quiz <DemoIcon name="arrowRight" /></Link>
+          <span className="eyebrow">{t('PREMIER PAS')}</span>
+          <h2>{t('Vos graphiques commenceront après un quiz.')}</h2>
+          <p>{t('Choisissez un sujet et faites une première tentative. Vos scores apparaîtront ici automatiquement.')}</p>
+          <Link className="button button-dark" to="/">{t('Découvrir les quiz')} <DemoIcon name="arrowRight" /></Link>
         </section>
       )}
     </main>

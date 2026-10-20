@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import DemoIcon from './DemoIcon.jsx';
+import { useLanguage } from '../i18n.jsx';
 
 const steps = [
   {
@@ -33,51 +34,51 @@ const steps = [
   },
 ];
 
-function StepVisual({ type }) {
+function StepVisual({ type, t }) {
   return (
     <div className={`tutorial-visual tutorial-visual-${type}`} aria-hidden="true">
       <div className="tutorial-window-bar"><span /><span /><span /><div>videoquiz.fr</div></div>
       {type === 'video' && (
         <div className="tutorial-video-mock">
-          <div className="tutorial-video-preview"><DemoIcon name="mediaPlay" /><span>VIDÉO D’EXEMPLE</span></div>
-          <div className="tutorial-video-details"><span className="tutorial-mock-label">CODE DE LA ROUTE</span><strong>Une vidéo pour apprendre, un quiz pour s’entraîner</strong><span>Choisis un exemple ou colle un lien YouTube.</span></div>
+          <div className="tutorial-video-preview"><DemoIcon name="mediaPlay" /><span>{t('VIDÉO D’EXEMPLE')}</span></div>
+          <div className="tutorial-video-details"><span className="tutorial-mock-label">{t('CODE DE LA ROUTE')}</span><strong>{t('Une vidéo pour apprendre, un quiz pour s’entraîner')}</strong><span>{t('Choisis un exemple ou colle un lien YouTube.')}</span></div>
           <div className="tutorial-video-timeline"><i /></div>
         </div>
       )}
       {type === 'setup' && (
         <div className="tutorial-setup-mock">
-          <span className="tutorial-mock-label">NOUVEAU QUIZ</span>
-          <div className="tutorial-mock-field"><small>TITRE DU QUIZ</small><strong>Les bases de la conduite</strong></div>
-          <div className="tutorial-mock-field"><small>VIDÉO YOUTUBE</small><span><DemoIcon name="mediaPlay" /> youtube.com/watch…</span></div>
-          <small className="tutorial-mode-label">CHOISIS TON MODE</small>
-          <div className="tutorial-mode-options"><span>Quiz préparé</span><span className="is-selected">Progressif</span><span>QCM express</span></div>
+          <span className="tutorial-mock-label">{t('NOUVEAU QUIZ')}</span>
+          <div className="tutorial-mock-field"><small>{t('TITRE DU QUIZ')}</small><strong>{t('Les bases de la conduite')}</strong></div>
+          <div className="tutorial-mock-field"><small>{t('VIDÉO YOUTUBE')}</small><span><DemoIcon name="mediaPlay" /> youtube.com/watch…</span></div>
+          <small className="tutorial-mode-label">{t('CHOISIS TON MODE')}</small>
+          <div className="tutorial-mode-options"><span>{t('Quiz préparé')}</span><span className="is-selected">{t('Progressif')}</span><span>{t('QCM express')}</span></div>
         </div>
       )}
       {type === 'questions' && (
         <div className="tutorial-questions-mock">
           <div className="tutorial-question-top"><span className="tutorial-mock-label">QUESTION 01</span><span>00:42</span></div>
-          <strong>Quel détail as-tu repéré dans la vidéo ?</strong>
-          <div className="tutorial-answer-option"><i>A</i><span>Le panneau sur le bord de la route</span></div>
-          <div className="tutorial-answer-option is-correct"><i>B</i><span>Le passage piéton</span><DemoIcon name="check" /></div>
-          <div className="tutorial-answer-option"><i>C</i><span>Le feu à l’intersection</span></div>
-          <div className="tutorial-question-foot"><span>Ta question, tes choix</span><span>01 / 10</span></div>
+          <strong>{t('Quel détail as-tu repéré dans la vidéo ?')}</strong>
+          <div className="tutorial-answer-option"><i>A</i><span>{t('Le panneau sur le bord de la route')}</span></div>
+          <div className="tutorial-answer-option is-correct"><i>B</i><span>{t('Le passage piéton')}</span><DemoIcon name="check" /></div>
+          <div className="tutorial-answer-option"><i>C</i><span>{t('Le feu à l’intersection')}</span></div>
+          <div className="tutorial-question-foot"><span>{t('Ta question, tes choix')}</span><span>01 / 10</span></div>
         </div>
       )}
       {type === 'progress' && (
         <div className="tutorial-progress-mock">
           <div className="tutorial-training-mock">
-            <span className="tutorial-mock-label">ENTRAÎNEMENT · QUESTION 07</span>
+            <span className="tutorial-mock-label">{t('ENTRAÎNEMENT · QUESTION 07')}</span>
             <div className="tutorial-progress-bar"><i /></div>
-            <strong>À toi de choisir la bonne réponse.</strong>
-            <div className="tutorial-training-option is-selected"><i>B</i><span>Je prends le temps d’observer</span><DemoIcon name="check" /></div>
-            <div className="tutorial-training-option"><i>C</i><span>Je réponds au hasard</span></div>
+            <strong>{t('À toi de choisir la bonne réponse.')}</strong>
+            <div className="tutorial-training-option is-selected"><i>B</i><span>{t('Je prends le temps d’observer')}</span><DemoIcon name="check" /></div>
+            <div className="tutorial-training-option"><i>C</i><span>{t('Je réponds au hasard')}</span></div>
           </div>
           <div className="tutorial-score-mock">
-            <span className="tutorial-mock-label">TON BILAN</span>
+            <span className="tutorial-mock-label">{t('TON BILAN')}</span>
             <strong>8<span> / 10</span></strong>
-            <div className="tutorial-score-line"><span>Réussite</span><b>80 %</b></div>
-            <div className="tutorial-score-line"><span>À revoir</span><b>2 questions</b></div>
-            <span className="tutorial-score-saved"><DemoIcon name="check" /> Enregistré ici</span>
+            <div className="tutorial-score-line"><span>{t('Réussite')}</span><b>80 %</b></div>
+            <div className="tutorial-score-line"><span>{t('À revoir')}</span><b>{t('2 questions')}</b></div>
+            <span className="tutorial-score-saved"><DemoIcon name="check" /> {t('Enregistré ici')}</span>
           </div>
         </div>
       )}
@@ -87,6 +88,7 @@ function StepVisual({ type }) {
 
 export default function TutorialPage() {
   const { hash } = useLocation();
+  const { t } = useLanguage();
 
   useEffect(() => {
     const stepId = hash.slice(1);
@@ -101,49 +103,49 @@ export default function TutorialPage() {
     <main className="demo-page tutorial-page">
       <header className="tutorial-hero">
         <div>
-          <span className="eyebrow">LE PRINCIPE EN 4 ÉTAPES</span>
-          <h1>Une vidéo. Ton quiz. Ta progression.</h1>
-          <p>VideoQuiz transforme le visionnage en entraînement actif. Voici le parcours, de la vidéo jusqu’au suivi de tes résultats.</p>
+          <span className="eyebrow">{t('LE PRINCIPE EN 4 ÉTAPES')}</span>
+          <h1>{t('Une vidéo. Ton quiz. Ta progression.')}</h1>
+          <p>{t('VideoQuiz transforme le visionnage en entraînement actif. Voici le parcours, de la vidéo jusqu’au suivi de tes résultats.')}</p>
         </div>
-        <Link className="tutorial-hero-link" to="/create">Créer mon quiz <DemoIcon name="arrowRight" /></Link>
+        <Link className="tutorial-hero-link" to="/create">{t('Créer mon quiz')} <DemoIcon name="arrowRight" /></Link>
       </header>
 
-      <nav className="tutorial-flow" aria-label="Les étapes du parcours">
+      <nav className="tutorial-flow" aria-label={t('Les étapes du parcours')}>
         {steps.map((step, index) => (
           <Link className="tutorial-flow-step" to={`/tutoriel#tutorial-step-${step.number}`} key={step.number}>
-            <span>{step.number}</span><strong>{step.label}</strong>
+            <span>{step.number}</span><strong>{t(step.label)}</strong>
             {index < steps.length - 1 && <DemoIcon className="tutorial-flow-arrow" name="arrowRight" />}
           </Link>
         ))}
       </nav>
 
-      <section className="tutorial-steps" aria-label="Comment fonctionne VideoQuiz">
+      <section className="tutorial-steps" aria-label={t('Comment fonctionne VideoQuiz')}>
         {steps.map((step, index) => (
           <article className={`tutorial-step${index % 2 ? ' tutorial-step-reverse' : ''}`} id={`tutorial-step-${step.number}`} key={step.number}>
             <div className="tutorial-step-copy">
               <span className="tutorial-step-number">{step.number}<i> / 04</i></span>
-              <span className="eyebrow">{step.label}</span>
-              <h2>{step.title}</h2>
-              <p>{step.description}</p>
+              <span className="eyebrow">{t(step.label)}</span>
+              <h2>{t(step.title)}</h2>
+              <p>{t(step.description)}</p>
             </div>
-            <StepVisual type={step.visual} />
+            <StepVisual type={step.visual} t={t} />
           </article>
         ))}
       </section>
 
       <aside className="tutorial-examples">
         <div>
-          <span className="eyebrow">À TOI DE JOUER</span>
-          <h2>Une vidéo d’exemple pour te lancer ?</h2>
-          <p>Les vidéos de la collection sont là pour t’inspirer. Tu peux aussi créer un quiz à partir d’un lien YouTube.</p>
+          <span className="eyebrow">{t('À TOI DE JOUER')}</span>
+          <h2>{t('Une vidéo d’exemple pour te lancer ?')}</h2>
+          <p>{t('Les vidéos de la collection sont là pour t’inspirer. Tu peux aussi créer un quiz à partir d’un lien YouTube.')}</p>
         </div>
         <div className="tutorial-actions">
-          <Link className="button button-quiet" to="/videos">Parcourir les exemples <DemoIcon name="mediaPlay" /></Link>
-          <Link className="button button-dark" to="/create">Créer mon quiz <DemoIcon name="arrowRight" /></Link>
+          <Link className="button button-quiet" to="/videos">{t('Parcourir les exemples')} <DemoIcon name="mediaPlay" /></Link>
+          <Link className="button button-dark" to="/create">{t('Créer mon quiz')} <DemoIcon name="arrowRight" /></Link>
         </div>
       </aside>
 
-      <p className="tutorial-local-note"><DemoIcon name="check" /> Tes quiz et résultats restent enregistrés dans ce navigateur.</p>
+      <p className="tutorial-local-note"><DemoIcon name="check" /> {t('Tes quiz et résultats restent enregistrés dans ce navigateur.')}</p>
     </main>
   );
 }

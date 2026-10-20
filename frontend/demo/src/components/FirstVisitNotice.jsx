@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import DemoIcon from './DemoIcon.jsx';
+import { useLanguage } from '../i18n.jsx';
 
 const shownNoticeKeys = new Set();
 const NOTICE_DURATION = 5000;
 
 export default function FirstVisitNotice({ storageKey, message }) {
+  const { t } = useLanguage();
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -36,8 +38,8 @@ export default function FirstVisitNotice({ storageKey, message }) {
   return (
     <div className="local-data-toast" role="status" aria-live="polite">
       <span className="local-data-toast-icon"><DemoIcon name="check" /></span>
-      <span className="local-data-toast-message">{message}</span>
-      <button type="button" className="icon-action" onClick={() => setVisible(false)} aria-label="Fermer le message" title="Fermer">
+      <span className="local-data-toast-message">{t(message)}</span>
+      <button type="button" className="icon-action" onClick={() => setVisible(false)} aria-label={t('Fermer le message')} title={t('Fermer')}>
         <DemoIcon name="x" />
       </button>
     </div>

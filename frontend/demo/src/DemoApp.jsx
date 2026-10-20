@@ -15,6 +15,7 @@ import TutorialPage from './components/TutorialPage.jsx';
 import MobileBottomNavigation from './components/MobileBottomNavigation.jsx';
 import { demoQuizzes } from './data/demoQuizzes.js';
 import { deleteLocalQuiz, getAttempts, getLocalQuizzes, saveAttempt, saveLocalQuiz } from './services/localStore.js';
+import { LanguageProvider, localizeQuiz, useLanguage } from './i18n.jsx';
 
 const ANALYTICS_CONSENT_KEY = 'videoquiz-demo:analytics-consent:v1';
 const GA_MEASUREMENT_ID = 'G-8WSJCE0XQM';
@@ -28,10 +29,11 @@ function readAnalyticsConsent() {
   }
 }
 
-export default function DemoApp() {
+function DemoAppContent() {
+  const { language, t } = useLanguage();
   const [localQuizzes, setLocalQuizzes] = useState(getLocalQuizzes);
   const [attempts, setAttempts] = useState(getAttempts);
-  const [showWelcome, setShowWelcome] = useState(() => localStorage.getItem('videoquiz-demo:welcome-seen:v1') !== '1');
+  const [showWelcome, setShowWelcome] = useState(() => localStorage.getItem(`videoquiz-demo:welcome-seen:v1:${language}`) !== '1');
   const [analyticsConsent, setAnalyticsConsent] = useState(readAnalyticsConsent);
   const [showAnalyticsChoices, setShowAnalyticsChoices] = useState(() => readAnalyticsConsent() === null);
   const [analyticsStorageWarning, setAnalyticsStorageWarning] = useState(false);
@@ -39,33 +41,37 @@ export default function DemoApp() {
   const analyticsConsentRef = useRef(analyticsConsent);
   const location = useLocation();
   useEffect(() => {
+    document.documentElement.lang = language;
     const pageMetadata = {
       '/': {
-        title: 'Video Quiz — Créer un quiz vidéo interactif',
-        description: 'Créez un quiz vidéo interactif : associez une vidéo YouTube à un QCM, entraînez-vous à votre rythme et retrouvez votre progression dans ce navigateur.',
+        title: t('Video Quiz — Créer un quiz vidéo interactif'),
+        description: t('Créez un quiz vidéo interactif : associez une vidéo YouTube à un QCM, entraînez-vous à votre rythme et retrouvez votre progression dans ce navigateur.'),
         canonical: 'https://www.videoquiz.fr/',
       },
       '/tutoriel': {
-        title: 'Tutoriel Video Quiz — Créer un quiz à partir d’une vidéo',
-        description: 'Découvrez comment choisir une vidéo, préparer un quiz, répondre aux questions et suivre votre progression avec Video Quiz.',
+        title: t('Tutoriel Video Quiz — Créer un quiz à partir d’une vidéo'),
+        description: t('Découvrez comment choisir une vidéo, préparer un quiz, répondre aux questions et suivre votre progression avec Video Quiz.'),
         canonical: 'https://www.videoquiz.fr/tutoriel/',
       },
     };
     const metadata = pageMetadata[location.pathname] ?? {
-      title: 'Video Quiz — Démo interactive',
-      description: 'Explorez la démo Video Quiz et créez des quiz vidéo conservés dans votre navigateur.',
+      title: t('Video Quiz — Démo interactive'),
+      description: t('Explorez la démo Video Quiz et créez des quiz vidéo conservés dans votre navigateur.'),
       canonical: 'https://www.videoquiz.fr/',
     };
 
     document.title = metadata.title;
     document.querySelector('meta[name="description"]')?.setAttribute('content', metadata.description);
     document.querySelector('link[rel="canonical"]')?.setAttribute('href', metadata.canonical);
-  }, [location.pathname]);
+  }, [language, location.pathname, t]);
 
   const immersiveRoute = location.pathname.startsWith('/quiz/')
     || location.pathname === '/create'
     || location.pathname.startsWith('/edit/');
-  const quizzes = useMemo(() => [...localQuizzes, ...demoQuizzes], [localQuizzes]);
+  const quizzes = useMemo(() => [
+    ...localQuizzes,
+    ...demoQuizzes.map(quiz => localizeQuiz(quiz, t, language)),
+  ], [language, localQuizzes, t]);
   const trackInteraction = useCallback(eventName => {
     if (analyticsConsentRef.current === 'accepted' && window.gtag) window.gtag('event', eventName);
   }, []);
@@ -128,7 +134,7 @@ export default function DemoApp() {
     setAttempts(getAttempts());
   };
   const closeWelcome = () => {
-    localStorage.setItem('videoquiz-demo:welcome-seen:v1', '1');
+    localStorage.setItem(`videoquiz-demo:welcome-seen:v1:${language}`, '1');
     setShowWelcome(false);
   };
   const chooseAnalyticsConsent = consent => {
@@ -162,24 +168,28 @@ export default function DemoApp() {
       </Routes>
       <MobileBottomNavigation />
       <CFooter className="demo-footer">
-        <span>VIDEO QUIZ <CBadge color="secondary">DÉMO</CBadge></span>
-        <Link to="/help">À propos & aide</Link>
+        <span>VIDEO QUIZ <CBadge color="secondary">{t('DÉMO')}</CBadge></span>
+        <Link to="/help">{t('À propos & aide')}</Link>
         <a href="mailto:contact@videoquiz.fr">contact@videoquiz.fr</a>
-        <span>© {new Date().getFullYear()} ZCOORE. Tous droits réservés.</span>
-        <button className="analytics-preferences-link" type="button" onClick={() => setShowAnalyticsChoices(true)}>Préférences Analytics</button>
+        <span>© {new Date().getFullYear()} ZCOORE. {t('Tous droits réservés.')}</span>
+        <button className="analytics-preferences-link" type="button" onClick={() => setShowAnalyticsChoices(true)}>{t('Préférences Analytics')}</button>
       </CFooter>
       {showWelcome && !showAnalyticsChoices && <WelcomeGuide onClose={closeWelcome} />}
       {showAnalyticsChoices && <section className="analytics-consent" role="dialog" aria-modal="true" aria-labelledby="analytics-consent-title">
         <div className="analytics-consent-copy">
-          <h2 id="analytics-consent-title">Mesure d’audience</h2>
-          <p>Pour améliorer l’expérience utilisateur, nous mesurons avec Google Analytics la consultation des différentes sections de cette démo. Aucune réponse au quiz ni aucun contenu saisi n’est envoyé.</p>
-          {analyticsStorageWarning && <p className="analytics-consent-warning" role="alert">Votre choix ne peut pas être mémorisé dans ce navigateur. Il s’appliquera uniquement jusqu’à la fermeture de cette page.</p>}
+          <h2 id="analytics-consent-title">{t('Mesure d’audience')}</h2>
+          <p>{t('Pour améliorer l’expérience utilisateur, nous mesurons avec Google Analytics la consultation des différentes sections de cette démo. Aucune réponse au quiz ni aucun contenu saisi n’est envoyé.')}</p>
+          {analyticsStorageWarning && <p className="analytics-consent-warning" role="alert">{t('Votre choix ne peut pas être mémorisé dans ce navigateur. Il s’appliquera uniquement jusqu’à la fermeture de cette page.')}</p>}
         </div>
         <div className="analytics-consent-actions">
-          <button className="analytics-consent-reject" type="button" onClick={() => chooseAnalyticsConsent('rejected')}>Refuser</button>
-          <button className="analytics-consent-accept" type="button" onClick={() => chooseAnalyticsConsent('accepted')}>Accepter</button>
+          <button className="analytics-consent-reject" type="button" onClick={() => chooseAnalyticsConsent('rejected')}>{t('Refuser')}</button>
+          <button className="analytics-consent-accept" type="button" onClick={() => chooseAnalyticsConsent('accepted')}>{t('Accepter')}</button>
         </div>
       </section>}
     </div>
   );
+}
+
+export default function DemoApp() {
+  return <LanguageProvider><DemoAppContent /></LanguageProvider>;
 }

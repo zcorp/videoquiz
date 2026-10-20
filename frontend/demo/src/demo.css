@@ -484,6 +484,8 @@ button:disabled { cursor: not-allowed; opacity: .45; }
 .welcome-guide-modal .welcome-guide-steps span { color: var(--muted); font-size: 20px; line-height: 1.5; }
 .welcome-guide-actions.modal-footer { justify-content: flex-start; gap: 8px; padding: 12px 28px 24px; border-top: 0; }
 .welcome-guide-actions .btn { min-height: 44px; display: inline-flex; align-items: center; gap: 7px; }
+.language-switcher { display: inline-flex; align-items: center; flex: 0 0 auto; }
+.language-switcher select { min-height: 36px; padding: 0 8px; border: 1px solid var(--rule); border-radius: 6px; background: var(--paper); color: var(--ink); font: 700 12px 'DM Sans', sans-serif; }
 .pass-status { margin-top: 10px; padding: 7px 9px; font-size: 11px; }
 .pass-status.is-pass { color: var(--green); background: #e3eee5; }
 .pass-status.is-fail { color: #a64d3c; background: #f6e8df; }

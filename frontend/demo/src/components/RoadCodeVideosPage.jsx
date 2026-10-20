@@ -5,11 +5,13 @@ import { videoLibrary } from '../data/demoQuizzes.js';
 import { getQuizUsingVideo } from '../services/localStore.js';
 import YouTubeThumbnail from './YouTubeThumbnail.jsx';
 import DemoIcon from './DemoIcon.jsx';
+import { translateTopic, useLanguage } from '../i18n.jsx';
 
 const PAGE_SIZE = 8;
-const formatVideoCount = count => `${count} ${count === 1 ? 'vidéo' : 'vidéos'}`;
+const formatVideoCount = (count, t) => `${count} ${t(count === 1 ? 'vidéo' : 'vidéos')}`;
 
 export default function RoadCodeVideosPage({ quizzes }) {
+  const { t, language } = useLanguage();
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const [query, setQuery] = useState('');
@@ -76,44 +78,44 @@ export default function RoadCodeVideosPage({ quizzes }) {
 
   const videoCollection = (
     <>
-      {isRoadCodeTheme && <div className="road-revisions-heading"><div><span className="eyebrow">APPRENDRE EN REGARDANT</span><h2>Tes révisions Code de la route</h2><p>Choisis une vidéo, associe-la à un QCM et avance à ton rythme.</p></div><Link to="/suivi">Retrouver mon suivi <DemoIcon name="arrowRight" /></Link></div>}
+      {isRoadCodeTheme && <div className="road-revisions-heading"><div><span className="eyebrow">{t('APPRENDRE EN REGARDANT')}</span><h2>{t('Tes révisions Code de la route')}</h2><p>{t('Choisis une vidéo, associe-la à un QCM et avance à ton rythme.')}</p></div><Link to="/suivi">{t('Retrouver mon suivi')} <DemoIcon name="arrowRight" /></Link></div>}
       <div className="road-video-grid">
         {visibleVideos.map(video => {
           const existingQuiz = getQuizUsingVideo(video.id, quizzes);
           const existingQuizPath = existingQuiz?.local ? `/edit/${existingQuiz.id}` : existingQuiz ? `/quiz/${existingQuiz.id}` : null;
           return <CCard className="road-video-card" key={video.id}>
-          <div className="road-video-card-media"><YouTubeThumbnail className="card-img-top" videoId={video.id} alt={`Miniature vidéo : ${video.title}`} /><span className="road-video-play"><DemoIcon name="plus" /></span>{video.duration && <span className="road-video-duration">{video.duration}</span>}</div>
-          <CCardBody className="road-video-card-copy"><CBadge className="road-video-series-badge" color="warning">{video.theme}</CBadge><CCardTitle>{video.title}</CCardTitle>{video.channelTitle && <a className="road-video-channel" href={video.channelUrl} target="_blank" rel="noreferrer">{video.channelTitle}</a>}{existingQuiz ? <Link className="btn btn-outline-success road-video-open" to={existingQuizPath}>{existingQuiz.local ? 'Modifier le quiz associé' : 'Quiz déjà associé'} <DemoIcon name="arrowRight" /></Link> : <Link className="btn btn-success road-video-open" to={associateVideo(video)}>Créer un QCM avec cette vidéo <DemoIcon name="arrowRight" /></Link>}<CCardText><a className="road-video-source" href={`https://www.youtube.com/watch?v=${video.id}`} target="_blank" rel="noreferrer">Source YouTube <DemoIcon name="externalLink" /></a></CCardText></CCardBody>
+          <div className="road-video-card-media"><YouTubeThumbnail className="card-img-top" videoId={video.id} alt={`${t('Miniature vidéo :')} ${video.title}`} /><span className="road-video-play"><DemoIcon name="plus" /></span>{video.duration && <span className="road-video-duration">{video.duration}</span>}</div>
+          <CCardBody className="road-video-card-copy"><CBadge className="road-video-series-badge" color="warning">{translateTopic(video.theme, language)}</CBadge><CCardTitle>{video.title}</CCardTitle>{video.channelTitle && <a className="road-video-channel" href={video.channelUrl} target="_blank" rel="noreferrer">{video.channelTitle}</a>}{existingQuiz ? <Link className="btn btn-outline-success road-video-open" to={existingQuizPath}>{t(existingQuiz.local ? 'Modifier le quiz associé' : 'Quiz déjà associé')} <DemoIcon name="arrowRight" /></Link> : <Link className="btn btn-success road-video-open" to={associateVideo(video)}>{t('Créer un QCM avec cette vidéo')} <DemoIcon name="arrowRight" /></Link>}<CCardText><a className="road-video-source" href={`https://www.youtube.com/watch?v=${video.id}`} target="_blank" rel="noreferrer">{t('Source YouTube')} <DemoIcon name="externalLink" /></a></CCardText></CCardBody>
         </CCard>;
         })}
-        {!visibleVideos.length && <div className="library-empty"><DemoIcon name="magnifyingGlass" /><h3>Aucune vidéo trouvée</h3><p>Essaie une autre recherche.</p></div>}
+        {!visibleVideos.length && <div className="library-empty"><DemoIcon name="magnifyingGlass" /><h3>{t('Aucune vidéo trouvée')}</h3><p>{t('Essaie une autre recherche.')}</p></div>}
       </div>
-      {pageCount > 1 && <nav className="library-pagination" aria-label="Pagination des vidéos"><button type="button" className="icon-action" onClick={() => setPage(value => Math.max(1, value - 1))} disabled={page === 1} aria-label="Page précédente"><DemoIcon name="arrowLeft" /></button><span>Page {page} / {pageCount}</span><button type="button" className="icon-action" onClick={() => setPage(value => Math.min(pageCount, value + 1))} disabled={page === pageCount} aria-label="Page suivante"><DemoIcon name="arrowRight" /></button></nav>}
+      {pageCount > 1 && <nav className="library-pagination" aria-label={t('Pagination des vidéos')}><button type="button" className="icon-action" onClick={() => setPage(value => Math.max(1, value - 1))} disabled={page === 1} aria-label={t('Page précédente')}><DemoIcon name="arrowLeft" /></button><span>{t('Page')} {page} / {pageCount}</span><button type="button" className="icon-action" onClick={() => setPage(value => Math.min(pageCount, value + 1))} disabled={page === pageCount} aria-label={t('Page suivante')}><DemoIcon name="arrowRight" /></button></nav>}
     </>
   );
 
   return (
     <main className={`demo-page road-videos-page${isRoadCodeTheme ? ' is-road-code-theme' : ''}`}>
-      <div className="player-topline"><span className="eyebrow">VIDÉOS · COLLECTIONS</span><span className="player-save-note">Sélection YouTube · contenu externe</span></div>
-      <header className="road-videos-heading"><div><span className="eyebrow">VIDÉOS POUR VOS QCM</span><h1>{themeFilter === 'all' ? 'Tous les thèmes' : isRoadCodeTheme ? 'Code de la route' : themeFilter}</h1><p>Choisis une vidéo comme support, puis configure le nombre de questions et de choix de ton QCM express.</p></div><span className="road-video-count">{filteredVideos.length} vidéo{filteredVideos.length === 1 ? '' : 's'}</span></header>
+      <div className="player-topline"><span className="eyebrow">{t('VIDÉOS · COLLECTIONS')}</span><span className="player-save-note">{t('Sélection YouTube · contenu externe')}</span></div>
+      <header className="road-videos-heading"><div><span className="eyebrow">{t('VIDÉOS POUR VOS QCM')}</span><h1>{themeFilter === 'all' ? t('Tous les thèmes') : translateTopic(themeFilter, language)}</h1><p>{t('Choisis une vidéo comme support, puis configure le nombre de questions et de choix de ton QCM express.')}</p></div><span className="road-video-count">{formatVideoCount(filteredVideos.length, t)}</span></header>
       {showVideoToolbar && <div className="road-video-toolbar">
-        <CFormInput value={query} onChange={event => search(event.target.value)} placeholder="Rechercher une série…" aria-label="Rechercher une vidéo" />
-        <span>Chaque vidéo ne peut être associée qu’à un seul quiz.</span>
+        <CFormInput value={query} onChange={event => search(event.target.value)} placeholder={t('Rechercher une série…')} aria-label={t('Rechercher une vidéo')} />
+        <span>{t('Chaque vidéo ne peut être associée qu’à un seul quiz.')}</span>
       </div>}
-      <div ref={themeToolbar} className={`video-theme-toolbar${hasMoreThemes ? ' has-more-themes' : ''}`} role="group" aria-label="Filtrer les vidéos par thème">
+      <div ref={themeToolbar} className={`video-theme-toolbar${hasMoreThemes ? ' has-more-themes' : ''}`} role="group" aria-label={t('Filtrer les vidéos par thème')}>
         {themeOptions.map(theme => <button
           type="button"
           key={theme.value}
           className={`video-theme-filter${themeFilter === theme.value ? ' is-active' : ''}`}
           aria-pressed={themeFilter === theme.value}
-          aria-label={`${theme.label}, ${formatVideoCount(theme.count)}`}
+          aria-label={`${translateTopic(theme.label, language)}, ${formatVideoCount(theme.count, t)}`}
           onClick={() => filterTheme(theme.value)}
-        >{theme.label}<span aria-hidden="true">{theme.count}</span></button>)}
+        >{translateTopic(theme.label, language)}<span aria-hidden="true">{theme.count}</span></button>)}
       </div>
       {isRoadCodeTheme && (
         <>
           <nav className="road-prep-tabs" role="tablist" aria-label="Préparer l’examen du code de la route">
-            {roadTabs.map((tab, index) => <button id={`road-tab-${tab.id}`} type="button" role="tab" aria-selected={activeRoadTab === tab.id} aria-controls="road-tabpanel" tabIndex={activeRoadTab === tab.id ? 0 : -1} className={activeRoadTab === tab.id ? 'is-active' : ''} key={tab.id} onClick={() => setActiveRoadTab(tab.id)} onKeyDown={event => handleRoadTabKeyDown(event, index)}><span>{tab.number}</span>{tab.label}</button>)}
+            {roadTabs.map((tab, index) => <button id={`road-tab-${tab.id}`} type="button" role="tab" aria-selected={activeRoadTab === tab.id} aria-controls="road-tabpanel" tabIndex={activeRoadTab === tab.id ? 0 : -1} className={activeRoadTab === tab.id ? 'is-active' : ''} key={tab.id} onClick={() => setActiveRoadTab(tab.id)} onKeyDown={event => handleRoadTabKeyDown(event, index)}><span>{tab.number}</span>{t(tab.label)}</button>)}
           </nav>
           <section id="road-tabpanel" className="road-tabpanel" role="tabpanel" aria-labelledby={`road-tab-${activeRoadTab}`} tabIndex={0}>
             {activeRoadTab === 'videos' && videoCollection}
