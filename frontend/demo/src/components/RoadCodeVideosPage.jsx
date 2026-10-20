@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
-import { CBadge, CCard, CCardBody, CCardText, CCardTitle, CFormInput, CFormSelect } from '@coreui/react';
+import { CBadge, CCard, CCardBody, CCardText, CCardTitle, CFormInput } from '@coreui/react';
 import { videoLibrary } from '../data/demoQuizzes.js';
 import { getQuizUsingVideo } from '../services/localStore.js';
 import YouTubeThumbnail from './YouTubeThumbnail.jsx';
 import DemoIcon from './DemoIcon.jsx';
 
 const PAGE_SIZE = 8;
+const formatVideoCount = count => `${count} ${count === 1 ? 'vidéo' : 'vidéos'}`;
 
 export default function RoadCodeVideosPage({ quizzes }) {
   const location = useLocation();
@@ -24,7 +25,16 @@ export default function RoadCodeVideosPage({ quizzes }) {
     { id: 'jour', label: 'Le jour J', number: '04' },
   ];
   const normalizedQuery = query.trim().toLocaleLowerCase();
-  const themes = [...new Set(videoLibrary.map(video => video.theme.toLocaleUpperCase('fr-FR')))].sort((left, right) => left.localeCompare(right, 'fr'));
+  const themeOptions = [
+    { value: 'all', label: 'Tous les thèmes', count: videoLibrary.length },
+    ...[...new Set(videoLibrary.map(video => video.theme))]
+      .map(theme => ({
+        value: theme.toLocaleUpperCase('fr-FR'),
+        label: theme,
+        count: videoLibrary.filter(video => video.theme === theme).length,
+      }))
+      .sort((left, right) => left.label.localeCompare(right.label, 'fr')),
+  ];
   const filteredVideos = videoLibrary.filter(video => {
     const searchableText = `${video.title} ${video.author ?? ''} ${video.channelTitle ?? ''}`.toLocaleLowerCase();
     return searchableText.includes(normalizedQuery)
@@ -35,6 +45,7 @@ export default function RoadCodeVideosPage({ quizzes }) {
 
   const search = value => { setQuery(value); setPage(1); };
   const filterTheme = value => { setThemeFilter(value); setPage(1); if (value !== 'CODE DE LA ROUTE') setActiveRoadTab('videos'); };
+  const showVideoToolbar = !isRoadCodeTheme || activeRoadTab === 'videos';
   const associateVideo = video => `/create?mode=qcm&video=${video.id}&title=${encodeURIComponent(video.title)}&topic=${encodeURIComponent(video.theme.toUpperCase())}`;
   const handleRoadTabKeyDown = (event, index) => {
     const lastIndex = roadTabs.length - 1;
@@ -71,10 +82,19 @@ export default function RoadCodeVideosPage({ quizzes }) {
     <main className={`demo-page road-videos-page${isRoadCodeTheme ? ' is-road-code-theme' : ''}`}>
       <div className="player-topline"><span className="eyebrow">VIDÉOS · COLLECTIONS</span><span className="player-save-note">Sélection YouTube · contenu externe</span></div>
       <header className="road-videos-heading"><div><span className="eyebrow">VIDÉOS POUR VOS QCM</span><h1>{themeFilter === 'all' ? 'Tous les thèmes' : isRoadCodeTheme ? 'Code de la route' : themeFilter}</h1><p>Choisis une vidéo comme support, puis configure le nombre de questions et de choix de ton QCM express.</p></div><span className="road-video-count">{filteredVideos.length} vidéo{filteredVideos.length === 1 ? '' : 's'}</span></header>
-      <div className={`road-video-toolbar${isRoadCodeTheme && activeRoadTab !== 'videos' ? ' road-video-toolbar-guide' : ''}`}>
-        {(!isRoadCodeTheme || activeRoadTab === 'videos') && <CFormInput value={query} onChange={event => search(event.target.value)} placeholder="Rechercher une série…" aria-label="Rechercher une vidéo" />}
-        <CFormSelect value={themeFilter} onChange={event => filterTheme(event.target.value)} aria-label="Filtrer par thème"><option value="all">Tous les thèmes</option>{themes.map(theme => <option key={theme} value={theme}>{theme}</option>)}</CFormSelect>
-        {(!isRoadCodeTheme || activeRoadTab === 'videos') && <span>Chaque vidéo ne peut être associée qu’à un seul quiz.</span>}
+      {showVideoToolbar && <div className="road-video-toolbar">
+        <CFormInput value={query} onChange={event => search(event.target.value)} placeholder="Rechercher une série…" aria-label="Rechercher une vidéo" />
+        <span>Chaque vidéo ne peut être associée qu’à un seul quiz.</span>
+      </div>}
+      <div className="video-theme-toolbar" role="group" aria-label="Filtrer les vidéos par thème">
+        {themeOptions.map(theme => <button
+          type="button"
+          key={theme.value}
+          className={`video-theme-filter${themeFilter === theme.value ? ' is-active' : ''}`}
+          aria-pressed={themeFilter === theme.value}
+          aria-label={`${theme.label}, ${formatVideoCount(theme.count)}`}
+          onClick={() => filterTheme(theme.value)}
+        >{theme.label}<span aria-hidden="true">{theme.count}</span></button>)}
       </div>
       {isRoadCodeTheme && (
         <>
