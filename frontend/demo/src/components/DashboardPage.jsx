@@ -7,6 +7,13 @@ import DemoIcon from './DemoIcon.jsx';
 import FirstVisitNotice from './FirstVisitNotice.jsx';
 import { translateTopic, useLanguage } from '../i18n.jsx';
 
+const previewProgression = [3, 5, 6, 8].map((score, index) => ({
+  score,
+  max: 10,
+  percentage: score * 10,
+  date: `preview-${index + 1}`,
+}));
+
 function DashboardQuizRow({ quiz, attempts, selected, onSelect }) {
   const { t, language } = useLanguage();
   const progression = getQuizProgression(quiz.id);
@@ -196,6 +203,14 @@ export default function DashboardPage({ quizzes, attempts, onDataChanged, onTrac
         </Link>
       </section>}
       {!recentQuiz && <section className="dashboard-empty dashboard-first-step" aria-label={t('Commencer un quiz')}><p>{t('Faites une première tentative pour retrouver vos résultats et votre évolution dans « Suivi ».')}</p><Link className="dashboard-text-link" to="/suivi">{t('Découvrir votre suivi')} <DemoIcon name="arrowRight" /></Link></section>}
+      {!recentQuiz && <section className="dashboard-preview" aria-labelledby="dashboard-preview-title">
+        <div className="dashboard-preview-heading">
+          <div><span className="eyebrow">{t('APERÇU')}</span><h2 id="dashboard-preview-title">{t('À quoi ressemblera votre suivi ?')}</h2></div>
+          <span className="dashboard-preview-badge">{t('EXEMPLE FICTIF')}</span>
+        </div>
+        <p>{t('Ce graphique est un exemple fictif. Après vos quiz, il sera remplacé par vos résultats réels.')}</p>
+        <ScoreChart points={previewProgression} preview />
+      </section>}
       {suggestedQuizzes.length > 0 && <section className="dashboard-section dashboard-all-quizzes" aria-labelledby="dashboard-all-title"><div className="dashboard-section-heading"><div><span className="eyebrow">{t(recentQuiz ? 'À DÉCOUVRIR ENSUITE' : 'POUR COMMENCER')}</span><h2 id="dashboard-all-title">{t(recentQuiz ? 'Envie d’un autre sujet ?' : 'Un sujet pour commencer')}</h2></div><Link className="dashboard-text-link" to="/">{t('Tous les quiz')} <DemoIcon name="arrowRight" /></Link></div><div className="dashboard-quick-grid">{suggestedQuizzes.map(quiz => <Link key={quiz.id} to={`/quiz/${quiz.id}`}><span>{quiz.topic}</span><strong>{quiz.title}</strong><small>{quiz.questionCount ?? quiz.questions.length} {t('questions')} <b><DemoIcon name="externalLink" /></b></small></Link>)}</div></section>}
       <section className="dashboard-section backup-section" aria-labelledby="backup-title">
         <details ref={backupSection} className="dashboard-backup-details">

@@ -1380,6 +1380,12 @@ body, .demo-shell { background: var(--paper); color: var(--ink); }
 .dashboard-first-step { margin-bottom: 24px; padding: 20px; border: 1px solid #e4e7e0; border-radius: 10px; background: var(--surface); }
 .dashboard-first-step .dashboard-text-link { margin-top: 8px; }
 .dashboard-first-step p { margin: 0; color: var(--muted); font-size: 18px; line-height: 1.5; }
+.dashboard-preview { margin-bottom: 28px; padding: 22px 24px; border: 1px solid var(--rule); border-radius: 10px; background: var(--surface); }
+.dashboard-preview-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.dashboard-preview-heading h2 { margin: 5px 0 0; color: var(--ink); font: 700 23px/1.2 'DM Sans', sans-serif; letter-spacing: -.02em; }
+.dashboard-preview-badge { flex: 0 0 auto; padding: 6px 9px; border: 1px solid #d8e5e6; border-radius: 999px; background: var(--surface-soft); color: var(--turquoise); font: 700 11px 'DM Sans', sans-serif; letter-spacing: .04em; }
+.dashboard-preview > p { margin: 8px 0 0; color: var(--muted); font-size: 16px; line-height: 1.5; }
+.dashboard-preview .progression-chart-wrap { margin-top: 7px; background: transparent; }
 .dashboard-desktop-tracking { display: none; }
 .mobile-bottom-nav { display: none; }
 

@@ -12,7 +12,7 @@ export function formatDate(value, language = 'fr') {
   return new Intl.DateTimeFormat(language === 'en' ? 'en-GB' : 'fr-FR', { day: '2-digit', month: 'short', year: 'numeric' }).format(new Date(value));
 }
 
-export function ScoreChart({ points, compact = false, mini = false, attemptOffset = 0 }) {
+export function ScoreChart({ points, compact = false, mini = false, attemptOffset = 0, preview = false }) {
   const { language, t } = useLanguage();
   const width = mini ? 360 : 720;
   const height = mini ? 100 : 280;
@@ -30,10 +30,13 @@ export function ScoreChart({ points, compact = false, mini = false, attemptOffse
   const xTicks = mini ? [] : [...new Set([0, ...points.map((_, index) => index).filter(index => index % xTickStep === 0), points.length - 1])];
   const gradientId = `score-area-${useId().replace(/:/g, '')}`;
   const chartBottom = height - padding.bottom;
+  const chartLabel = preview
+    ? t('Exemple illustratif de progression sur {count} tentatives fictives.').replace('{count}', points.length)
+    : t('Évolution du score sur {count} tentative(s).').replace('{count}', points.length);
 
   return (
     <div className="progression-chart-wrap">
-      <svg className={`progression-chart${compact ? ' is-compact' : ''}${mini ? ' is-mini' : ''}`} viewBox={`0 0 ${width} ${height}`} role="img" aria-label={t('Évolution du score sur {count} tentative(s).').replace('{count}', points.length)}>
+      <svg className={`progression-chart${compact ? ' is-compact' : ''}${mini ? ' is-mini' : ''}`} viewBox={`0 0 ${width} ${height}`} role="img" aria-label={chartLabel}>
         <defs>
           <linearGradient id={gradientId} x1="0" x2="0" y1="0" y2="1">
             <stop offset="0%" stopColor="var(--green)" stopOpacity=".22" />
@@ -46,11 +49,16 @@ export function ScoreChart({ points, compact = false, mini = false, attemptOffse
         </g>)}
         {!mini && <path className="progression-area" d={scoreArea(data)} fill={`url(#${gradientId})`} />}
         {data.length > 1 && <path className="progression-line" d={scoreLine(data)} />}
-        {data.map(point => <g className="progression-point" key={`${point.date}-${point.index}`} tabIndex="0" role="img" aria-label={t('Tentative {number}: {score} out of {max}, {percentage}%, {date}.').replace('{number}', point.attemptNumber).replace('{score}', point.score).replace('{max}', point.max).replace('{percentage}', point.percentage).replace('{date}', formatDate(point.date, language))}>
+        {data.map(point => {
+          const pointLabel = preview
+            ? t('Tentative fictive {number} : {score} sur {max}.').replace('{number}', point.attemptNumber).replace('{score}', point.score).replace('{max}', point.max)
+            : t('Tentative {number}: {score} out of {max}, {percentage}%, {date}.').replace('{number}', point.attemptNumber).replace('{score}', point.score).replace('{max}', point.max).replace('{percentage}', point.percentage).replace('{date}', formatDate(point.date, language));
+          return <g className="progression-point" key={`${point.date}-${point.index}`} tabIndex={preview ? undefined : '0'} role="img" aria-label={pointLabel}>
           <circle className="progression-point-hit" cx={x(point.index)} cy={y(point.score)} r="13" />
           <circle className="progression-point-marker" cx={x(point.index)} cy={y(point.score)} r="5.5" />
-          <title>{`${t('Tentative')} ${point.attemptNumber} · ${point.score}/${point.max} · ${point.percentage}% · ${formatDate(point.date, language)}`}</title>
-        </g>)}
+          <title>{pointLabel}</title>
+        </g>;
+        })}
         {xTicks.map(index => <g className="chart-x-tick" key={index}>
           <line x1={x(index)} x2={x(index)} y1={chartBottom} y2={chartBottom + 5} />
           <text x={x(index)} y={height - 14} textAnchor="middle">#{index + attemptOffset + 1}</text>
