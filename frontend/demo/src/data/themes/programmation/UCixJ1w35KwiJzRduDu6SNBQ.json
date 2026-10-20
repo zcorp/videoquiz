@@ -1,0 +1,72 @@
+{
+  "ChannelId": "UCixJ1w35KwiJzRduDu6SNBQ",
+  "ChannelTitle": "WayToLearnX",
+  "ChannelUrl": "https://www.youtube.com/@WayToLearnX",
+  "Theme": "programmation",
+  "Videos": [
+    {
+      "Id": "edU-oRIlTC8",
+      "Title": "🐞 C’est Quoi Un Bug Informatique ? #BugInformatique #Programmation #Technologie #Développement #PC",
+      "Author": "WayToLearnX",
+      "Duration": "00:00:26",
+      "Url": "https://www.youtube.com/watch?v=edU-oRIlTC8",
+      "Thumbnail": "https://img.youtube.com/vi/edU-oRIlTC8/hqdefault.jpg"
+    },
+    {
+      "Id": "NwYM5nZgbj0",
+      "Title": "🤖 C’est Quoi Un Algorithme De Classification ?",
+      "Author": "WayToLearnX",
+      "Duration": "00:00:30",
+      "Url": "https://www.youtube.com/watch?v=NwYM5nZgbj0",
+      "Thumbnail": "https://img.youtube.com/vi/NwYM5nZgbj0/hqdefault.jpg"
+    },
+    {
+      "Id": "8eGlC28NsPI",
+      "Title": "🐍 C’est Quoi Python ? #Python #Programmation #Informatique #Tech #shorts #ApprendrePython #Coding",
+      "Author": "WayToLearnX",
+      "Duration": "00:00:31",
+      "Url": "https://www.youtube.com/watch?v=8eGlC28NsPI",
+      "Thumbnail": "https://img.youtube.com/vi/8eGlC28NsPI/hqdefault.jpg"
+    },
+    {
+      "Id": "eRqoDFgd6Bk",
+      "Title": "💻 C’est Quoi Le Code Source ? Explication Simple #CodeSource #Programmation #Informatique #web",
+      "Author": "WayToLearnX",
+      "Duration": "00:00:25",
+      "Url": "https://www.youtube.com/watch?v=eRqoDFgd6Bk",
+      "Thumbnail": "https://img.youtube.com/vi/eRqoDFgd6Bk/hqdefault.jpg"
+    },
+    {
+      "Id": "lVm9j7-o4VM",
+      "Title": "C’est Quoi JavaScript ? Explication Simple 💻⚡ #javaScript #programmation #developpement #web #code",
+      "Author": "WayToLearnX",
+      "Duration": "00:00:31",
+      "Url": "https://www.youtube.com/watch?v=lVm9j7-o4VM",
+      "Thumbnail": "https://img.youtube.com/vi/lVm9j7-o4VM/hqdefault.jpg"
+    },
+    {
+      "Id": "NLq7K2heJ2A",
+      "Title": "Comment Créer Un Jeu Avec CMD Sous Windows 🎮💻 #cmd #windows #programmation #batch #windows10",
+      "Author": "WayToLearnX",
+      "Duration": "00:00:35",
+      "Url": "https://www.youtube.com/watch?v=NLq7K2heJ2A",
+      "Thumbnail": "https://img.youtube.com/vi/NLq7K2heJ2A/hqdefault.jpg"
+    },
+    {
+      "Id": "1K13-o6gXNQ",
+      "Title": "C’est Quoi HTML ? Explication Simple 🌐 #html #css #programmation #web #coding #informatique",
+      "Author": "WayToLearnX",
+      "Duration": "00:00:28",
+      "Url": "https://www.youtube.com/watch?v=1K13-o6gXNQ",
+      "Thumbnail": "https://img.youtube.com/vi/1K13-o6gXNQ/hqdefault.jpg"
+    },
+    {
+      "Id": "YMM_EWpTtg0",
+      "Title": "C’est Quoi Git ? Explication Simple En 2 Minutes 💻 #git #programmation #web #code #informatique",
+      "Author": "WayToLearnX",
+      "Duration": "00:00:33",
+      "Url": "https://www.youtube.com/watch?v=YMM_EWpTtg0",
+      "Thumbnail": "https://img.youtube.com/vi/YMM_EWpTtg0/hqdefault.jpg"
+    }
+  ]
+}

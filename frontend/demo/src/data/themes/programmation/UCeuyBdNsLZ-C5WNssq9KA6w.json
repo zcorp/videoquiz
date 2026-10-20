@@ -1,0 +1,40 @@
+{
+  "ChannelId": "UCeuyBdNsLZ-C5WNssq9KA6w",
+  "ChannelTitle": "Le Quizz Du Jour",
+  "ChannelUrl": "https://www.youtube.com/@LeQuizzDuJour",
+  "Theme": "programmation",
+  "Videos": [
+    {
+      "Id": "6oIELUKpZAg",
+      "Title": "Quizz - Informatique et langages de programmation",
+      "Author": "Le Quizz Du Jour",
+      "Duration": "00:10:25",
+      "Url": "https://www.youtube.com/watch?v=6oIELUKpZAg",
+      "Thumbnail": "https://img.youtube.com/vi/6oIELUKpZAg/hqdefault.jpg"
+    },
+    {
+      "Id": "6JUDwIEJRGU",
+      "Title": "Quizz - Programmation - Niveau Avancé",
+      "Author": "Le Quizz Du Jour",
+      "Duration": "00:10:25",
+      "Url": "https://www.youtube.com/watch?v=6JUDwIEJRGU",
+      "Thumbnail": "https://img.youtube.com/vi/6JUDwIEJRGU/hqdefault.jpg"
+    },
+    {
+      "Id": "7lxduHNyVMw",
+      "Title": "Quizz - Programmation - Niveau Moyen",
+      "Author": "Le Quizz Du Jour",
+      "Duration": "00:10:25",
+      "Url": "https://www.youtube.com/watch?v=7lxduHNyVMw",
+      "Thumbnail": "https://img.youtube.com/vi/7lxduHNyVMw/hqdefault.jpg"
+    },
+    {
+      "Id": "wOn2LWr84os",
+      "Title": "Quizz - Secrets de la Linguistique et des Langages de Programmation",
+      "Author": "Le Quizz Du Jour",
+      "Duration": "00:10:25",
+      "Url": "https://www.youtube.com/watch?v=wOn2LWr84os",
+      "Thumbnail": "https://img.youtube.com/vi/wOn2LWr84os/hqdefault.jpg"
+    }
+  ]
+}

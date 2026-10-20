@@ -1,0 +1,40 @@
+{
+  "ChannelId": "UCL-t3djBuOqLyiK1gLDJRuA",
+  "ChannelTitle": "Quiz Expresso",
+  "ChannelUrl": "https://www.youtube.com/@QuizExpresso",
+  "Theme": "histoire",
+  "Videos": [
+    {
+      "Id": "QXepn1UFIpE",
+      "Title": "Quiz Histoire de France #1 #culturegénérale",
+      "Author": "Quiz Expresso",
+      "Duration": "00:12:43",
+      "Url": "https://www.youtube.com/watch?v=QXepn1UFIpE",
+      "Thumbnail": "https://img.youtube.com/vi/QXepn1UFIpE/hqdefault.jpg"
+    },
+    {
+      "Id": "rO0f9o4nJXA",
+      "Title": "Conquérants et Monarques : Le Quiz Historique Complet",
+      "Author": "Quiz Expresso",
+      "Duration": "00:12:43",
+      "Url": "https://www.youtube.com/watch?v=rO0f9o4nJXA",
+      "Thumbnail": "https://img.youtube.com/vi/rO0f9o4nJXA/hqdefault.jpg"
+    },
+    {
+      "Id": "HQX5MNdqqGU",
+      "Title": "Quiz Hors-la-loi de l'Histoire - Testez vos connaissances ! 🧠",
+      "Author": "Quiz Expresso",
+      "Duration": "00:12:43",
+      "Url": "https://www.youtube.com/watch?v=HQX5MNdqqGU",
+      "Thumbnail": "https://img.youtube.com/vi/HQX5MNdqqGU/hqdefault.jpg"
+    },
+    {
+      "Id": "n506-YFTOTQ",
+      "Title": "Quiz: De l'Antiquité au Big Bang",
+      "Author": "Quiz Expresso",
+      "Duration": "00:12:43",
+      "Url": "https://www.youtube.com/watch?v=n506-YFTOTQ",
+      "Thumbnail": "https://img.youtube.com/vi/n506-YFTOTQ/hqdefault.jpg"
+    }
+  ]
+}

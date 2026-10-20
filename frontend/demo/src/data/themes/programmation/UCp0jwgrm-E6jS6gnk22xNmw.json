@@ -1,0 +1,128 @@
+{
+  "ChannelId": "UCp0jwgrm-E6jS6gnk22xNmw",
+  "ChannelTitle": "🥇 Informatics Quiz & Programming",
+  "ChannelUrl": "https://www.youtube.com/@InformaticsQuizAndProgramming",
+  "Theme": "programmation",
+  "Videos": [
+    {
+      "Id": "syrGmSAQSYg",
+      "Title": "Full-Stack Developer",
+      "Author": "🥇 Informatics Quiz & Programming",
+      "Duration": "00:00:11",
+      "Url": "https://www.youtube.com/watch?v=syrGmSAQSYg",
+      "Thumbnail": "https://img.youtube.com/vi/syrGmSAQSYg/hqdefault.jpg"
+    },
+    {
+      "Id": "gOQ5Oi5J22s",
+      "Title": "the python toolkit",
+      "Author": "🥇 Informatics Quiz & Programming",
+      "Duration": "00:00:12",
+      "Url": "https://www.youtube.com/watch?v=gOQ5Oi5J22s",
+      "Thumbnail": "https://img.youtube.com/vi/gOQ5Oi5J22s/hqdefault.jpg"
+    },
+    {
+      "Id": "f2z1jmv5LC8",
+      "Title": "🐍 Python Program to Find the N-th Fibonacci Number | Beginner Exercise #12",
+      "Author": "🥇 Informatics Quiz & Programming",
+      "Duration": "00:05:05",
+      "Url": "https://www.youtube.com/watch?v=f2z1jmv5LC8",
+      "Thumbnail": "https://img.youtube.com/vi/f2z1jmv5LC8/hqdefault.jpg"
+    },
+    {
+      "Id": "50nQWCNqPkA",
+      "Title": "🐍 Python Program to Check Whether a Number Is Prime | Beginner Exercise #11",
+      "Author": "🥇 Informatics Quiz & Programming",
+      "Duration": "00:04:30",
+      "Url": "https://www.youtube.com/watch?v=50nQWCNqPkA",
+      "Thumbnail": "https://img.youtube.com/vi/50nQWCNqPkA/hqdefault.jpg"
+    },
+    {
+      "Id": "OE4AvC4Afmw",
+      "Title": "🐍 Python Program to Calculate the Area of a Circle | Beginner Exercise #10",
+      "Author": "🥇 Informatics Quiz & Programming",
+      "Duration": "00:05:15",
+      "Url": "https://www.youtube.com/watch?v=OE4AvC4Afmw",
+      "Thumbnail": "https://img.youtube.com/vi/OE4AvC4Afmw/hqdefault.jpg"
+    },
+    {
+      "Id": "ahz_J79kjhE",
+      "Title": "💰 Python Program to Calculate Compound Interest | Beginner Exercise #8",
+      "Author": "🥇 Informatics Quiz & Programming",
+      "Duration": "00:05:19",
+      "Url": "https://www.youtube.com/watch?v=ahz_J79kjhE",
+      "Thumbnail": "https://img.youtube.com/vi/ahz_J79kjhE/hqdefault.jpg"
+    },
+    {
+      "Id": "vuh1h_C8KcE",
+      "Title": "🐍 Python Program to Check Armstrong Number | Beginner Exercise #9",
+      "Author": "🥇 Informatics Quiz & Programming",
+      "Duration": "00:05:15",
+      "Url": "https://www.youtube.com/watch?v=vuh1h_C8KcE",
+      "Thumbnail": "https://img.youtube.com/vi/vuh1h_C8KcE/hqdefault.jpg"
+    },
+    {
+      "Id": "mJhQANv3AA0",
+      "Title": "🐍 Python Program to Calculate the Factorial of a Number | Beginner Exercise #6",
+      "Author": "🥇 Informatics Quiz & Programming",
+      "Duration": "00:04:49",
+      "Url": "https://www.youtube.com/watch?v=mJhQANv3AA0",
+      "Thumbnail": "https://img.youtube.com/vi/mJhQANv3AA0/hqdefault.jpg"
+    },
+    {
+      "Id": "tXx4Z-Nf5eY",
+      "Title": "🌡️ Python Program to Convert Celsius to Fahrenheit | Beginner Exercise #5",
+      "Author": "🥇 Informatics Quiz & Programming",
+      "Duration": "00:03:44",
+      "Url": "https://www.youtube.com/watch?v=tXx4Z-Nf5eY",
+      "Thumbnail": "https://img.youtube.com/vi/tXx4Z-Nf5eY/hqdefault.jpg"
+    },
+    {
+      "Id": "EMqlrduUMmI",
+      "Title": "💰 Python Program to Calculate Simple Interest | Beginner Exercise #7",
+      "Author": "🥇 Informatics Quiz & Programming",
+      "Duration": "00:04:16",
+      "Url": "https://www.youtube.com/watch?v=EMqlrduUMmI",
+      "Thumbnail": "https://img.youtube.com/vi/EMqlrduUMmI/hqdefault.jpg"
+    },
+    {
+      "Id": "ss09MRQU3YM",
+      "Title": "🐍 Python Program to Swap Two Variables | Beginner Exercise #4",
+      "Author": "🥇 Informatics Quiz & Programming",
+      "Duration": "00:02:49",
+      "Url": "https://www.youtube.com/watch?v=ss09MRQU3YM",
+      "Thumbnail": "https://img.youtube.com/vi/ss09MRQU3YM/hqdefault.jpg"
+    },
+    {
+      "Id": "6xj3KvcVGWI",
+      "Title": "🐍 Python Program to Calculate the Area of a Rectangle | Beginner Exercise #3",
+      "Author": "🥇 Informatics Quiz & Programming",
+      "Duration": "00:03:24",
+      "Url": "https://www.youtube.com/watch?v=6xj3KvcVGWI",
+      "Thumbnail": "https://img.youtube.com/vi/6xj3KvcVGWI/hqdefault.jpg"
+    },
+    {
+      "Id": "HX6HkV10qcw",
+      "Title": "🐍 Python Program to Find the Maximum of Two Numbers | Beginner Exercise #2",
+      "Author": "🥇 Informatics Quiz & Programming",
+      "Duration": "00:04:36",
+      "Url": "https://www.youtube.com/watch?v=HX6HkV10qcw",
+      "Thumbnail": "https://img.youtube.com/vi/HX6HkV10qcw/hqdefault.jpg"
+    },
+    {
+      "Id": "34NVJU8hrYY",
+      "Title": "🐍 Python Program to Add Two Numbers Entered by the User | Beginner Exercise #1",
+      "Author": "🥇 Informatics Quiz & Programming",
+      "Duration": "00:03:15",
+      "Url": "https://www.youtube.com/watch?v=34NVJU8hrYY",
+      "Thumbnail": "https://img.youtube.com/vi/34NVJU8hrYY/hqdefault.jpg"
+    },
+    {
+      "Id": "gjcwLCEps_w",
+      "Title": "JavaScript Quiz Part 9 🚀 | 50 Advanced Questions on Closures, Prototypes, this & Inheritance",
+      "Author": "🥇 Informatics Quiz & Programming",
+      "Duration": "00:13:29",
+      "Url": "https://www.youtube.com/watch?v=gjcwLCEps_w",
+      "Thumbnail": "https://img.youtube.com/vi/gjcwLCEps_w/hqdefault.jpg"
+    }
+  ]
+}

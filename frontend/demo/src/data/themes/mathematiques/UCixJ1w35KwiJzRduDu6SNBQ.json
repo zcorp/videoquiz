@@ -1,0 +1,24 @@
+{
+  "ChannelId": "UCixJ1w35KwiJzRduDu6SNBQ",
+  "ChannelTitle": "WayToLearnX",
+  "ChannelUrl": "https://www.youtube.com/@WayToLearnX",
+  "Theme": "mathematiques",
+  "Videos": [
+    {
+      "Id": "sZMRto7Dk-I",
+      "Title": "➗ Comment Dessiner Des Équations Mathématiques Sur PowerPoint Facilement",
+      "Author": "WayToLearnX",
+      "Duration": "00:01:40",
+      "Url": "https://www.youtube.com/watch?v=sZMRto7Dk-I",
+      "Thumbnail": "https://img.youtube.com/vi/sZMRto7Dk-I/hqdefault.jpg"
+    },
+    {
+      "Id": "35-lXQgqnuk",
+      "Title": "➗ Comment Insérer Des Symboles Mathématiques Sur Windows",
+      "Author": "WayToLearnX",
+      "Duration": "00:01:23",
+      "Url": "https://www.youtube.com/watch?v=35-lXQgqnuk",
+      "Thumbnail": "https://img.youtube.com/vi/35-lXQgqnuk/hqdefault.jpg"
+    }
+  ]
+}

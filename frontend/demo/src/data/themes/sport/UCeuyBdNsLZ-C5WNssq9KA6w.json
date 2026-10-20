@@ -1,0 +1,32 @@
+{
+  "ChannelId": "UCeuyBdNsLZ-C5WNssq9KA6w",
+  "ChannelTitle": "Le Quizz Du Jour",
+  "ChannelUrl": "https://www.youtube.com/@LeQuizzDuJour",
+  "Theme": "sport",
+  "Videos": [
+    {
+      "Id": "WYVTS-kk3CQ",
+      "Title": "Quizz - Sport et grands événements sportifs",
+      "Author": "Le Quizz Du Jour",
+      "Duration": "00:10:25",
+      "Url": "https://www.youtube.com/watch?v=WYVTS-kk3CQ",
+      "Thumbnail": "https://img.youtube.com/vi/WYVTS-kk3CQ/hqdefault.jpg"
+    },
+    {
+      "Id": "PwWJEHUNWFs",
+      "Title": "Quizz - Jeux Olympiques Modernes",
+      "Author": "Le Quizz Du Jour",
+      "Duration": "00:10:25",
+      "Url": "https://www.youtube.com/watch?v=PwWJEHUNWFs",
+      "Thumbnail": "https://img.youtube.com/vi/PwWJEHUNWFs/hqdefault.jpg"
+    },
+    {
+      "Id": "mG4ZxLq_TJ8",
+      "Title": "Quizz - Les équipes et joueurs de football",
+      "Author": "Le Quizz Du Jour",
+      "Duration": "00:10:25",
+      "Url": "https://www.youtube.com/watch?v=mG4ZxLq_TJ8",
+      "Thumbnail": "https://img.youtube.com/vi/mG4ZxLq_TJ8/hqdefault.jpg"
+    }
+  ]
+}

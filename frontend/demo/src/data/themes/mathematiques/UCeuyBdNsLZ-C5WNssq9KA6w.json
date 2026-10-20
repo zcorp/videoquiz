@@ -1,0 +1,16 @@
+{
+  "ChannelId": "UCeuyBdNsLZ-C5WNssq9KA6w",
+  "ChannelTitle": "Le Quizz Du Jour",
+  "ChannelUrl": "https://www.youtube.com/@LeQuizzDuJour",
+  "Theme": "mathematiques",
+  "Videos": [
+    {
+      "Id": "II-H4sgcQ7M",
+      "Title": "Quizz - Les Mathématiques dans la Pop Culture",
+      "Author": "Le Quizz Du Jour",
+      "Duration": "00:10:25",
+      "Url": "https://www.youtube.com/watch?v=II-H4sgcQ7M",
+      "Thumbnail": "https://img.youtube.com/vi/II-H4sgcQ7M/hqdefault.jpg"
+    }
+  ]
+}

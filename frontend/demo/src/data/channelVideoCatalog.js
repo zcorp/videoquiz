@@ -1,5 +1,13 @@
 const themeLabels = {
   code_de_la_route: 'Code de la route',
+  cinema: 'Cinéma',
+  culture_generale: 'Culture générale',
+  geographie: 'Géographie',
+  histoire: 'Histoire',
+  mathematiques: 'Mathématiques',
+  programmation: 'Programmation',
+  sciences: 'Sciences',
+  sport: 'Sport',
 };
 
 function formatThemeSlug(slug) {
@@ -20,6 +28,9 @@ export const channelVideoCatalog = Object.entries(channelFiles).flatMap(([path, 
   if (!channel.ChannelId || !Array.isArray(channel.Videos)) {
     throw new Error(`Format de chaîne invalide dans ${path}`);
   }
+  if (channel.Theme && channel.Theme !== themeSlug) {
+    throw new Error(`Le thème déclaré dans ${path} ne correspond pas à son dossier`);
+  }
 
   return channel.Videos.map(video => {
     if (!video.Id || !video.Title) throw new Error(`Vidéo sans identifiant ou titre dans ${path}`);
@@ -31,8 +42,8 @@ export const channelVideoCatalog = Object.entries(channelFiles).flatMap(([path, 
       theme: formatThemeSlug(themeSlug),
       author: video.Author,
       channelId: channel.ChannelId,
-      channelTitle: channel.Title,
-      channelUrl: channel.Url,
+      channelTitle: channel.Title ?? channel.ChannelTitle,
+      channelUrl: channel.Url ?? channel.ChannelUrl,
     };
   });
 });
