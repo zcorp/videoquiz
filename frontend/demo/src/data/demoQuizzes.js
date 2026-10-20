@@ -1,3 +1,5 @@
+import { channelVideoCatalog } from './channelVideoCatalog.js';
+
 const choice = (id, prompt, at, options, answer, explanation) => ({
   id, prompt, at, type: 'choice', options, answer, explanation,
 });
@@ -153,10 +155,26 @@ const additionalVideos = [
 
 const catalogVideos = [
   ...roadCodeVideos.map(video => ({ ...video, theme: 'Code de la route' })),
+  ...channelVideoCatalog,
   ...additionalVideos,
 ];
 
-export const videoLibrary = [...new Map(catalogVideos.map(video => [video.id, video])).values()];
+const videosById = new Map();
+for (const video of catalogVideos) {
+  const existing = videosById.get(video.id);
+  videosById.set(video.id, existing
+    ? {
+      ...video,
+      ...existing,
+      author: existing.author ?? video.author,
+      channelId: existing.channelId ?? video.channelId,
+      channelTitle: existing.channelTitle ?? video.channelTitle,
+      channelUrl: existing.channelUrl ?? video.channelUrl,
+    }
+    : video);
+}
+
+export const videoLibrary = [...videosById.values()];
 
 export function getVideoUrl(videoId, seconds = 0, enableApi = false) {
   const playerOptions = enableApi ? `&enablejsapi=1&origin=${encodeURIComponent(window.location.origin)}` : '';
