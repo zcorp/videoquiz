@@ -19,7 +19,7 @@ export default function WelcomeGuide({ onClose }) {
       aria-labelledby="welcome-guide-title"
       aria-describedby="welcome-guide-description"
     >
-      <CModalHeader>
+      <CModalHeader closeButton={false}>
         <div>
           <CBadge className="welcome-guide-kicker">PREMIÈRE VISITE</CBadge>
           <CModalTitle id="welcome-guide-title">Bienvenue dans votre espace</CModalTitle>
