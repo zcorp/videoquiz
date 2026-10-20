@@ -13,7 +13,7 @@ export default function WelcomeGuide({ onClose }) {
         <ol className="welcome-guide-steps">
           <li><strong>Choisissez un quiz</strong><span>Filtrez par thème, type ou recherche depuis la bibliothèque.</span></li>
           <li><strong>Répondez au fil de la vidéo</strong><span>Sélectionnez votre réponse, puis la correction déclarée, sans interrompre la lecture.</span></li>
-          <li><strong>Suivez vos progrès</strong><span>Le dashboard et la courbe d’évolution conservent vos résultats sur cet appareil.</span></li>
+          <li><strong>Suivez vos progrès</strong><span>Vos résultats restent sur cet appareil. Vous pouvez en télécharger une sauvegarde depuis le dashboard.</span></li>
         </ol>
         <div className="welcome-guide-actions"><Link className="button button-dark" to="/dashboard" onClick={onClose}>Voir mon dashboard <DemoIcon name="arrowRight" /></Link><button type="button" className="button button-quiet" onClick={onClose}>Commencer</button></div>
       </section>

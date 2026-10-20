@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { CBadge, CCard, CCardBody, CCardText, CCardTitle, CFormInput } from '@coreui/react';
 import { videoLibrary } from '../data/demoQuizzes.js';
@@ -17,6 +17,8 @@ export default function RoadCodeVideosPage({ quizzes }) {
   const [activeRoadTab, setActiveRoadTab] = useState('videos');
   const [nephSituation, setNephSituation] = useState('new');
   const [page, setPage] = useState(1);
+  const themeToolbar = useRef(null);
+  const [hasMoreThemes, setHasMoreThemes] = useState(false);
   const isRoadCodeTheme = themeFilter === 'CODE DE LA ROUTE';
   const roadTabs = [
     { id: 'videos', label: 'Vidéos & quiz', number: '01' },
@@ -35,6 +37,18 @@ export default function RoadCodeVideosPage({ quizzes }) {
       }))
       .sort((left, right) => left.label.localeCompare(right.label, 'fr')),
   ];
+  useEffect(() => {
+    const toolbar = themeToolbar.current;
+    if (!toolbar) return undefined;
+    const updateOverflow = () => setHasMoreThemes(toolbar.scrollLeft + toolbar.clientWidth < toolbar.scrollWidth - 1);
+    updateOverflow();
+    toolbar.addEventListener('scroll', updateOverflow, { passive: true });
+    window.addEventListener('resize', updateOverflow);
+    return () => {
+      toolbar.removeEventListener('scroll', updateOverflow);
+      window.removeEventListener('resize', updateOverflow);
+    };
+  }, [themeOptions.length]);
   const filteredVideos = videoLibrary.filter(video => {
     const searchableText = `${video.title} ${video.author ?? ''} ${video.channelTitle ?? ''}`.toLocaleLowerCase();
     return searchableText.includes(normalizedQuery)
@@ -69,7 +83,7 @@ export default function RoadCodeVideosPage({ quizzes }) {
           const existingQuizPath = existingQuiz?.local ? `/edit/${existingQuiz.id}` : existingQuiz ? `/quiz/${existingQuiz.id}` : null;
           return <CCard className="road-video-card" key={video.id}>
           <div className="road-video-card-media"><YouTubeThumbnail className="card-img-top" videoId={video.id} alt={`Miniature vidéo : ${video.title}`} /><span className="road-video-play"><DemoIcon name="plus" /></span>{video.duration && <span className="road-video-duration">{video.duration}</span>}</div>
-          <CCardBody className="road-video-card-copy"><CBadge className="road-video-series-badge" color="warning">{video.theme}</CBadge><CCardTitle>{video.title}</CCardTitle>{video.channelTitle && <a className="road-video-channel" href={video.channelUrl} target="_blank" rel="noreferrer">{video.channelTitle}</a>}{existingQuiz ? <Link className="btn btn-outline-success road-video-open" to={existingQuizPath}>{existingQuiz.local ? 'Modifier le quiz associé' : 'Quiz déjà associé'} <DemoIcon name="arrowRight" /></Link> : <Link className="btn btn-success road-video-open" to={associateVideo(video)}>Associer à un QCM <DemoIcon name="arrowRight" /></Link>}<CCardText><a className="road-video-source" href={`https://www.youtube.com/watch?v=${video.id}`} target="_blank" rel="noreferrer">Source YouTube <DemoIcon name="externalLink" /></a></CCardText></CCardBody>
+          <CCardBody className="road-video-card-copy"><CBadge className="road-video-series-badge" color="warning">{video.theme}</CBadge><CCardTitle>{video.title}</CCardTitle>{video.channelTitle && <a className="road-video-channel" href={video.channelUrl} target="_blank" rel="noreferrer">{video.channelTitle}</a>}{existingQuiz ? <Link className="btn btn-outline-success road-video-open" to={existingQuizPath}>{existingQuiz.local ? 'Modifier le quiz associé' : 'Quiz déjà associé'} <DemoIcon name="arrowRight" /></Link> : <Link className="btn btn-success road-video-open" to={associateVideo(video)}>Créer un QCM avec cette vidéo <DemoIcon name="arrowRight" /></Link>}<CCardText><a className="road-video-source" href={`https://www.youtube.com/watch?v=${video.id}`} target="_blank" rel="noreferrer">Source YouTube <DemoIcon name="externalLink" /></a></CCardText></CCardBody>
         </CCard>;
         })}
         {!visibleVideos.length && <div className="library-empty"><DemoIcon name="magnifyingGlass" /><h3>Aucune vidéo trouvée</h3><p>Essaie une autre recherche.</p></div>}
@@ -86,7 +100,7 @@ export default function RoadCodeVideosPage({ quizzes }) {
         <CFormInput value={query} onChange={event => search(event.target.value)} placeholder="Rechercher une série…" aria-label="Rechercher une vidéo" />
         <span>Chaque vidéo ne peut être associée qu’à un seul quiz.</span>
       </div>}
-      <div className="video-theme-toolbar" role="group" aria-label="Filtrer les vidéos par thème">
+      <div ref={themeToolbar} className={`video-theme-toolbar${hasMoreThemes ? ' has-more-themes' : ''}`} role="group" aria-label="Filtrer les vidéos par thème">
         {themeOptions.map(theme => <button
           type="button"
           key={theme.value}

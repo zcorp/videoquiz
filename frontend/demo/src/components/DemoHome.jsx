@@ -93,7 +93,9 @@ export default function DemoHome({ quizzes, attempts, onDelete }) {
           <div className="welcome-kicker"><span className="eyebrow eyebrow-dark">APPRENDRE EN REGARDANT</span><span>VIDÉO <i /> QUIZ <i /> PROGRESSION</span></div>
           <h1><span>Choisis une série.</span><span>Crée ton QCM.</span><span>Entraîne-toi à ton rythme.</span></h1>
           <p className="welcome-description">Associe une vidéo de ton choix à une grille de réponses, teste tes connaissances et suis ta progression. Tes quiz et tes résultats restent enregistrés sur ton appareil.</p>
-          <div className="welcome-actions"><Link className="btn btn-success button button-dark" to="/create">Démarrer <DemoIcon name="arrowRight" /></Link><Link className="btn btn-outline-secondary button button-quiet" to="/tutoriel">Découvrir le principe <DemoIcon name="arrowRight" /></Link></div>
+          <div className="welcome-actions"><Link className="btn btn-success button button-dark" to="/videos">Choisir une vidéo <DemoIcon name="arrowRight" /></Link><Link className="btn btn-outline-secondary button button-quiet" to="/create">Créer un quiz <DemoIcon name="plus" /></Link></div>
+          <p className="welcome-data-note">Vos quiz et résultats restent dans ce navigateur. <Link to="/dashboard?section=backup">Télécharger une sauvegarde</Link></p>
+          <Link className="welcome-tutorial-link" to="/tutoriel">Découvrir le principe <DemoIcon name="arrowRight" /></Link>
         </div>
         <CCard className="feature-card">
           <div className="feature-carousel" role="region" aria-label="Exemples de quiz vidéo" aria-roledescription="carrousel">

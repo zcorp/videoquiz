@@ -168,7 +168,7 @@ export default function DemoApp() {
         <span>© {new Date().getFullYear()} ZCOORE. Tous droits réservés.</span>
         <button className="analytics-preferences-link" type="button" onClick={() => setShowAnalyticsChoices(true)}>Préférences Analytics</button>
       </CFooter>
-      {showWelcome && <WelcomeGuide onClose={closeWelcome} />}
+      {showWelcome && !showAnalyticsChoices && <WelcomeGuide onClose={closeWelcome} />}
       {showAnalyticsChoices && <section className="analytics-consent" role="dialog" aria-modal="true" aria-labelledby="analytics-consent-title">
         <div className="analytics-consent-copy">
           <h2 id="analytics-consent-title">Mesure d’audience</h2>

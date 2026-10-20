@@ -1,5 +1,5 @@
-import React, { useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useRef, useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { CBadge, CCard, CCardBody, CFormInput, CFormSelect, CProgress } from '@coreui/react';
 import { formatDate, ScoreChart } from './ProgressionPage.jsx';
 import { exportLocalBackup, getQuizProgression, importLocalBackup } from '../services/localStore.js';
@@ -68,6 +68,9 @@ export default function DashboardPage({ quizzes, attempts, onDataChanged, onTrac
       .localeCompare(latestAttemptForQuiz(left.id)?.completedAt ?? '')
     ));
   const backupInput = useRef(null);
+  const backupSection = useRef(null);
+  const [searchParams] = useSearchParams();
+  const shouldFocusBackup = searchParams.get('section') === 'backup';
   const [backupStatus, setBackupStatus] = useState(null);
   const [backupError, setBackupError] = useState(false);
   const recentQuiz = played[0];
@@ -95,6 +98,12 @@ export default function DashboardPage({ quizzes, attempts, onDataChanged, onTrac
     ? Math.round(attempts.reduce((total, attempt) => total + attempt.percentage, 0) / totalAttempts)
     : 0;
   const bestAttempt = attempts.reduce((best, attempt) => !best || attempt.percentage > best.percentage ? attempt : best, null);
+  useEffect(() => {
+    if (!shouldFocusBackup || !backupSection.current) return;
+    backupSection.current.open = true;
+    backupSection.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, [shouldFocusBackup]);
+
   const downloadBackup = () => {
     try {
       const backup = exportLocalBackup();
@@ -182,7 +191,7 @@ export default function DashboardPage({ quizzes, attempts, onDataChanged, onTrac
       {!recentQuiz && <section className="dashboard-empty dashboard-first-step" aria-label="Commencer un quiz"><p>Faites une première tentative pour retrouver vos résultats et votre évolution dans « Suivi ».</p><Link className="dashboard-text-link" to="/suivi">Découvrir votre suivi <DemoIcon name="arrowRight" /></Link></section>}
       {suggestedQuizzes.length > 0 && <section className="dashboard-section dashboard-all-quizzes" aria-labelledby="dashboard-all-title"><div className="dashboard-section-heading"><div><span className="eyebrow">{recentQuiz ? 'À DÉCOUVRIR ENSUITE' : 'POUR COMMENCER'}</span><h2 id="dashboard-all-title">{recentQuiz ? 'Envie d’un autre sujet ?' : 'Un sujet pour commencer'}</h2></div><Link className="dashboard-text-link" to="/">Tous les quiz <DemoIcon name="arrowRight" /></Link></div><div className="dashboard-quick-grid">{suggestedQuizzes.map(quiz => <Link key={quiz.id} to={`/quiz/${quiz.id}`}><span>{quiz.topic}</span><strong>{quiz.title}</strong><small>{quiz.questionCount ?? quiz.questions.length} questions <b><DemoIcon name="externalLink" /></b></small></Link>)}</div></section>}
       <section className="dashboard-section backup-section" aria-labelledby="backup-title">
-        <details className="dashboard-backup-details">
+        <details ref={backupSection} className="dashboard-backup-details">
           <summary><span><span className="eyebrow">VOS DONNÉES</span><strong id="backup-title">Sauvegarder ou restaurer</strong></span><DemoIcon name="arrowRight" /></summary>
           <div className="dashboard-backup-content">
             <p>Gardez une copie de vos quiz et résultats, ou transférez-les vers un autre navigateur. Fichier JSON de 5 Mo maximum.</p>
