@@ -97,10 +97,9 @@ export default function RoadCodeVideosPage({ quizzes }) {
   return (
     <main className={`demo-page road-videos-page${isRoadCodeTheme ? ' is-road-code-theme' : ''}`}>
       <div className="player-topline"><span className="eyebrow">{t('VIDÉOS · COLLECTIONS')}</span><span className="player-save-note">{t('Sélection YouTube · contenu externe')}</span></div>
-      <header className="road-videos-heading"><div><span className="eyebrow">{t('VIDÉOS POUR VOS QCM')}</span><h1>{themeFilter === 'all' ? t('Tous les thèmes') : translateTopic(themeFilter, language)}</h1><p>{t('Choisis une vidéo comme support, puis configure le nombre de questions et de choix de ton QCM express.')}</p></div><span className="road-video-count">{formatVideoCount(filteredVideos.length, t)}</span></header>
+      <header className="road-videos-heading"><div><span className="eyebrow">{t('VIDÉOS POUR VOS QCM')}</span><h1>{themeFilter === 'all' ? t('Tous les thèmes') : translateTopic(themeFilter, language)}</h1></div><span className="road-video-count">{formatVideoCount(filteredVideos.length, t)}</span></header>
       {showVideoToolbar && <div className="road-video-toolbar">
         <CFormInput value={query} onChange={event => search(event.target.value)} placeholder={t('Rechercher une série…')} aria-label={t('Rechercher une vidéo')} />
-        <span>{t('Chaque vidéo ne peut être associée qu’à un seul quiz.')}</span>
       </div>}
       <div ref={themeToolbar} className={`video-theme-toolbar${hasMoreThemes ? ' has-more-themes' : ''}`} role="group" aria-label={t('Filtrer les vidéos par thème')}>
         {themeOptions.map(theme => <button

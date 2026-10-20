@@ -97,8 +97,6 @@ export default function DemoHome({ quizzes, attempts, onDelete }) {
           <h1><span>{t('Choisis une série.')}</span><span>{t('Crée ton QCM.')}</span><span>{t('Entraîne-toi à ton rythme.')}</span></h1>
           <p className="welcome-description">{t('Associe une vidéo de ton choix à une grille de réponses, teste tes connaissances et suis ta progression. Tes quiz et tes résultats restent enregistrés sur ton appareil.')}</p>
           <div className="welcome-actions"><Link className="btn btn-success button button-dark" to="/videos">{t('Choisir une vidéo')} <DemoIcon name="arrowRight" /></Link><Link className="btn btn-outline-secondary button button-quiet" to="/create">{t('Créer un quiz')} <DemoIcon name="plus" /></Link></div>
-          <p className="welcome-data-note">{t('Vos quiz et résultats restent dans ce navigateur.')} <Link to="/dashboard?section=backup">{t('Télécharger une sauvegarde')}</Link></p>
-          <Link className="welcome-tutorial-link" to="/tutoriel">{t('Découvrir le principe')} <DemoIcon name="arrowRight" /></Link>
         </div>
         <CCard className="feature-card">
           <div className="feature-carousel" role="region" aria-label={t('Exemples de quiz vidéo')} aria-roledescription={t('carrousel')}>
