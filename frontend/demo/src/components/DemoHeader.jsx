@@ -56,13 +56,10 @@ export default function DemoHeader() {
             <NavLink to="/help" onClick={closeMenu}>{t('Aide')}</NavLink>
             <NavLink className="btn btn-outline-success nav-create" to="/create" onClick={closeMenu}><DemoIcon name="plus" /> {t('Créer un quiz')}</NavLink>
           </nav>
-          <label className="language-switcher">
-            <span className="visually-hidden">{t('Choisir la langue')}</span>
-            <select aria-label={t('Choisir la langue')} value={language} onChange={event => setLanguage(event.target.value)}>
-              <option value="fr">FR</option>
-              <option value="en">EN</option>
-            </select>
-          </label>
+          <div className="language-switcher" role="group" aria-label={t('Choisir la langue')}>
+            <button type="button" lang="fr" aria-pressed={language === 'fr'} onClick={() => setLanguage('fr')}>FR</button>
+            <button type="button" lang="en" aria-pressed={language === 'en'} onClick={() => setLanguage('en')}>EN</button>
+          </div>
         </CContainer>
       </CNavbar>
     </CHeader>
