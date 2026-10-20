@@ -54,6 +54,7 @@ export default function DemoHeader() {
             <NavLink to="/" end onClick={closeMenu}>{t('Découvrir')}</NavLink>
             <NavLink to="/dashboard" onClick={closeMenu}>{t('Dashboard')}</NavLink>
             <NavLink to="/help" onClick={closeMenu}>{t('Aide')}</NavLink>
+            <NavLink to="/tutoriel" onClick={closeMenu}>{t('Tutoriel')}</NavLink>
             <NavLink className="btn btn-outline-success nav-create" to="/create" onClick={closeMenu}><DemoIcon name="plus" /> {t('Créer un quiz')}</NavLink>
           </nav>
           <div className="language-switcher" role="group" aria-label={t('Choisir la langue')}>

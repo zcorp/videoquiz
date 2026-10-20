@@ -7,6 +7,7 @@ const englishTranslations = {
   'Découvrir': 'Discover',
   'Dashboard': 'Dashboard',
   'Aide': 'Help',
+  'Tutoriel': 'Tutorial',
   'Créer un quiz': 'Create a quiz',
   'Vidéos': 'Videos',
   'Suivi': 'Progress',
