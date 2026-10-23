@@ -35,8 +35,7 @@ export default function DemoHeader() {
       <CNavbar className="demo-navbar">
         <CContainer fluid className="demo-header-inner">
           <Link className="demo-wordmark" to="/" aria-label={t('Video Quiz, accueil')} onClick={closeMenu}>
-            <span className="brand-mark" aria-hidden="true">V</span>
-            <span>video<span className="brand-quiz">quiz</span></span>
+            <img className="brand-logo" src={`${import.meta.env.BASE_URL}brand/videoquiz-horizontal.png`} alt="" aria-hidden="true" />
             <span className="demo-label">{t('DÉMO')}</span>
           </Link>
           <button

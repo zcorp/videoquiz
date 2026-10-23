@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#f4f3ed" />
+    <meta name="theme-color" content="#102a43" />
     <meta name="description" content="Apprenez à créer un quiz vidéo : choisissez une vidéo YouTube, préparez vos questions, entraînez-vous et retrouvez votre progression dans votre navigateur." />
     <meta name="robots" content="index,follow,max-image-preview:large" />
     <link rel="canonical" href="https://www.videoquiz.fr/tutoriel/" />
@@ -13,7 +13,11 @@
     <meta property="og:title" content="Tutoriel Video Quiz — Créer un quiz à partir d’une vidéo" />
     <meta property="og:description" content="Choisissez une vidéo, préparez vos questions, entraînez-vous et suivez vos résultats avec Video Quiz." />
     <meta property="og:url" content="https://www.videoquiz.fr/tutoriel/" />
-    <meta name="twitter:card" content="summary" />
+    <meta property="og:image" content="https://www.videoquiz.fr/brand/videoquiz-social.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="https://www.videoquiz.fr/brand/videoquiz-social.jpg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="../brand/favicon-32.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="../brand/apple-touch-icon.png" />
     <title>Tutoriel Video Quiz — Créer un quiz à partir d’une vidéo</title>
     <script type="application/ld+json">
       {
@@ -37,7 +41,8 @@
       header, main, footer { width: min(100% - 40px, 960px); margin-inline: auto; }
       header { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 22px 0; border-bottom: 1px solid var(--line); }
       header a, .actions a { color: var(--green); font-weight: 700; }
-      header .brand { color: var(--ink); font-size: 20px; text-decoration: none; }
+      header .brand { display: inline-flex; align-items: center; }
+      header .brand img { display: block; width: 150px; height: auto; }
       main { padding: 52px 0 64px; }
       .eyebrow { color: var(--green); font-size: 12px; font-weight: 700; letter-spacing: .12em; }
       h1, h2 { line-height: 1.12; letter-spacing: -.035em; }
@@ -57,12 +62,12 @@
       .note p { margin-bottom: 0; }
       footer { padding: 20px 0 34px; border-top: 1px solid var(--line); color: var(--muted); font-size: 14px; }
       footer a { color: var(--green); }
-      @media (max-width: 520px) { body { font-size: 16px; } header, main, footer { width: min(100% - 28px, 960px); } main { padding-top: 34px; } header { align-items: flex-start; } }
+      @media (max-width: 520px) { body { font-size: 16px; } header, main, footer { width: min(100% - 28px, 960px); } main { padding-top: 34px; } header { align-items: flex-start; } header .brand img { width: 126px; } }
     </style>
   </head>
   <body>
     <header>
-      <a class="brand" href="/">Video Quiz</a>
+      <a class="brand" href="/" aria-label="Video Quiz, accueil"><img src="../brand/videoquiz-horizontal.png" alt="Video Quiz" /></a>
       <a href="/#/tutoriel">Ouvrir le tutoriel interactif</a>
     </header>
     <main>

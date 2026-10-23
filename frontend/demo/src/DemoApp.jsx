@@ -168,7 +168,7 @@ function DemoAppContent() {
       </Routes>
       <MobileBottomNavigation />
       <CFooter className="demo-footer">
-        <span>VIDEO QUIZ <CBadge color="secondary">{t('DÉMO')}</CBadge></span>
+        <span className="demo-footer-brand"><img src={`${import.meta.env.BASE_URL}brand/videoquiz-horizontal.png`} alt="Video Quiz" /><CBadge color="secondary">{t('DÉMO')}</CBadge></span>
         <Link to="/help">{t('À propos & aide')}</Link>
         <a href="mailto:contact@videoquiz.fr">contact@videoquiz.fr</a>
         <span>© {new Date().getFullYear()} ZCOORE. {t('Tous droits réservés.')}</span>
