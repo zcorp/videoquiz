@@ -7,6 +7,7 @@ const CORRECTION_KEY = 'videoquiz-demo:corrections:v1';
 const PROGRESS_KEY = 'videoquiz-demo:progress:v1';
 const BACKUP_FORMAT = 'videoquiz-demo-backup';
 const BACKUP_VERSION = 1;
+export const MAX_BACKUP_SIZE_BYTES = 5 * 1024 * 1024;
 
 function readList(key) {
   try {
@@ -85,6 +86,18 @@ function isAnswerMap(value, quiz) {
   });
 }
 
+function isValidProgress(value, quiz) {
+  return isRecord(value)
+    && value.signature === getQuizSignature(quiz)
+    && Number.isInteger(value.current)
+    && value.current >= 0
+    && value.current < quiz.questions.length
+    && isAnswerMap(value.answers, quiz)
+    && isAnswerMap(value.selfKeys, quiz)
+    && typeof value.answerSubmitted === 'boolean'
+    && typeof value.correctionShown === 'boolean';
+}
+
 export function getQuizSignature(quiz) {
   return JSON.stringify([
     extractYouTubeVideoId(quiz.videoId),
@@ -145,15 +158,7 @@ export function saveQuizCorrection(quiz, question, value) {
 
 export function getQuizProgress(quiz) {
   const progress = readObject(PROGRESS_KEY)[quiz.id];
-  if (!isRecord(progress)
-    || progress.signature !== getQuizSignature(quiz)
-    || !Number.isInteger(progress.current)
-    || progress.current < 0
-    || progress.current >= quiz.questions.length
-    || !isAnswerMap(progress.answers, quiz)
-    || !isAnswerMap(progress.selfKeys, quiz)
-    || typeof progress.answerSubmitted !== 'boolean'
-    || typeof progress.correctionShown !== 'boolean') return null;
+  if (!isValidProgress(progress, quiz)) return null;
   return {
     current: progress.current,
     answers: progress.answers,
@@ -199,11 +204,7 @@ export function exportLocalBackup() {
   const progress = readObject(PROGRESS_KEY);
   const resumableProgress = Object.fromEntries(Object.entries(progress).filter(([quizId, item]) => {
     const quiz = byId[quizId];
-    return quiz && isRecord(item)
-      && item.signature === getQuizSignature(quiz)
-      && Number.isInteger(item.current) && item.current >= 0 && item.current < quiz.questions.length
-      && isAnswerMap(item.answers, quiz) && isAnswerMap(item.selfKeys, quiz)
-      && typeof item.answerSubmitted === 'boolean' && typeof item.correctionShown === 'boolean';
+    return quiz && isValidProgress(item, quiz);
   }));
   return {
     format: BACKUP_FORMAT,
@@ -216,7 +217,7 @@ export function exportLocalBackup() {
   };
 }
 
-export function importLocalBackup(backup) {
+export function importLocalBackup(backup, progressResolution = null) {
   if (!isRecord(backup) || backup.format !== BACKUP_FORMAT || backup.version !== BACKUP_VERSION
     || !Array.isArray(backup.quizzes) || !Array.isArray(backup.attempts)
     || !isRecord(backup.corrections) || !isRecord(backup.progress)) {
@@ -295,15 +296,42 @@ export function importLocalBackup(backup) {
 
   const progress = readObject(PROGRESS_KEY);
   let importedProgress = 0;
-  for (const [quizId, item] of Object.entries(backup.progress)) {
+  let replacedProgress = 0;
+  let keptProgress = 0;
+  const incomingProgress = Object.entries(backup.progress).flatMap(([quizId, item]) => {
     const quiz = availableQuizzes.get(quizId);
-    if (progress[quizId] || !quiz || !canMergeQuizData(quizId) || !isRecord(item)
-      || item.signature !== getQuizSignature(quiz)
-      || !Number.isInteger(item.current) || item.current < 0 || item.current >= quiz.questions.length
-      || !isAnswerMap(item.answers, quiz) || !isAnswerMap(item.selfKeys, quiz)
-      || typeof item.answerSubmitted !== 'boolean' || typeof item.correctionShown !== 'boolean') continue;
+    return quiz && canMergeQuizData(quizId) && isValidProgress(item, quiz)
+      ? [{ quizId, item, quiz }]
+      : [];
+  });
+  const progressConflicts = incomingProgress.filter(({ quizId, item, quiz }) => (
+    isValidProgress(progress[quizId], quiz)
+    && JSON.stringify(progress[quizId]) !== JSON.stringify(item)
+  ));
+
+  if (progressConflicts.length && !progressResolution) {
+    return {
+      ok: false,
+      needsProgressResolution: true,
+      progressConflicts: progressConflicts.map(({ quizId, quiz }) => ({ quizId, title: quiz.title })),
+    };
+  }
+  if (progressConflicts.length && !['keep-local', 'use-backup'].includes(progressResolution)) {
+    return { ok: false, error: 'Choisissez quelle progression conserver avant de terminer l’import.' };
+  }
+
+  for (const { quizId, item, quiz } of incomingProgress) {
+    if (isValidProgress(progress[quizId], quiz)) {
+      if (JSON.stringify(progress[quizId]) === JSON.stringify(item)) continue;
+      if (progressResolution === 'keep-local') {
+        keptProgress += 1;
+        continue;
+      }
+      if (progressResolution === 'use-backup') replacedProgress += 1;
+    } else {
+      importedProgress += 1;
+    }
     progress[quizId] = item;
-    importedProgress += 1;
   }
 
   const nextQuizzes = [...acceptedQuizzes, ...localQuizzes];
@@ -338,10 +366,16 @@ export function importLocalBackup(backup) {
   return {
     ok: true,
     importedQuizzes: acceptedQuizzes.length,
+    importedQuizIds: acceptedQuizzes.map(quiz => quiz.id),
     skippedQuizzes,
     importedAttempts: importedAttempts.length,
     importedCorrections,
     importedProgress,
+    replacedProgress,
+    keptProgress,
+    resumableQuizIds: incomingProgress
+      .filter(({ quizId, quiz }) => isValidProgress(progress[quizId], quiz))
+      .map(({ quizId }) => quizId),
   };
 }
 

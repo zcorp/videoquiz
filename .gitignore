@@ -6,10 +6,13 @@
 !.github/workflows/demo-pages.yml
 !.github/copilot-instructions.md
 !README.md
+!SEO_STRATEGY.md
 !FEATURES.md
 !DEPLOYMENT.md
 !docker-compose.demo.yml
 !run-demo.sh
+!editorial/
+!editorial/**
 !frontend/
 !frontend/package.json
 !frontend/package-lock.json
@@ -24,3 +27,8 @@
 frontend/demo-dist/
 frontend/demo/demo-dist/
 frontend/node_modules/
+videoquiz-infographie.html
+./videoquiz-infographie.html
+SEO_STRATEGY.md
+FEATURES.md
+DEPLOYMENT.md

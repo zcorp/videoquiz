@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { CBadge, CCard, CCardBody, CFormInput, CFormSelect, CProgress } from '@coreui/react';
 import { formatDate, ScoreChart } from './ProgressionPage.jsx';
-import { exportLocalBackup, getQuizProgression, importLocalBackup } from '../services/localStore.js';
+import { exportLocalBackup, getQuizProgression, importLocalBackup, MAX_BACKUP_SIZE_BYTES } from '../services/localStore.js';
 import DemoIcon from './DemoIcon.jsx';
 import FirstVisitNotice from './FirstVisitNotice.jsx';
 import { translateTopic, useLanguage } from '../i18n.jsx';
@@ -84,6 +84,8 @@ export default function DashboardPage({ quizzes, attempts, onDataChanged, onTrac
   const shouldFocusBackup = searchParams.get('section') === 'backup';
   const [backupStatus, setBackupStatus] = useState(null);
   const [backupError, setBackupError] = useState(false);
+  const [importSummary, setImportSummary] = useState(null);
+  const [pendingBackupImport, setPendingBackupImport] = useState(null);
   const recentQuiz = played[0];
   const recentAttempt = recentQuiz ? latestAttemptForQuiz(recentQuiz.id) : null;
   const [selectedId, setSelectedId] = useState(() => recentQuiz?.id ?? null);
@@ -109,16 +111,50 @@ export default function DashboardPage({ quizzes, attempts, onDataChanged, onTrac
     ? Math.round(attempts.reduce((total, attempt) => total + attempt.percentage, 0) / totalAttempts)
     : 0;
   const bestAttempt = attempts.reduce((best, attempt) => !best || attempt.percentage > best.percentage ? attempt : best, null);
+  const importHasChanges = Boolean(importSummary && (
+    importSummary.importedQuizzes
+    || importSummary.importedAttempts
+    || importSummary.importedCorrections
+    || importSummary.importedProgress
+    || importSummary.replacedProgress
+  ));
   useEffect(() => {
     if (!shouldFocusBackup || !backupSection.current) return;
-    backupSection.current.open = true;
     backupSection.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }, [shouldFocusBackup]);
+
+  const finishBackupImport = (backup, progressResolution = null) => {
+    const imported = importLocalBackup(backup, progressResolution);
+    if (!imported.ok) {
+      if (imported.needsProgressResolution) {
+        setPendingBackupImport({ backup, conflicts: imported.progressConflicts });
+        setBackupStatus(null);
+        return;
+      }
+      setPendingBackupImport(null);
+      setBackupError(true);
+      setBackupStatus(imported.error);
+      return;
+    }
+    setPendingBackupImport(null);
+    setBackupError(false);
+    setBackupStatus(null);
+    setImportSummary(imported);
+    onDataChanged?.();
+    onTrack?.('backup_imported');
+  };
 
   const downloadBackup = () => {
     try {
       const backup = exportLocalBackup();
-      const url = URL.createObjectURL(new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' }));
+      const serialized = JSON.stringify(backup, null, 2);
+      const blob = new Blob([serialized], { type: 'application/json' });
+      if (blob.size > MAX_BACKUP_SIZE_BYTES) {
+        setBackupError(true);
+        setBackupStatus(t('La sauvegarde dépasse 5 Mo. Supprimez des quiz ou des résultats inutiles avant de réessayer.'));
+        return;
+      }
+      const url = URL.createObjectURL(blob);
       const anchor = document.createElement('a');
       anchor.href = url;
       anchor.download = `video-quiz-sauvegarde-${new Date().toISOString().slice(0, 10)}.json`;
@@ -127,6 +163,8 @@ export default function DashboardPage({ quizzes, attempts, onDataChanged, onTrac
       anchor.remove();
       window.setTimeout(() => URL.revokeObjectURL(url), 1000);
       setBackupError(false);
+      setImportSummary(null);
+      setPendingBackupImport(null);
       setBackupStatus(t('Sauvegarde téléchargée. Conservez ce fichier dans un emplacement sûr.'));
       onTrack?.('backup_exported');
     } catch {
@@ -139,8 +177,10 @@ export default function DashboardPage({ quizzes, attempts, onDataChanged, onTrac
     event.target.value = '';
     setBackupStatus(null);
     setBackupError(false);
+    setPendingBackupImport(null);
+    setImportSummary(null);
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024) {
+    if (file.size > MAX_BACKUP_SIZE_BYTES) {
       setBackupError(true);
       setBackupStatus(t('Le fichier dépasse la limite de 5 Mo.'));
       return;
@@ -154,19 +194,9 @@ export default function DashboardPage({ quizzes, attempts, onDataChanged, onTrac
         setBackupStatus(t('Impossible de lire ce fichier. Vérifiez qu’il s’agit d’un JSON valide.'));
         return;
       }
-      const imported = importLocalBackup(parsed);
-      if (!imported.ok) {
-        setBackupError(true);
-        setBackupStatus(imported.error);
-        return;
-      }
-      onDataChanged?.();
-      setBackupStatus(t('Import terminé : {quizzes} quiz, {attempts} tentatives, {corrections} auto-corrections et {progress} reprises ajoutés. {skipped} quiz déjà présents ignorés.')
-        .replace('{quizzes}', imported.importedQuizzes).replace('{attempts}', imported.importedAttempts)
-        .replace('{corrections}', imported.importedCorrections).replace('{progress}', imported.importedProgress)
-        .replace('{skipped}', imported.skippedQuizzes));
-      onTrack?.('backup_imported');
+      finishBackupImport(parsed);
     } catch {
+      setPendingBackupImport(null);
       setBackupError(true);
       setBackupStatus(t('Le navigateur n’a pas pu traiter cette sauvegarde.'));
     }
@@ -176,6 +206,45 @@ export default function DashboardPage({ quizzes, attempts, onDataChanged, onTrac
     <main className="demo-page dashboard-page">
       <FirstVisitNotice storageKey="videoquiz-demo:first-visit:dashboard:v1" message="Vos quiz et résultats restent dans ce navigateur." />
       <header className="dashboard-heading"><div><span className="eyebrow">{t(recentQuiz ? 'VOTRE ESPACE D’APPRENTISSAGE' : 'BIENVENUE DANS VOTRE ESPACE')}</span><h1>{t(recentQuiz ? 'Reprenez à votre rythme.' : 'Prêt à apprendre quelque chose ?')}</h1>{recentQuiz && <p>{t('Votre dernier quiz est prêt à reprendre. Retrouvez votre évolution dans « Suivi ».')}</p>}</div><Link className="btn btn-success button button-dark" to={recentQuiz ? `/quiz/${recentQuiz.id}` : '/'}>{t(recentQuiz ? 'Reprendre le dernier quiz' : 'Découvrir les quiz')} <DemoIcon name="arrowRight" /></Link></header>
+      <section ref={backupSection} id="backup-section" className="dashboard-section backup-section" aria-labelledby="backup-title">
+        <div className="dashboard-backup-card">
+          <div className="dashboard-backup-heading"><span className="eyebrow">{t('VOS DONNÉES')}</span><h2 id="backup-title">{t('Retrouvez vos quiz sur un autre appareil.')}</h2><p>{t('Téléchargez ici, transférez le fichier, puis importez-le sur l’autre appareil. Votre progression en cours est incluse.')}</p></div>
+          <div className="backup-actions">
+            <button type="button" className="button button-dark" onClick={downloadBackup}>{t('Télécharger mes données')}</button>
+            <button type="button" className="button button-quiet" onClick={() => backupInput.current?.click()}>{t('Importer des données')}</button>
+            <input ref={backupInput} className="visually-hidden" type="file" accept="application/json,.json" aria-label={t('Choisir un fichier de sauvegarde Video Quiz')} onChange={importBackupFile} />
+          </div>
+          <p className="dashboard-backup-footnote">{t('Ce transfert manuel ne synchronise pas vos appareils. Le fichier peut contenir vos quiz, réponses et résultats : gardez-le dans un endroit sûr.')}</p>
+          {backupStatus && <p className={`backup-status${backupError ? ' is-error' : ''}`} role={backupError ? 'alert' : 'status'} aria-live="polite">{backupStatus}</p>}
+          {pendingBackupImport && <div className="dashboard-progress-conflict" role="alert">
+            <h3>{t('Une progression existe déjà sur cet appareil.')}</h3>
+            <p>{pendingBackupImport.conflicts.length === 1
+              ? t('Pour « {title} », choisissez la progression à reprendre.').replace('{title}', pendingBackupImport.conflicts[0].title)
+              : t('Pour {count} quiz, choisissez si vous gardez la progression de cet appareil ou celle du fichier.').replace('{count}', pendingBackupImport.conflicts.length)}</p>
+            <div className="backup-actions">
+              <button type="button" className="button button-quiet" onClick={() => finishBackupImport(pendingBackupImport.backup, 'keep-local')}>{t('Garder cette progression')}</button>
+              <button type="button" className="button button-dark" onClick={() => finishBackupImport(pendingBackupImport.backup, 'use-backup')}>{t('Reprendre depuis le fichier')}</button>
+            </div>
+          </div>}
+        </div>
+      </section>
+      {importSummary && <section className="dashboard-import-summary" role="status" aria-live="polite">
+        <div className="dashboard-import-summary-heading"><span className="dashboard-import-check"><DemoIcon name="check" /></span><div><span className="eyebrow">{t('TRANSFERT TERMINÉ')}</span><h2>{t(importHasChanges ? 'Vos données sont prêtes sur cet appareil.' : importSummary.skippedQuizzes ? 'Ces quiz sont déjà sur cet appareil.' : 'Aucune nouvelle donnée à importer.')}</h2></div></div>
+        {importHasChanges && <p>{t('Ajoutés à ce navigateur : {quizzes} quiz, {attempts} résultats, {corrections} corrections et {progress} reprises.')
+          .replace('{quizzes}', importSummary.importedQuizzes)
+          .replace('{attempts}', importSummary.importedAttempts)
+          .replace('{corrections}', importSummary.importedCorrections)
+          .replace('{progress}', importSummary.importedProgress + importSummary.replacedProgress)}</p>}
+        {!importHasChanges && importSummary.skippedQuizzes === 0 && <p>{t('Le fichier ne contenait aucune donnée nouvelle.')}</p>}
+        {importSummary.skippedQuizzes > 0 && <p className="dashboard-import-note">{t('{count} quiz déjà présents ont été conservés sans remplacement.').replace('{count}', importSummary.skippedQuizzes)}</p>}
+        {importSummary.keptProgress > 0 && <p className="dashboard-import-note">{t('Vous avez conservé la progression déjà présente sur cet appareil pour {count} quiz.').replace('{count}', importSummary.keptProgress)}</p>}
+        {importSummary.resumableQuizIds.length === 1 && quizzes.some(quiz => quiz.id === importSummary.resumableQuizIds[0]) && <Link className="button button-dark" to={`/quiz/${importSummary.resumableQuizIds[0]}`}>{t('Reprendre mon quiz')} <DemoIcon name="arrowRight" /></Link>}
+        {importSummary.resumableQuizIds.length > 1 && <div className="dashboard-import-resumes"><strong>{t('Reprendre un quiz')}</strong>{importSummary.resumableQuizIds.map(id => {
+          const quiz = quizzes.find(item => item.id === id);
+          return quiz ? <Link key={id} to={`/quiz/${id}`}>{quiz.title} <DemoIcon name="arrowRight" /></Link> : null;
+        })}</div>}
+        {!importSummary.resumableQuizIds.some(id => quizzes.some(quiz => quiz.id === id)) && <Link className="button button-dark" to="/">{t('Voir mes quiz')} <DemoIcon name="arrowRight" /></Link>}
+      </section>}
       {played.length > 0 && <section className="dashboard-stats" aria-label={t('Résumé de votre activité')}>{[
         [t('QUIZ JOUÉS'), played.length, `${t('sur')} ${quizzes.length} ${t('disponibles')}`],
         [t('TENTATIVES'), totalAttempts, t('enregistrées au total')],
@@ -212,20 +281,6 @@ export default function DashboardPage({ quizzes, attempts, onDataChanged, onTrac
         <ScoreChart points={previewProgression} preview />
       </section>}
       {suggestedQuizzes.length > 0 && <section className="dashboard-section dashboard-all-quizzes" aria-labelledby="dashboard-all-title"><div className="dashboard-section-heading"><div><span className="eyebrow">{t(recentQuiz ? 'À DÉCOUVRIR ENSUITE' : 'POUR COMMENCER')}</span><h2 id="dashboard-all-title">{t(recentQuiz ? 'Envie d’un autre sujet ?' : 'Un sujet pour commencer')}</h2></div><Link className="dashboard-text-link" to="/">{t('Tous les quiz')} <DemoIcon name="arrowRight" /></Link></div><div className="dashboard-quick-grid">{suggestedQuizzes.map(quiz => <Link key={quiz.id} to={`/quiz/${quiz.id}`}><span>{quiz.topic}</span><strong>{quiz.title}</strong><small>{quiz.questionCount ?? quiz.questions.length} {t('questions')} <b><DemoIcon name="externalLink" /></b></small></Link>)}</div></section>}
-      <section className="dashboard-section backup-section" aria-labelledby="backup-title">
-        <details ref={backupSection} className="dashboard-backup-details">
-          <summary><span><span className="eyebrow">{t('VOS DONNÉES')}</span><strong id="backup-title">{t('Sauvegarder ou restaurer')}</strong></span><DemoIcon name="arrowRight" /></summary>
-          <div className="dashboard-backup-content">
-            <p>{t('Gardez une copie de vos quiz et résultats, ou transférez-les vers un autre navigateur. Fichier JSON de 5 Mo maximum.')}</p>
-            <div className="backup-actions">
-              <button type="button" className="button button-dark" onClick={downloadBackup}>Télécharger une sauvegarde</button>
-              <button type="button" className="button button-quiet" onClick={() => backupInput.current?.click()}>{t('Importer une sauvegarde')}</button>
-              <input ref={backupInput} className="visually-hidden" type="file" accept="application/json,.json" aria-label={t('Choisir un fichier de sauvegarde Video Quiz')} onChange={importBackupFile} />
-            </div>
-            {backupStatus && <p className={`backup-status${backupError ? ' is-error' : ''}`} role={backupError ? 'alert' : 'status'} aria-live="polite">{backupStatus}</p>}
-          </div>
-        </details>
-      </section>
     </main>
   );
 }

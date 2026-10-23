@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { CAlert, CBadge, CButton, CCard, CFormInput, CFormSelect, CFormTextarea } from '@coreui/react';
 import { formatChoiceLabel, formatTime, getVideoUrl } from '../data/demoQuizzes.js';
+import { getApprovedPreparedQuiz } from '../data/preparedQuizzes/catalog.js';
 import { getQuizUsingVideo } from '../services/localStore.js';
 import { extractYouTubeVideoId } from '../services/youtube.js';
 import DemoIcon from './DemoIcon.jsx';
@@ -21,7 +22,7 @@ function createId() {
 }
 
 function emptyQuestion(mode = 'prepared') {
-  return { id: createId(), prompt: '', at: 0, type: isProgressiveMode(mode) ? 'multi_choice' : 'choice', options: ['', ''], answer: 0, explanation: '' };
+  return { id: createId(), prompt: '', at: 0, type: isProgressiveMode(mode) ? 'multi_choice' : 'choice', options: ['', ''], answer: null, explanation: '' };
 }
 
 function isProgressiveMode(mode) {
@@ -43,8 +44,24 @@ function toSeconds(value) {
 }
 
 function toTimestamp(seconds) {
-  const safe = Math.max(0, Number(seconds) || 0);
-  return `${Math.floor(safe / 60)}:${String(safe % 60).padStart(2, '0')}`;
+  const safe = Math.round(Math.max(0, Number(seconds) || 0) * 10) / 10;
+  const minutes = Math.floor(safe / 60);
+  const secondsPart = (safe - minutes * 60).toString().padStart(2, '0');
+  return `${minutes}:${secondsPart}`;
+}
+
+function hasValidPreparedAnswer(question) {
+  if (question.type === 'text') return typeof question.answer === 'string' && Boolean(question.answer.trim());
+  if (question.type === 'multi_choice') {
+    return Array.isArray(question.answer)
+      && question.answer.length > 0
+      && new Set(question.answer).size === question.answer.length
+      && question.answer.every(index => Number.isInteger(index) && index >= 0 && index < question.options.length && question.options[index].trim());
+  }
+  return Number.isInteger(question.answer)
+    && question.answer >= 0
+    && question.answer < question.options.length
+    && Boolean(question.options[question.answer]?.trim());
 }
 
 export default function DemoEditor({ quiz, quizzes = [], onSave }) {
@@ -53,32 +70,67 @@ export default function DemoEditor({ quiz, quizzes = [], onSave }) {
   const [searchParams] = useSearchParams();
   const linkedVideoId = !quiz ? searchParams.get('video') ?? '' : '';
   const linkedVideoTitle = !quiz ? searchParams.get('title') ?? '' : '';
-  const linkedTopic = quiz?.topic ?? searchParams.get('topic') ?? 'CRÉÉ ICI';
-  const initialMode = quiz?.mode ?? (searchParams.get('mode') === 'qcm' && linkedVideoId ? 'qcm' : 'prepared');
-  const initialQuestionCount = quiz?.questionCount ?? (isProgressiveMode(initialMode) ? quiz?.questions?.length ?? 40 : 40);
+  const preparedQuiz = !quiz
+    ? getApprovedPreparedQuiz(searchParams.get('prepared'), linkedVideoId)
+    : null;
+  const linkedTopic = quiz?.topic ?? preparedQuiz?.topic ?? searchParams.get('topic') ?? 'CRÉÉ ICI';
+  const initialMode = quiz?.mode ?? (preparedQuiz ? 'prepared' : searchParams.get('mode') === 'qcm' && linkedVideoId ? 'qcm' : 'prepared');
+  const initialQuestionCount = quiz?.questionCount ?? (preparedQuiz
+    ? preparedQuiz.questions.length
+    : isProgressiveMode(initialMode) ? quiz?.questions?.length ?? 40 : 40);
   const initialMaxOptions = quiz?.maxOptions ?? 4;
-  const [title, setTitle] = useState(() => quiz?.title ?? linkedVideoTitle.slice(0, 90));
-  const [description, setDescription] = useState(() => quiz?.description ?? '');
-  const [videoUrl, setVideoUrl] = useState(() => quiz?.videoId ? `https://www.youtube.com/watch?v=${quiz.videoId}` : linkedVideoId ? `https://www.youtube.com/watch?v=${linkedVideoId}` : '');
+  const [title, setTitle] = useState(() => quiz?.title ?? preparedQuiz?.title ?? linkedVideoTitle.slice(0, 90));
+  const [description, setDescription] = useState(() => quiz?.description ?? preparedQuiz?.description ?? '');
+  const [videoUrl, setVideoUrl] = useState(() => quiz?.videoId
+    ? `https://www.youtube.com/watch?v=${quiz.videoId}`
+    : preparedQuiz?.videoId || linkedVideoId
+      ? `https://www.youtube.com/watch?v=${preparedQuiz?.videoId ?? linkedVideoId}`
+      : '');
   const [mode, setMode] = useState(initialMode);
   const [questionCount, setQuestionCount] = useState(initialQuestionCount);
   const [maxOptions, setMaxOptions] = useState(initialMaxOptions);
   const [activeQuestion, setActiveQuestion] = useState(0);
-  const [questions, setQuestions] = useState(() => quiz?.questions?.map(item => ({
+  const initialQuestions = quiz?.questions ?? preparedQuiz?.questions;
+  const [questions, setQuestions] = useState(() => initialQuestions?.map(item => ({
     ...item,
-    options: isProgressiveMode(quiz.mode)
+    id: quiz ? item.id : createId(),
+    options: isProgressiveMode(quiz?.mode)
       ? Array.from({ length: initialMaxOptions }, (_, index) => item.options?.[index] ?? '')
       : item.options ?? ['', ''],
   })) ?? Array.from({ length: isProgressiveMode(initialMode) ? initialQuestionCount : 1 }, () => ({
     ...emptyQuestion(initialMode),
     options: Array(isProgressiveMode(initialMode) ? initialMaxOptions : 2).fill(''),
   })));
-  const [previewAt, setPreviewAt] = useState(() => quiz?.questions?.[0]?.at ?? 0);
+  const [previewAt, setPreviewAt] = useState(() => initialQuestions?.[0]?.at ?? 0);
   const [error, setError] = useState('');
   const videoId = extractYouTubeVideoId(videoUrl);
   const conflictingQuiz = getQuizUsingVideo(videoId, quizzes, quiz?.id);
 
   const updateQuestion = (id, patch) => setQuestions(items => items.map(item => item.id === id ? { ...item, ...patch } : item));
+  const updateAnswerOption = (item, optionIndex, value) => {
+    const options = [...item.options];
+    options[optionIndex] = value;
+    const answer = item.type === 'multi_choice'
+      ? (Array.isArray(item.answer) ? item.answer : []).filter(index => index !== optionIndex || value.trim())
+      : item.answer === optionIndex && !value.trim() ? null : item.answer;
+    updateQuestion(item.id, { options, answer });
+  };
+  const addAnswerOption = item => {
+    if (item.options.length >= 4) return;
+    updateQuestion(item.id, { options: [...item.options, ''] });
+  };
+  const removeAnswerOption = (item, optionIndex) => {
+    if (item.options.length <= 2) return;
+    const options = item.options.filter((_, index) => index !== optionIndex);
+    const answer = item.type === 'multi_choice'
+      ? (Array.isArray(item.answer) ? item.answer : [])
+        .filter(index => index !== optionIndex)
+        .map(index => index > optionIndex ? index - 1 : index)
+      : !Number.isInteger(item.answer) || item.answer === optionIndex
+        ? null
+        : item.answer > optionIndex ? item.answer - 1 : item.answer;
+    updateQuestion(item.id, { options, answer });
+  };
   const scrollToQuestion = index => document.getElementById(`progressive-question-${index}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   const progressive = isProgressiveMode(mode);
   const completeQuestion = item => mode === 'qcm' || Boolean(item?.prompt.trim() && item.options.filter(option => option.trim()).length >= 2 && item.options.filter(option => option.trim()).length <= maxOptions);
@@ -106,7 +158,7 @@ export default function DemoEditor({ quiz, quizzes = [], onSave }) {
     if (conflictingQuiz) return setError(t('Cette vidéo est déjà associée au quiz « {title} ». Ouvrez-le pour le modifier ou choisissez une autre vidéo.').replace('{title}', conflictingQuiz.title));
     if (progressive && (!Number.isSafeInteger(questionCount) || questionCount < 1 || !Number.isSafeInteger(maxOptions) || maxOptions < 2)) return setError(t('Choisissez un nombre entier valide de questions et au moins deux options.'));
     if (mode === 'prepared' && questions.length === 0) return setError(t('Ajoutez au moins une question au quiz.'));
-    if (mode === 'prepared' && !questions.every(item => item.prompt.trim() && (item.type === 'text' ? item.answer.trim() : item.options.filter(option => option.trim()).length >= 2 && item.options.filter(option => option.trim()).length <= 4) && (item.type === 'text' || Number.isInteger(item.answer)))) return setError(t('Complétez les questions avec 2 à 4 choix de réponse.'));
+    if (mode === 'prepared' && !questions.every(item => item.prompt.trim() && (item.type === 'text' || item.options.filter(option => option.trim()).length >= 2 && item.options.filter(option => option.trim()).length <= 4) && hasValidPreparedAnswer(item))) return setError(t('Complétez les questions avec 2 à 4 choix de réponse.'));
     const nextQuiz = {
       id: quiz?.id ?? `local-${createId()}`,
       title: title.trim(), description: description.trim() || t('Un quiz vidéo créé dans votre navigateur.'),
@@ -126,7 +178,9 @@ export default function DemoEditor({ quiz, quizzes = [], onSave }) {
             : options,
           answer: progressive ? undefined : item.type === 'text'
             ? item.answer.trim()
-            : originalIndexes.indexOf(item.answer),
+            : item.type === 'multi_choice'
+              ? Array.isArray(item.answer) ? item.answer.map(index => originalIndexes.indexOf(index)).filter(index => index >= 0) : []
+              : Number.isInteger(item.answer) ? originalIndexes.indexOf(item.answer) : null,
         };
       }),
     };
@@ -146,8 +200,12 @@ export default function DemoEditor({ quiz, quizzes = [], onSave }) {
       setQuestions(items => resizeQuestions(items, count, nextMode, maxOptions));
       setActiveQuestion(0);
     } else {
-      setQuestions(items => items.filter(item => item.prompt.trim()).map(item => ({ ...item, type: 'choice', answer: 0 })));
-      setQuestionCount(Math.max(1, questions.length));
+      const preparedQuestions = questions
+        .filter(item => item.prompt.trim() || item.options.some(option => option.trim()))
+        .map(item => ({ ...item, type: 'choice', answer: null }));
+      const nextQuestions = preparedQuestions.length > 0 ? preparedQuestions : [emptyQuestion(nextMode)];
+      setQuestions(nextQuestions);
+      setQuestionCount(nextQuestions.length);
       setActiveQuestion(0);
     }
   };
@@ -175,6 +233,7 @@ export default function DemoEditor({ quiz, quizzes = [], onSave }) {
     <main className="demo-page editor-page">
       <FirstVisitNotice storageKey="videoquiz-demo:first-visit:editor:v1" message="Vos quiz créés sont enregistrés dans ce navigateur." />
       <div className="editor-heading"><span className="eyebrow">{t('CRÉATEUR DE QUIZ')}</span><h1>{t(quiz ? 'Affinez votre quiz.' : 'Une vidéo, vos questions.')}</h1><p>{t('La vidéo se charge depuis YouTube.')}</p></div>
+      {preparedQuiz && <CAlert color="info" className="prepared-quiz-note">{t('Quiz préparé et vérifié avant publication. Vous pouvez adapter les questions avant de l’enregistrer.')}</CAlert>}
       <form className="editor-form" onSubmit={save}>
         <CCard className="editor-section" role="group">
           <div className="editor-section-title"><CBadge className="editor-section-number" color="success">01</CBadge><div><h2>{t('La vidéo')}</h2><p>{t('Collez le lien YouTube que vous souhaitez accompagner.')}</p></div></div>
@@ -182,7 +241,10 @@ export default function DemoEditor({ quiz, quizzes = [], onSave }) {
             <label className="answer-field"><span>{t('Titre du quiz')}</span><CFormInput value={title} onChange={event => setTitle(event.target.value)} maxLength={90} placeholder={t('Ex. Les bases de la photographie')} /></label>
             <label className="answer-field"><span>{t('Lien YouTube')}</span><CFormInput value={videoUrl} onChange={event => { setVideoUrl(event.target.value); setError(''); }} placeholder="https://www.youtube.com/watch?v=…" inputMode="url" />{conflictingQuiz && <small className="video-duplicate-note">{t('Cette vidéo est déjà utilisée par « {title} ».').replace('{title}', conflictingQuiz.title)}</small>}</label>
             <label className="answer-field"><span>{t('En une phrase')} <small>{t('facultatif')}</small></span><CFormTextarea value={description} onChange={event => setDescription(event.target.value)} maxLength={180} placeholder={t('Qu’allez-vous découvrir ?')} rows={2} /></label>
-            <label className="answer-field"><span>{t('Mode de révision')}</span><CFormSelect value={mode} onChange={event => switchMode(event.target.value)}><option value="prepared">{t('Quiz préparé · réponses définies à l’avance')}</option><option value="progressive">{t('Révision progressive · questions au fil de la vidéo')}</option><option value="qcm">{t('QCM express · grille sans formulaire par question')}</option></CFormSelect></label>
+            <div className="answer-field">
+              <label htmlFor="review-mode"><span>{t('Mode de révision')}</span></label>
+              <CFormSelect id="review-mode" value={mode} onChange={event => switchMode(event.target.value)}><option value="prepared">{t('Quiz préparé · réponses définies à l’avance')}</option><option value="progressive">{t('Révision progressive · questions au fil de la vidéo')}</option><option value="qcm">{t('QCM express · grille sans formulaire par question')}</option></CFormSelect>
+            </div>
             {progressive && <div className="mode-note"><strong>{t('Sans clé de réponse préalable')}</strong><span>{t('Suggestion de départ : 40 questions et 4 choix maximum. Vous pouvez modifier ces deux nombres selon votre vidéo.')} {t(mode === 'qcm' ? 'La grille QCM crée toutes les lignes d’un coup. Saisissez questions et choix directement dans le tableau.' : 'La grille réserve les questions; laissez des cases vides et complétez-les une à une pendant le visionnage.')} {t('Le réviseur donnera ensuite sa réponse puis sa propre correction d’après la vidéo.')}</span></div>}
           </div>
         </CCard>
@@ -204,12 +266,42 @@ export default function DemoEditor({ quiz, quizzes = [], onSave }) {
                 <label className="answer-field"><span>{t('Question')}</span><CFormInput value={item.prompt} onChange={event => updateQuestion(item.id, { prompt: event.target.value })} placeholder={t('Que voulez-vous faire retenir ?')} /></label>
                 <div className="editor-inline-fields">
                   <label className="answer-field"><span>{t('Moment dans la vidéo')}</span><CFormInput type="text" inputMode="numeric" value={toTimestamp(item.at)} onChange={event => { const at = toSeconds(event.target.value); updateQuestion(item.id, { at }); setPreviewAt(at); }} aria-label={t('Moment dans la vidéo, minutes et secondes')} /></label>
-                  {mode === 'prepared' && <label className="answer-field"><span>{t('Format de réponse')}</span><CFormSelect value={item.type} onChange={event => updateQuestion(item.id, { type: event.target.value, answer: event.target.value === 'choice' ? 0 : '' })}><option value="choice">{t('Choix multiple')}</option><option value="text">{t('Réponse courte')}</option></CFormSelect></label>}
+                  {mode === 'prepared' && <label className="answer-field"><span>{t('Format de réponse')}</span><CFormSelect value={item.type} onChange={event => { const type = event.target.value; updateQuestion(item.id, { type, answer: type === 'choice' ? null : type === 'multi_choice' ? [] : '' }); }}><option value="choice">{t('Une seule bonne réponse')}</option><option value="multi_choice">{t('Plusieurs bonnes réponses')}</option><option value="text">{t('Réponse courte')}</option></CFormSelect></label>}
                 </div>
-                {item.type !== 'text' ? <>
-                  <label className="answer-field"><span>{t('Choix de réponse')} <small>{t(mode === 'progressive' ? 'jusqu’à {count}, aucun marqué correct' : '2 à 4 choix').replace('{count}', maxOptions)}</small></span><CFormTextarea rows={3} value={item.options.join('\n')} onChange={event => { const options = event.target.value.split('\n').slice(0, mode === 'progressive' ? maxOptions : 4); updateQuestion(item.id, { options, answer: Math.min(item.answer ?? 0, Math.max(0, options.length - 1)) }); }} placeholder={t('Première réponse\nDeuxième réponse')} /></label>
-                  {mode === 'prepared' && <label className="answer-field"><span>{t('Bonne réponse')}</span><CFormSelect value={item.answer} onChange={event => updateQuestion(item.id, { answer: Number(event.target.value) })}>{item.options.map((option, optionIndex) => <option key={optionIndex} value={optionIndex} disabled={!option.trim()}>{option.trim() || `${t('Réponse')} ${optionIndex + 1}`}</option>)}</CFormSelect></label>}
-                </> : <label className="answer-field"><span>{t('Réponse attendue')}</span><CFormInput value={item.answer} onChange={event => updateQuestion(item.id, { answer: event.target.value })} placeholder={t('Votre réponse')} /></label>}
+                {item.type !== 'text' ? mode === 'prepared'
+                  ? <fieldset className="answer-field prepared-answer-options">
+                    <legend>{t('Réponses possibles')} <small>{t(item.type === 'multi_choice' ? 'Cochez toutes les bonnes réponses' : 'Choisissez la bonne réponse')}</small></legend>
+                    {item.options.map((option, optionIndex) => {
+                      const isCorrect = item.type === 'multi_choice'
+                        ? Array.isArray(item.answer) && item.answer.includes(optionIndex)
+                        : item.answer === optionIndex;
+                      const controlLabel = t(item.type === 'multi_choice' ? 'Marquer le choix {choice} comme correct' : 'Définir le choix {choice} comme bonne réponse').replace('{choice}', formatChoiceLabel(optionIndex));
+                      return <div className="prepared-option-row" key={optionIndex}>
+                                  <span className="prepared-option-letter">{formatChoiceLabel(optionIndex)}</span>
+                                  <CFormInput aria-label={t('Texte du choix {choice}').replace('{choice}', formatChoiceLabel(optionIndex))} value={option} onChange={event => updateAnswerOption(item, optionIndex, event.target.value)} placeholder={t('Votre réponse')} />
+                        <label className="prepared-correct-option" title={controlLabel}>
+                          <input
+                            type={item.type === 'multi_choice' ? 'checkbox' : 'radio'}
+                            name={`correct-answer-${item.id}`}
+                            aria-label={controlLabel}
+                            checked={isCorrect}
+                            disabled={!option.trim()}
+                            onChange={() => updateQuestion(item.id, {
+                              answer: item.type === 'multi_choice'
+                                ? isCorrect
+                                  ? item.answer.filter(index => index !== optionIndex)
+                                  : [...(Array.isArray(item.answer) ? item.answer : []), optionIndex]
+                                : optionIndex,
+                            })}
+                          />
+                        </label>
+                        {item.options.length > 2 && <button type="button" className="remove-answer-option" aria-label={t('Supprimer le choix {choice}').replace('{choice}', formatChoiceLabel(optionIndex))} onClick={() => removeAnswerOption(item, optionIndex)}>×</button>}
+                      </div>;
+                    })}
+                    {item.options.length < 4 && <button type="button" className="add-answer-option" onClick={() => addAnswerOption(item)}>{t('Ajouter un choix')}</button>}
+                  </fieldset>
+                  : <label className="answer-field"><span>{t('Réponses possibles')} <small>{t('jusqu’à {count}').replace('{count}', maxOptions)}</small></span><CFormTextarea rows={3} value={item.options.join('\n')} onChange={event => { const options = event.target.value.split('\n').slice(0, maxOptions); updateQuestion(item.id, { options }); }} placeholder={t('Première réponse\nDeuxième réponse')} /></label>
+                  : <label className="answer-field"><span>{t('Réponse attendue')}</span><CFormInput value={item.answer} onChange={event => updateQuestion(item.id, { answer: event.target.value })} placeholder={t('Votre réponse')} /></label>}
                 {mode === 'prepared' && <label className="answer-field"><span>{t('Pourquoi ?')} <small>{t('facultatif')}</small></span><CFormInput value={item.explanation} onChange={event => updateQuestion(item.id, { explanation: event.target.value })} placeholder={t('Une courte explication après le résultat')} /></label>}
               </article>;
               })}

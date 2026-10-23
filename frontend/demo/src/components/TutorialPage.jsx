@@ -133,6 +133,20 @@ export default function TutorialPage() {
         ))}
       </section>
 
+      <section className="tutorial-transfer" aria-labelledby="tutorial-transfer-title">
+        <div className="tutorial-transfer-heading">
+          <span className="eyebrow">{t('CHANGER D’APPAREIL')}</span>
+          <h2 id="tutorial-transfer-title">{t('Continuez votre quiz sur un autre appareil.')}</h2>
+          <p>{t('Votre progression est enregistrée ici. Un fichier vous permet de la transférer, sans synchronisation automatique.')}</p>
+        </div>
+        <ol className="tutorial-transfer-steps">
+          <li><span>01</span><strong>{t('Téléchargez vos données')}</strong></li>
+          <li><span>02</span><strong>{t('Transférez le fichier')}</strong></li>
+          <li><span>03</span><strong>{t('Importez-le sur l’autre appareil')}</strong></li>
+        </ol>
+        <Link className="button button-dark" to="/dashboard?section=backup">{t('Préparer un transfert')} <DemoIcon name="arrowRight" /></Link>
+      </section>
+
       <aside className="tutorial-examples">
         <div>
           <span className="eyebrow">{t('À TOI DE JOUER')}</span>
