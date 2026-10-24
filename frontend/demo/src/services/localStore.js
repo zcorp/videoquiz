@@ -1,5 +1,5 @@
 import { demoQuizzes } from '../data/demoQuizzes.js';
-import { extractYouTubeVideoId } from './youtube.js';
+import { getQuizVideo, getVideoIdentity } from './video.js';
 
 const QUIZ_KEY = 'videoquiz-demo:quizzes:v1';
 const ATTEMPT_KEY = 'videoquiz-demo:attempts:v1';
@@ -49,7 +49,7 @@ function isQuiz(value) {
     && typeof value.id === 'string' && value.id.length > 0
     && !['__proto__', 'prototype', 'constructor'].includes(value.id)
     && typeof value.title === 'string' && value.title.trim().length > 0
-    && typeof value.videoId === 'string' && Boolean(extractYouTubeVideoId(value.videoId))
+    && typeof value.videoId === 'string' && Boolean(getQuizVideo(value))
     && Array.isArray(value.questions) && value.questions.length > 0)) return false;
   const questionIds = value.questions.map(question => question?.id);
   return new Set(questionIds).size === questionIds.length
@@ -99,8 +99,12 @@ function isValidProgress(value, quiz) {
 }
 
 export function getQuizSignature(quiz) {
+  const video = getQuizVideo(quiz);
+  const videoSignature = video?.provider === 'youtube' && !video.hash
+    ? video.id
+    : video ? [video.provider, video.id, video.hash ?? null] : null;
   return JSON.stringify([
-    extractYouTubeVideoId(quiz.videoId),
+    videoSignature,
     quiz.mode ?? 'prepared',
     Boolean(quiz.exam),
     quiz.questions.map(question => [
@@ -227,7 +231,7 @@ export function importLocalBackup(backup, progressResolution = null) {
     return { ok: false, error: 'La sauvegarde contient des données invalides; aucune donnée n’a été importée.' };
   }
   const backupQuizIds = backup.quizzes.map(quiz => quiz.id);
-  const backupVideoIds = backup.quizzes.map(quiz => extractYouTubeVideoId(quiz.videoId));
+  const backupVideoIds = backup.quizzes.map(quiz => getVideoIdentity(quiz));
   if (new Set(backupQuizIds).size !== backupQuizIds.length || new Set(backupVideoIds).size !== backupVideoIds.length) {
     return { ok: false, error: 'La sauvegarde contient des quiz en double; aucune donnée n’a été importée.' };
   }
@@ -235,7 +239,7 @@ export function importLocalBackup(backup, progressResolution = null) {
   const localQuizzes = getLocalQuizzes();
   const existingQuizzes = [...localQuizzes, ...demoQuizzes];
   const existingQuizIds = new Set(existingQuizzes.map(quiz => quiz.id));
-  const existingVideoIds = new Set(existingQuizzes.map(quiz => extractYouTubeVideoId(quiz.videoId)));
+  const existingVideoIds = new Set(existingQuizzes.map(quiz => getVideoIdentity(quiz)).filter(Boolean));
   const incomingIds = new Set();
   const incomingVideos = new Set();
   const safeBackupQuizIds = new Set();
@@ -243,16 +247,16 @@ export function importLocalBackup(backup, progressResolution = null) {
   let skippedQuizzes = 0;
 
   for (const quiz of backup.quizzes) {
-    const videoId = extractYouTubeVideoId(quiz.videoId);
-    if (existingQuizIds.has(quiz.id) || existingVideoIds.has(videoId)
-      || incomingIds.has(quiz.id) || incomingVideos.has(videoId)) {
+    const videoIdentity = getVideoIdentity(quiz);
+    if (existingQuizIds.has(quiz.id) || existingVideoIds.has(videoIdentity)
+      || incomingIds.has(quiz.id) || incomingVideos.has(videoIdentity)) {
       skippedQuizzes += 1;
       const existingWithId = existingQuizzes.find(existing => existing.id === quiz.id);
       if (existingWithId && getQuizSignature(existingWithId) === getQuizSignature(quiz)) safeBackupQuizIds.add(quiz.id);
       continue;
     }
     incomingIds.add(quiz.id);
-    incomingVideos.add(videoId);
+    incomingVideos.add(videoIdentity);
     safeBackupQuizIds.add(quiz.id);
     acceptedQuizzes.push(quiz);
   }
@@ -386,10 +390,10 @@ export const getLocalQuizzes = () => {
   return normalized;
 };
 export const getQuizUsingVideo = (videoId, quizzes, excludedQuizId) => {
-  const normalizedVideoId = extractYouTubeVideoId(videoId);
-  if (!normalizedVideoId) return undefined;
+  const identity = getVideoIdentity(videoId);
+  if (!identity) return undefined;
   return quizzes.find(quiz => (
-    quiz.id !== excludedQuizId && extractYouTubeVideoId(quiz.videoId) === normalizedVideoId
+    quiz.id !== excludedQuizId && getVideoIdentity(quiz) === identity
   ));
 };
 export const getAttempts = () => {
@@ -411,9 +415,9 @@ export const getQuizProgression = quizId => getAttemptsForQuiz(quizId)
 
 export function saveLocalQuiz(quiz) {
   const quizzes = getLocalQuizzes();
-  const videoId = extractYouTubeVideoId(quiz.videoId);
-  const conflict = videoId && getQuizUsingVideo(videoId, [...quizzes, ...demoQuizzes], quiz.id);
-  if (!videoId || conflict) return { saved: false, conflict };
+  const video = getQuizVideo(quiz);
+  const conflict = video && getQuizUsingVideo(video, [...quizzes, ...demoQuizzes], quiz.id);
+  if (!video || conflict) return { saved: false, conflict };
   const index = quizzes.findIndex(item => item.id === quiz.id);
   if (index < 0) quizzes.unshift(quiz);
   else quizzes[index] = quiz;

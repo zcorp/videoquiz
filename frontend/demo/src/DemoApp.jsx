@@ -45,7 +45,7 @@ function DemoAppContent() {
     const pageMetadata = {
       '/': {
         title: t('Video Quiz — Créer un quiz vidéo interactif'),
-        description: t('Créez un quiz vidéo interactif : associez une vidéo YouTube à un QCM, entraînez-vous à votre rythme et retrouvez votre progression dans ce navigateur.'),
+        description: t('Créez un quiz vidéo interactif : associez une vidéo de votre choix à un QCM, entraînez-vous à votre rythme et retrouvez votre progression dans ce navigateur.'),
         canonical: 'https://www.videoquiz.fr/',
       },
       '/tutoriel': {

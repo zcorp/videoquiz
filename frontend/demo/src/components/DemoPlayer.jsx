@@ -3,7 +3,8 @@ import { Link, useParams } from 'react-router-dom';
 import { CBadge, CCard, CFormInput } from '@coreui/react';
 import { formatChoiceLabel, formatTime } from '../data/demoQuizzes.js';
 import { clearQuizProgress, getQuizCorrections, getQuizProgress, getQuizUsingVideo, saveQuizCorrection, saveQuizProgress } from '../services/localStore.js';
-import YouTubePlayer from './YouTubePlayer.jsx';
+import { getQuizVideo, getVideoPageUrl, getVideoProviderLabel } from '../services/video.js';
+import VideoPlayer from './VideoPlayer.jsx';
 import DemoIcon from './DemoIcon.jsx';
 import { useLanguage } from '../i18n.jsx';
 
@@ -80,6 +81,7 @@ export default function DemoPlayer({ quizzes, onAttempt, onTrack }) {
   const { t } = useLanguage();
   const { quizId } = useParams();
   const quiz = quizzes.find(item => item.id === quizId);
+  const video = getQuizVideo(quiz);
   const [progressLoadedQuizId, setProgressLoadedQuizId] = useState(null);
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState({});
@@ -98,7 +100,7 @@ export default function DemoPlayer({ quizzes, onAttempt, onTrack }) {
   const questionHeading = useRef(null);
   const previousQuestion = useRef(current);
   const questionAt = quiz?.questions[current]?.at ?? 0;
-  const conflictingQuiz = quiz?.local ? getQuizUsingVideo(quiz.videoId, quizzes, quiz.id) : undefined;
+  const conflictingQuiz = quiz?.local ? getQuizUsingVideo(video, quizzes, quiz.id) : undefined;
 
   useEffect(() => {
     const saved = quiz ? getQuizProgress(quiz) : null;
@@ -246,7 +248,7 @@ export default function DemoPlayer({ quizzes, onAttempt, onTrack }) {
           <header className="player-title-row"><div><h1>{reviewingAnswers ? t('Revoir vos réponses.') : quiz.title}</h1><p>{reviewingAnswers ? t('Mode lecture : vos réponses et auto-corrections ne peuvent plus être modifiées.') : quiz.description}</p></div><CBadge className="question-counter" color="success">{String(current + 1).padStart(2, '0')} <span>/ {String(quiz.questions.length).padStart(2, '0')}</span></CBadge></header>
           <div className="player-grid">
             <section className="video-column" aria-label={t('Vidéo de cours')}>
-              {showVideo ? <div className="video-shell"><YouTubePlayer key={quiz.videoId} videoId={quiz.videoId} startAt={questionAt} title={`${t('Vidéo :')} ${quiz.videoLabel}, ${t('à')} ${formatTime(question.at)}`} /></div> : <div className="video-disabled"><span>{t('Vidéo masquée')}</span><button className="text-action" onClick={() => setShowVideo(true)}>{t('Afficher')}</button></div>}
+              {showVideo ? <><div className={`video-shell${video?.provider === 'tiktok' ? ' is-tiktok' : ''}`}><VideoPlayer key={`${video?.provider}:${video?.id}:${video?.hash ?? ''}`} video={video} startAt={questionAt} title={`${t('Vidéo :')} ${quiz.videoLabel}, ${t('à')} ${formatTime(question.at)}`} /></div>{video && video.provider !== 'youtube' && <a className="video-source-link" href={getVideoPageUrl(video)} target="_blank" rel="noreferrer">{t('Ouvrir sur {provider}').replace('{provider}', getVideoProviderLabel(video.provider))} ↗</a>}</> : <div className="video-disabled"><span>{t('Vidéo masquée')}</span><button className="text-action" onClick={() => setShowVideo(true)}>{t('Afficher')}</button></div>}
               <div className="video-caption"><span>{reviewingAnswers ? t('REVOYEZ LES PASSAGES À VOTRE RYTHME') : t('REGARDEZ, PUIS RÉPONDEZ')}</span><button onClick={() => setShowVideo(value => !value)}>{t(showVideo ? 'Masquer la vidéo' : 'Afficher la vidéo')}</button></div>
               {(!quiz.exam && !progressive || reviewingAnswers) && <div className="chapter-list"><span className="eyebrow">LES ARRÊTS DU QUIZ</span>{quiz.questions.map((item, index) => {
                 const answered = hasAnswer(item, answers[item.id]);
@@ -327,7 +329,7 @@ export default function DemoPlayer({ quizzes, onAttempt, onTrack }) {
                   {(quiz.exam || progressive) && <div className="exam-progress"><span>{t('Question')} <strong>{current + 1} / {quiz.questions.length}</strong></span><span><strong>{completedQuestionCount}</strong> {t(completedQuestionCount === 1 ? 'complétée' : 'complétées')}</span></div>}
                 </>
               )}
-              <div className="privacy-note"><DemoIcon name="home" /> {t('Quiz et scores restent sur cet appareil. La vidéo est chargée depuis YouTube.')}</div>
+              <div className="privacy-note"><DemoIcon name="home" /> {t('Quiz et scores restent sur cet appareil. La vidéo est chargée depuis la plateforme choisie.')}</div>
               {progressStorageWarning && <p className="backup-status is-error" role="alert">{t('Impossible d’enregistrer la reprise de votre quiz dans ce navigateur.')}</p>}
             </CCard>
           </div>

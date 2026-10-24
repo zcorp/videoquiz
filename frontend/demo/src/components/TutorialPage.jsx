@@ -8,7 +8,7 @@ const steps = [
     number: '01',
     label: 'Le support',
     title: 'Choisis une vidéo pour commencer.',
-    description: 'Parcours les vidéos proposées pour trouver l’inspiration, ou colle le lien d’une vidéo YouTube de ton choix.',
+    description: 'Parcours les vidéos proposées pour trouver l’inspiration, ou colle un lien YouTube, Vimeo, Dailymotion, RUTUBE ou TikTok.',
     visual: 'video',
   },
   {
@@ -41,7 +41,7 @@ function StepVisual({ type, t }) {
       {type === 'video' && (
         <div className="tutorial-video-mock">
           <div className="tutorial-video-preview"><DemoIcon name="mediaPlay" /><span>{t('VIDÉO D’EXEMPLE')}</span></div>
-          <div className="tutorial-video-details"><span className="tutorial-mock-label">{t('CODE DE LA ROUTE')}</span><strong>{t('Une vidéo pour apprendre, un quiz pour s’entraîner')}</strong><span>{t('Choisis un exemple ou colle un lien YouTube.')}</span></div>
+          <div className="tutorial-video-details"><span className="tutorial-mock-label">{t('CODE DE LA ROUTE')}</span><strong>{t('Une vidéo pour apprendre, un quiz pour s’entraîner')}</strong><span>{t('Choisis un exemple ou colle un lien YouTube, Vimeo, Dailymotion, RUTUBE ou TikTok.')}</span></div>
           <div className="tutorial-video-timeline"><i /></div>
         </div>
       )}
@@ -49,7 +49,7 @@ function StepVisual({ type, t }) {
         <div className="tutorial-setup-mock">
           <span className="tutorial-mock-label">{t('NOUVEAU QUIZ')}</span>
           <div className="tutorial-mock-field"><small>{t('TITRE DU QUIZ')}</small><strong>{t('Les bases de la conduite')}</strong></div>
-          <div className="tutorial-mock-field"><small>{t('VIDÉO YOUTUBE')}</small><span><DemoIcon name="mediaPlay" /> youtube.com/watch…</span></div>
+          <div className="tutorial-mock-field"><small>{t('LIEN VIDÉO')}</small><span><DemoIcon name="mediaPlay" /> YouTube · Vimeo · Dailymotion · RUTUBE · TikTok</span></div>
           <small className="tutorial-mode-label">{t('CHOISIS TON MODE')}</small>
           <div className="tutorial-mode-options"><span>{t('Quiz préparé')}</span><span className="is-selected">{t('Progressif')}</span><span>{t('QCM express')}</span></div>
         </div>
@@ -151,7 +151,7 @@ export default function TutorialPage() {
         <div>
           <span className="eyebrow">{t('À TOI DE JOUER')}</span>
           <h2>{t('Une vidéo d’exemple pour te lancer ?')}</h2>
-          <p>{t('Les vidéos de la collection sont là pour t’inspirer. Tu peux aussi créer un quiz à partir d’un lien YouTube.')}</p>
+          <p>{t('Les vidéos de la collection sont là pour t’inspirer. Tu peux aussi coller le lien d’une vidéo compatible.')}</p>
         </div>
         <div className="tutorial-actions">
           <Link className="button button-quiet" to="/videos">{t('Parcourir les exemples')} <DemoIcon name="mediaPlay" /></Link>

@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { CAlert, CBadge, CButton, CCard, CFormInput, CFormSelect, CFormTextarea } from '@coreui/react';
-import { formatChoiceLabel, formatTime, getVideoUrl } from '../data/demoQuizzes.js';
+import { formatChoiceLabel, formatTime } from '../data/demoQuizzes.js';
 import { getApprovedPreparedQuiz } from '../data/preparedQuizzes/catalog.js';
 import { getQuizUsingVideo } from '../services/localStore.js';
-import { extractYouTubeVideoId } from '../services/youtube.js';
+import { getQuizVideo, getVideoPageUrl, getVideoProviderLabel, getVideoReference } from '../services/video.js';
 import DemoIcon from './DemoIcon.jsx';
 import FirstVisitNotice from './FirstVisitNotice.jsx';
+import VideoPlayer from './VideoPlayer.jsx';
 import { useLanguage } from '../i18n.jsx';
 
 function createId() {
@@ -81,10 +82,10 @@ export default function DemoEditor({ quiz, quizzes = [], onSave }) {
   const initialMaxOptions = quiz?.maxOptions ?? 4;
   const [title, setTitle] = useState(() => quiz?.title ?? preparedQuiz?.title ?? linkedVideoTitle.slice(0, 90));
   const [description, setDescription] = useState(() => quiz?.description ?? preparedQuiz?.description ?? '');
-  const [videoUrl, setVideoUrl] = useState(() => quiz?.videoId
-    ? `https://www.youtube.com/watch?v=${quiz.videoId}`
+  const [videoUrl, setVideoUrl] = useState(() => quiz
+    ? getVideoPageUrl(getQuizVideo(quiz))
     : preparedQuiz?.videoId || linkedVideoId
-      ? `https://www.youtube.com/watch?v=${preparedQuiz?.videoId ?? linkedVideoId}`
+      ? getVideoPageUrl({ provider: 'youtube', id: preparedQuiz?.videoId ?? linkedVideoId })
       : '');
   const [mode, setMode] = useState(initialMode);
   const [questionCount, setQuestionCount] = useState(initialQuestionCount);
@@ -103,8 +104,8 @@ export default function DemoEditor({ quiz, quizzes = [], onSave }) {
   })));
   const [previewAt, setPreviewAt] = useState(() => initialQuestions?.[0]?.at ?? 0);
   const [error, setError] = useState('');
-  const videoId = extractYouTubeVideoId(videoUrl);
-  const conflictingQuiz = getQuizUsingVideo(videoId, quizzes, quiz?.id);
+  const video = getVideoReference(videoUrl);
+  const conflictingQuiz = getQuizUsingVideo(video, quizzes, quiz?.id);
 
   const updateQuestion = (id, patch) => setQuestions(items => items.map(item => item.id === id ? { ...item, ...patch } : item));
   const updateAnswerOption = (item, optionIndex, value) => {
@@ -154,7 +155,7 @@ export default function DemoEditor({ quiz, quizzes = [], onSave }) {
   const save = event => {
     event.preventDefault();
     if (!title.trim()) return setError(t('Donnez un titre à votre quiz.'));
-    if (!videoId) return setError(t('Ajoutez une URL YouTube valide.'));
+    if (!video) return setError(t('Ajoutez un lien YouTube, Vimeo, Dailymotion, RUTUBE ou TikTok valide.'));
     if (conflictingQuiz) return setError(t('Cette vidéo est déjà associée au quiz « {title} ». Ouvrez-le pour le modifier ou choisissez une autre vidéo.').replace('{title}', conflictingQuiz.title));
     if (progressive && (!Number.isSafeInteger(questionCount) || questionCount < 1 || !Number.isSafeInteger(maxOptions) || maxOptions < 2)) return setError(t('Choisissez un nombre entier valide de questions et au moins deux options.'));
     if (mode === 'prepared' && questions.length === 0) return setError(t('Ajoutez au moins une question au quiz.'));
@@ -162,7 +163,12 @@ export default function DemoEditor({ quiz, quizzes = [], onSave }) {
     const nextQuiz = {
       id: quiz?.id ?? `local-${createId()}`,
       title: title.trim(), description: description.trim() || t('Un quiz vidéo créé dans votre navigateur.'),
-      topic: linkedTopic, videoId, videoLabel: title.trim(), local: true,
+      topic: linkedTopic,
+      videoId: video.id,
+      videoProvider: video.provider,
+      ...(video.hash ? { videoHash: video.hash } : {}),
+      videoLabel: title.trim(),
+      local: true,
       mode, questionCount: progressive ? questionCount : questions.length,
       maxOptions: progressive ? maxOptions : undefined,
       draft: progressive && !readyToPlay,
@@ -232,14 +238,14 @@ export default function DemoEditor({ quiz, quizzes = [], onSave }) {
   return (
     <main className="demo-page editor-page">
       <FirstVisitNotice storageKey="videoquiz-demo:first-visit:editor:v1" message="Vos quiz créés sont enregistrés dans ce navigateur." />
-      <div className="editor-heading"><span className="eyebrow">{t('CRÉATEUR DE QUIZ')}</span><h1>{t(quiz ? 'Affinez votre quiz.' : 'Une vidéo, vos questions.')}</h1><p>{t('La vidéo se charge depuis YouTube.')}</p></div>
+      <div className="editor-heading"><span className="eyebrow">{t('CRÉATEUR DE QUIZ')}</span><h1>{t(quiz ? 'Affinez votre quiz.' : 'Une vidéo, vos questions.')}</h1><p>{t('Collez un lien YouTube, Vimeo, Dailymotion, RUTUBE ou TikTok.')}</p></div>
       {preparedQuiz && <CAlert color="info" className="prepared-quiz-note">{t('Quiz préparé et vérifié avant publication. Vous pouvez adapter les questions avant de l’enregistrer.')}</CAlert>}
       <form className="editor-form" onSubmit={save}>
         <CCard className="editor-section" role="group">
-          <div className="editor-section-title"><CBadge className="editor-section-number" color="success">01</CBadge><div><h2>{t('La vidéo')}</h2><p>{t('Collez le lien YouTube que vous souhaitez accompagner.')}</p></div></div>
+          <div className="editor-section-title"><CBadge className="editor-section-number" color="success">01</CBadge><div><h2>{t('La vidéo')}</h2><p>{t('Collez le lien de la vidéo que vous souhaitez accompagner.')}</p></div></div>
           <div className="editor-fields">
             <label className="answer-field"><span>{t('Titre du quiz')}</span><CFormInput value={title} onChange={event => setTitle(event.target.value)} maxLength={90} placeholder={t('Ex. Les bases de la photographie')} /></label>
-            <label className="answer-field"><span>{t('Lien YouTube')}</span><CFormInput value={videoUrl} onChange={event => { setVideoUrl(event.target.value); setError(''); }} placeholder="https://www.youtube.com/watch?v=…" inputMode="url" />{conflictingQuiz && <small className="video-duplicate-note">{t('Cette vidéo est déjà utilisée par « {title} ».').replace('{title}', conflictingQuiz.title)}</small>}</label>
+            <label className="answer-field"><span>{t('Lien de la vidéo')}</span><CFormInput value={videoUrl} onChange={event => { setVideoUrl(event.target.value); setError(''); }} placeholder="YouTube, Vimeo, Dailymotion, RUTUBE, TikTok…" inputMode="url" />{video && <small className="video-provider-note">{t('Plateforme détectée')} · {getVideoProviderLabel(video.provider)}</small>}{conflictingQuiz && <small className="video-duplicate-note">{t('Cette vidéo est déjà utilisée par « {title} ».').replace('{title}', conflictingQuiz.title)}</small>}</label>
             <label className="answer-field"><span>{t('En une phrase')} <small>{t('facultatif')}</small></span><CFormTextarea value={description} onChange={event => setDescription(event.target.value)} maxLength={180} placeholder={t('Qu’allez-vous découvrir ?')} rows={2} /></label>
             <div className="answer-field">
               <label htmlFor="review-mode"><span>{t('Mode de révision')}</span></label>
@@ -307,7 +313,7 @@ export default function DemoEditor({ quiz, quizzes = [], onSave }) {
               })}
             </div>}
             {mode === 'prepared' && <div className="question-add-row"><button type="button" className="add-question" onClick={() => { setQuestions(items => [...items, emptyQuestion(mode)]); setActiveQuestion(questions.length); }}><span><DemoIcon name="plus" /></span> {t('Ajouter une question')}</button><span>{questions.length}</span></div>}
-            {progressive && videoId && <div className="editor-video-preview"><div><span className="eyebrow">{t('APERÇU DE LA VIDÉO')}</span><span className="preview-time">{t('Départ à')} {formatTime(previewAt)}</span></div><div className="video-shell"><iframe key={`${videoId}-${previewAt}`} src={getVideoUrl(videoId, previewAt)} title={`${t('Aperçu vidéo à')} ${formatTime(previewAt)}`} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen /></div></div>}
+            {progressive && video && <div className="editor-video-preview"><div><span className="eyebrow">{t('APERÇU DE LA VIDÉO')}</span><span className="preview-time">{t('Départ à')} {formatTime(previewAt)}</span></div><div className={`video-shell${video.provider === 'tiktok' ? ' is-tiktok' : ''}`}><VideoPlayer key={`${video.provider}:${video.id}:${video.hash ?? ''}`} video={video} startAt={previewAt} title={`${t('Aperçu vidéo à')} ${formatTime(previewAt)}`} /></div>{video.provider !== 'youtube' && <a className="video-source-link" href={getVideoPageUrl(video)} target="_blank" rel="noreferrer">{t('Ouvrir sur {provider}').replace('{provider}', getVideoProviderLabel(video.provider))} ↗</a>}</div>}
           </div>
         </CCard>
         {error && <CAlert color="danger" role="alert" className="editor-error">{error}{conflictingQuiz && <div><Link to={conflictingQuiz.local ? `/edit/${conflictingQuiz.id}` : `/quiz/${conflictingQuiz.id}`}>{t(conflictingQuiz.local ? 'Modifier ce quiz' : 'Ouvrir ce quiz')}</Link></div>}</CAlert>}

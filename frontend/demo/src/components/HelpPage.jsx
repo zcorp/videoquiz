@@ -90,7 +90,7 @@ export default function HelpPage({ onOpenAnalyticsPreferences }) {
         <article>
           <span className="eyebrow">{t('TRANSPARENCE')}</span>
           <h2>{t('La vidéo reste chez sa plateforme.')}</h2>
-          <p>{t('La démo utilise des vidéos YouTube intégrées. Leur disponibilité et leur lecture dépendent de YouTube et de la personne qui les a publiées.')}</p>
+          <p>{t('Les vidéos YouTube, Vimeo, Dailymotion, RUTUBE et TikTok sont intégrées depuis leur plateforme. Leur disponibilité et leur lecture dépendent de celle-ci et des réglages de la personne qui les a publiées.')}</p>
           <p>{t('La mesure d’audience est soumise à votre choix. Les réponses aux quiz et les contenus que vous saisissez ne sont pas envoyés à Google Analytics.')}</p>
           <button type="button" onClick={onOpenAnalyticsPreferences}>{t('Préférences Analytics')}</button>
           <p className="help-contact">{t('Une question ?')} <a href="mailto:contact@videoquiz.fr">{t('Écrivez-nous à contact@videoquiz.fr')}</a></p>

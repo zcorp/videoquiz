@@ -176,11 +176,6 @@ for (const video of catalogVideos) {
 
 export const videoLibrary = [...videosById.values()];
 
-export function getVideoUrl(videoId, seconds = 0, enableApi = false) {
-  const playerOptions = enableApi ? `&enablejsapi=1&origin=${encodeURIComponent(window.location.origin)}` : '';
-  return `https://www.youtube-nocookie.com/embed/${encodeURIComponent(videoId)}?rel=0&controls=1&disablekb=0&playsinline=1&start=${Math.max(0, Number(seconds) || 0)}${playerOptions}`;
-}
-
 export function formatTime(seconds) {
   const value = Math.max(0, Math.floor(Number(seconds) || 0));
   return `${Math.floor(value / 60)}:${String(value % 60).padStart(2, '0')}`;

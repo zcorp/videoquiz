@@ -290,7 +290,10 @@ button:disabled { cursor: not-allowed; opacity: .45; }
 .player-grid { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(340px, .85fr); gap: 23px; align-items: start; }
 .video-column { min-width: 0; }
 .video-shell { position: relative; width: 100%; aspect-ratio: 16/9; background: #1e2925; }
+.video-shell.is-tiktok { width: min(100%, 400px); aspect-ratio: 9/16; margin-inline: auto; }
 .video-shell iframe,.youtube-player-mount { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.video-source-link { display: block; width: fit-content; margin: 6px 0 10px auto; color: var(--muted); font-size: 11px; text-decoration: underline; text-underline-offset: 2px; }
+.video-source-link:hover { color: var(--green); }
 .youtube-player-error { position: absolute; inset: auto 10px 10px; z-index: 1; margin: 0; padding: 8px 10px; background: rgba(255,255,255,.94); color: #9f4331; font-size: 11px; }
 .video-caption { display: flex; justify-content: space-between; gap: 12px; padding: 11px 0 15px; border-bottom: 1px solid var(--rule); }
 .video-caption span { color: var(--muted); font: 10px var(--mono); letter-spacing: .1em; }
@@ -2079,6 +2082,27 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .tutorial-answer-option > i, .tutorial-training-option > i {
   background: var(--surface-soft);
   color: var(--muted);
+}
+.video-provider-note {
+  display: block;
+  margin-top: 5px;
+  color: var(--brand-purple-dark) !important;
+  font-size: 12px;
+  font-weight: 700;
+}
+.video-thumbnail-placeholder {
+  display: grid;
+  place-items: center;
+  background: linear-gradient(140deg, #102a43, #312053 58%, #0e858c);
+  color: #fff;
+}
+.video-thumbnail-placeholder > span {
+  padding: 7px 11px;
+  border: 1px solid rgba(255, 255, 255, .5);
+  border-radius: 999px;
+  background: rgba(16, 42, 67, .35);
+  font-size: 13px;
+  font-weight: 700;
 }
 .demo-header {
   border-bottom: 1px solid var(--rule);

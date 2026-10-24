@@ -3,15 +3,17 @@ import { Link } from 'react-router-dom';
 import { CBadge, CCard, CCardBody, CFormInput, CFormSelect } from '@coreui/react';
 import { videoLibrary } from '../data/demoQuizzes.js';
 import { getQuizUsingVideo } from '../services/localStore.js';
+import { getQuizVideo } from '../services/video.js';
 import { translateTopic, useLanguage } from '../i18n.jsx';
-import YouTubeThumbnail from './YouTubeThumbnail.jsx';
+import VideoThumbnail from './VideoThumbnail.jsx';
 import DemoIcon from './DemoIcon.jsx';
 
 const normalizeTopic = value => value.toLocaleUpperCase('fr-FR');
 
 function QuizTile({ quiz, quizzes, attempt, onDelete }) {
   const { t, language } = useLanguage();
-  const conflictingQuiz = quiz.local ? getQuizUsingVideo(quiz.videoId, quizzes, quiz.id) : undefined;
+  const video = getQuizVideo(quiz);
+  const conflictingQuiz = quiz.local ? getQuizUsingVideo(video, quizzes, quiz.id) : undefined;
   const quizPath = quiz.draft || conflictingQuiz ? `/edit/${quiz.id}` : `/quiz/${quiz.id}`;
   const isProgressive = quiz.mode === 'progressive' || quiz.mode === 'qcm';
      const answeredSlots = quiz.mode === 'qcm'
@@ -20,7 +22,7 @@ function QuizTile({ quiz, quizzes, attempt, onDelete }) {
   return (
     <CCard className={`quiz-tile${quiz.exam ? ' exam-tile' : ''}`}>
       <Link to={quizPath} className="tile-image-link" aria-label={`${t(conflictingQuiz ? 'Corriger l’association vidéo de' : quiz.draft ? 'Reprendre' : 'Ouvrir')} ${quiz.title}`}>
-        <YouTubeThumbnail className="tile-image" videoId={quiz.videoId} alt={`${t('Vidéo :')} ${quiz.videoLabel}`} />
+        <VideoThumbnail className="tile-image" video={video} alt={`${t('Vidéo :')} ${quiz.videoLabel}`} />
         <span className="tile-play"><DemoIcon name="mediaPlay" /></span>
         <span className="tile-count">{isProgressive ? `${quiz.questionCount ?? quiz.questions.length} ${t('questions')}` : `${quiz.questions.length} ${t(quiz.questions.length === 1 ? 'question' : 'questions')}`}</span>
       </Link>
@@ -102,7 +104,7 @@ export default function DemoHome({ quizzes, attempts, onDelete }) {
           <div className="feature-carousel" role="region" aria-label={t('Exemples de quiz vidéo')} aria-roledescription={t('carrousel')}>
             <div className="feature-carousel-content" aria-live="polite">
               {activeFeatureSlide === 0 && <Link className="feature-frame" to={featuredDestination} aria-label={featuredQuiz ? `Ouvrir le quiz associé à ${featuredVideo.title}` : `Associer ${featuredVideo.title} à un QCM`}>
-                <YouTubeThumbnail videoId={featuredVideo.id} alt={`Aperçu vidéo : ${featuredVideo.title}`} loading="eager" />
+                <VideoThumbnail video={featuredVideo} alt={`Aperçu vidéo : ${featuredVideo.title}`} loading="eager" />
                 <span className="feature-wash" />
                 <span className="feature-play"><DemoIcon name="plus" /></span>
                 <span className="feature-caption"><CBadge color="warning">{featuredQuiz ? 'QUIZ ASSOCIÉ' : 'VIDÉO À UTILISER'}</CBadge><strong>{featuredVideo.title}</strong><small>{featuredVideo.theme} · {featuredQuiz ? 'Ouvrir le quiz' : 'Créer un QCM express'}</small></span>
@@ -126,7 +128,7 @@ export default function DemoHome({ quizzes, attempts, onDelete }) {
                 <Link className="feature-cycle-link" to="/tutoriel">{t('Découvrir comment ça marche')} <DemoIcon name="arrowRight" /></Link>
               </div>}
               {activeFeatureSlide === 2 && cultureVideo && cultureDestination && <Link className="feature-frame" to={cultureDestination} aria-label={cultureQuiz ? `Ouvrir le quiz associé à ${cultureVideo.title}` : `Associer ${cultureVideo.title} à un QCM`}>
-                <YouTubeThumbnail videoId={cultureVideo.id} alt={`Aperçu vidéo : ${cultureVideo.title}`} loading="lazy" />
+                <VideoThumbnail video={cultureVideo} alt={`Aperçu vidéo : ${cultureVideo.title}`} loading="lazy" />
                 <span className="feature-wash" />
                 <span className="feature-play"><DemoIcon name="plus" /></span>
                 <span className="feature-caption"><CBadge color="warning">{t(cultureQuiz ? 'QUIZ ASSOCIÉ' : 'AUTRE THÈME')}</CBadge><strong>{cultureVideo.title}</strong><small>{translateTopic(cultureVideo.theme, language)} · {t(cultureQuiz ? 'Ouvrir le quiz' : 'Créer un QCM express')}</small></span>
