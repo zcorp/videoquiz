@@ -676,6 +676,8 @@ const englishTranslations = {
   'Vos questions': 'Your questions',
   'Choisissez comment réviser, puis ajoutez vos questions.': 'Choose how to practise, then add your questions.',
   'Collez un lien vidéo valide.': 'Paste a valid video link.',
+  'Le lien TikTok n’a pas pu être vérifié. Vérifiez votre connexion ou collez le lien complet de la vidéo.': 'The TikTok link could not be verified. Check your connection or paste the full video link.',
+  'Vérification du lien TikTok…': 'Checking the TikTok link…',
   'Ajouter une description (facultatif)': 'Add a description (optional)',
   'VIDÉO CHOISIE': 'VIDEO SELECTED',
   'Quiz avec correction': 'Quiz with answers',

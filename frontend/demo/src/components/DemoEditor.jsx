@@ -4,7 +4,7 @@ import { CAlert, CBadge, CButton, CCard, CFormInput, CFormSelect, CFormTextarea 
 import { formatChoiceLabel } from '../data/demoQuizzes.js';
 import { getApprovedPreparedQuiz } from '../data/preparedQuizzes/catalog.js';
 import { getQuizUsingVideo } from '../services/localStore.js';
-import { getQuizVideo, getVideoPageUrl, getVideoProviderLabel, getVideoReference } from '../services/video.js';
+import { getQuizVideo, getVideoPageUrl, getVideoProviderLabel, getVideoReference, isTikTokShortUrl, resolveTikTokShortUrl } from '../services/video.js';
 import DemoIcon from './DemoIcon.jsx';
 import FirstVisitNotice from './FirstVisitNotice.jsx';
 import VideoPlayer from './VideoPlayer.jsx';
@@ -88,6 +88,8 @@ export default function DemoEditor({ quiz, quizzes = [], onSave }) {
   const [title, setTitle] = useState(() => quiz?.title ?? preparedQuiz?.title ?? linkedVideoTitle.slice(0, 90));
   const [description, setDescription] = useState(() => quiz?.description ?? preparedQuiz?.description ?? '');
   const [showSelectedVideoPreview, setShowSelectedVideoPreview] = useState(false);
+  const [resolvingTikTok, setResolvingTikTok] = useState(false);
+  const [resolvedTikTokShort, setResolvedTikTokShort] = useState(null);
   const [videoUrl, setVideoUrl] = useState(() => quiz
     ? getVideoPageUrl(getQuizVideo(quiz))
     : preparedQuiz?.videoId || linkedVideoId
@@ -111,7 +113,9 @@ export default function DemoEditor({ quiz, quizzes = [], onSave }) {
     options: Array(isProgressiveMode(initialMode) ? initialMaxOptions : 2).fill(''),
   })));
   const [error, setError] = useState('');
-  const video = getVideoReference(videoUrl);
+  const video = resolvedTikTokShort?.url === videoUrl
+    ? resolvedTikTokShort.reference
+    : getVideoReference(videoUrl);
   const conflictingQuiz = getQuizUsingVideo(video, quizzes, quiz?.id);
 
   const updateQuestion = (id, patch) => setQuestions(items => items.map(item => item.id === id ? { ...item, ...patch } : item));
@@ -154,23 +158,47 @@ export default function DemoEditor({ quiz, quizzes = [], onSave }) {
   const qcmPageCount = Math.ceil(questions.length / QCM_PAGE_SIZE);
   const qcmPageStart = qcmPage * QCM_PAGE_SIZE;
   const qcmVisibleQuestions = questions.slice(qcmPageStart, qcmPageStart + QCM_PAGE_SIZE);
-  const validateVideoStep = () => {
+  const validateVideoStep = (candidateVideo = video) => {
     if (!title.trim()) {
       setError(t('Donnez un titre à votre quiz.'));
       return false;
     }
-    if (!video) {
+    if (!candidateVideo) {
       setError(t('Collez un lien vidéo valide.'));
       return false;
     }
-    if (conflictingQuiz) {
-      setError(t('Cette vidéo est déjà associée au quiz « {title} ». Ouvrez-le pour le modifier ou choisissez une autre vidéo.').replace('{title}', conflictingQuiz.title));
+    const duplicate = getQuizUsingVideo(candidateVideo, quizzes, quiz?.id);
+    if (duplicate) {
+      setError(t('Cette vidéo est déjà associée au quiz « {title} ». Ouvrez-le pour le modifier ou choisissez une autre vidéo.').replace('{title}', duplicate.title));
       return false;
     }
     return true;
   };
-  const continueToQuestions = () => {
-    if (!validateVideoStep()) return;
+  const continueToQuestions = async () => {
+    if (resolvingTikTok) return;
+    if (!title.trim()) {
+      setError(t('Donnez un titre à votre quiz.'));
+      return;
+    }
+    let candidateVideo = video;
+    if (!candidateVideo && isTikTokShortUrl(videoUrl)) {
+      setResolvingTikTok(true);
+      setError('');
+      try {
+        candidateVideo = await resolveTikTokShortUrl(videoUrl);
+        if (!candidateVideo) {
+          setError(t('Le lien TikTok n’a pas pu être vérifié. Vérifiez votre connexion ou collez le lien complet de la vidéo.'));
+          return;
+        }
+        setResolvedTikTokShort({ url: videoUrl, reference: candidateVideo });
+      } catch {
+        setError(t('Le lien TikTok n’a pas pu être vérifié. Vérifiez votre connexion ou collez le lien complet de la vidéo.'));
+        return;
+      } finally {
+        setResolvingTikTok(false);
+      }
+    }
+    if (!validateVideoStep(candidateVideo)) return;
     setError('');
     setStep(2);
   };
@@ -291,7 +319,7 @@ export default function DemoEditor({ quiz, quizzes = [], onSave }) {
         {step === 1 ? <CCard className="editor-section" role="group">
           <div className="editor-section-title"><CBadge className="editor-section-number" color="success">01</CBadge><div><h2>{t('Choisissez une vidéo')}</h2><p>{t('Collez son lien et donnez un nom à votre quiz.')}</p></div></div>
           <div className="editor-fields">
-            <label className="answer-field"><span>{t('Lien de la vidéo')}</span><CFormInput value={videoUrl} onChange={event => { setVideoUrl(event.target.value); setError(''); }} placeholder="YouTube, Vimeo, Dailymotion, RUTUBE, TikTok…" inputMode="url" />{video && <small className="video-provider-note">{t('Plateforme détectée')} · {getVideoProviderLabel(video.provider)}</small>}{conflictingQuiz && <small className="video-duplicate-note">{t('Cette vidéo est déjà utilisée par « {title} ».').replace('{title}', conflictingQuiz.title)}</small>}</label>
+            <label className="answer-field"><span>{t('Lien de la vidéo')}</span><CFormInput value={videoUrl} disabled={resolvingTikTok} onChange={event => { setVideoUrl(event.target.value); setResolvedTikTokShort(null); setError(''); }} placeholder="YouTube, Vimeo, Dailymotion, RUTUBE, TikTok…" inputMode="url" />{video && <small className="video-provider-note">{t('Plateforme détectée')} · {getVideoProviderLabel(video.provider)}</small>}{conflictingQuiz && <small className="video-duplicate-note">{t('Cette vidéo est déjà utilisée par « {title} ».').replace('{title}', conflictingQuiz.title)}</small>}</label>
             <label className="answer-field"><span>{t('Titre du quiz')}</span><CFormInput value={title} onChange={event => { setTitle(event.target.value); setError(''); }} maxLength={90} placeholder={t('Ex. Les bases de la photographie')} /></label>
             <details className="editor-optional-field">
               <summary>{t('Ajouter une description (facultatif)')}</summary>
@@ -406,7 +434,7 @@ export default function DemoEditor({ quiz, quizzes = [], onSave }) {
         <div className="editor-submit">
           <Link className="btn btn-outline-secondary button button-quiet" to="/" title={t('Annuler')}><span className="editor-submit-label">{t('Annuler')}</span></Link>
           {step === 2 && <CButton type="button" className="button button-quiet" color="light" title={t('Retour')} onClick={() => { setError(''); setStep(1); }}><span className="editor-submit-label">{t('Retour')}</span></CButton>}
-          <CButton type="submit" className="button button-dark" color="success" title={submitLabel}><span className="editor-submit-label">{submitLabel}</span><DemoIcon name="arrowRight" /></CButton>
+          <CButton type="submit" className="button button-dark" color="success" title={resolvingTikTok ? t('Vérification du lien TikTok…') : submitLabel} disabled={resolvingTikTok}><span className="editor-submit-label">{resolvingTikTok ? t('Vérification du lien TikTok…') : submitLabel}</span><DemoIcon name="arrowRight" /></CButton>
         </div>
       </form>
     </main>

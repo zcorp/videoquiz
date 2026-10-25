@@ -19,6 +19,7 @@ const hosts = {
   rutube: new Set(['rutube.ru', 'www.rutube.ru', 'm.rutube.ru']),
   tiktok: new Set(['tiktok.com', 'www.tiktok.com', 'm.tiktok.com']),
 };
+const tiktokShortHosts = new Set(['vm.tiktok.com', 'vt.tiktok.com']);
 
 function validVideo(provider, id, hash) {
   const validId = idPatterns[provider]?.test(id) ?? false;
@@ -93,6 +94,48 @@ export function parseVideoUrl(value) {
   }
   if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password || url.port) return null;
   return parsePath(url.hostname.toLocaleLowerCase(), url.pathname, url);
+}
+
+function getTikTokShortLink(value) {
+  const input = String(value ?? '').trim();
+  let url;
+  try {
+    url = new URL(/^[a-zA-Z][a-zA-Z\d+.-]*:/.test(input) ? input : `https://${input}`);
+  } catch {
+    return null;
+  }
+  if (
+    !['http:', 'https:'].includes(url.protocol)
+    || url.username
+    || url.password
+    || url.port
+    || !tiktokShortHosts.has(url.hostname.toLocaleLowerCase())
+  ) return null;
+  const segments = url.pathname.split('/').filter(Boolean);
+  if (segments.length !== 1 || !/^[a-zA-Z0-9_-]{5,64}$/.test(segments[0])) return null;
+  return new URL(`${url.origin}/${segments[0]}`);
+}
+
+export function isTikTokShortUrl(value) {
+  return Boolean(getTikTokShortLink(value));
+}
+
+export async function resolveTikTokShortUrl(value) {
+  const shortLink = getTikTokShortLink(value);
+  if (!shortLink) return null;
+
+  const endpoint = new URL('https://www.tiktok.com/oembed');
+  endpoint.searchParams.set('url', shortLink.href);
+  const response = await fetch(endpoint, { headers: { Accept: 'application/json' } });
+  if (!response.ok) throw new Error(`TikTok link verification failed: ${response.status}`);
+
+  const data = await response.json();
+  const embedUrl = typeof data.html === 'string'
+    ? data.html.match(/<iframe\b[^>]*\bsrc=["']([^"']+)["']/i)?.[1]
+    : null;
+  const video = embedUrl ? parseVideoUrl(embedUrl) : null;
+  if (video?.provider !== 'tiktok') throw new Error('TikTok returned an invalid video embed.');
+  return video;
 }
 
 export function getVideoReference(value) {
