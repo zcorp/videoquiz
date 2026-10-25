@@ -16,9 +16,7 @@ function QuizTile({ quiz, quizzes, attempt, onDelete }) {
   const conflictingQuiz = quiz.local ? getQuizUsingVideo(video, quizzes, quiz.id) : undefined;
   const quizPath = quiz.draft || conflictingQuiz ? `/edit/${quiz.id}` : `/quiz/${quiz.id}`;
   const isProgressive = quiz.mode === 'progressive' || quiz.mode === 'qcm';
-     const answeredSlots = quiz.mode === 'qcm'
-       ? quiz.questionCount ?? quiz.questions?.length ?? 0
-       : quiz.questions?.filter(question => question.prompt?.trim() && question.options?.filter(option => option.trim()).length >= 2).length ?? 0;
+  const answeredSlots = quiz.questions?.filter(question => question.prompt?.trim() && question.options?.filter(option => option.trim()).length >= 2).length ?? 0;
   return (
     <CCard className={`quiz-tile${quiz.exam ? ' exam-tile' : ''}`}>
       <Link to={quizPath} className="tile-image-link" aria-label={`${t(conflictingQuiz ? 'Corriger l’association vidéo de' : quiz.draft ? 'Reprendre' : 'Ouvrir')} ${quiz.title}`}>

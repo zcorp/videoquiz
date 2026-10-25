@@ -383,9 +383,28 @@ export function importLocalBackup(backup, progressResolution = null) {
   };
 }
 
+function isCompleteQcm(quiz) {
+  const questions = Array.isArray(quiz.questions) ? quiz.questions : [];
+  const maxOptions = Number.isSafeInteger(quiz.maxOptions) && quiz.maxOptions >= 2 ? quiz.maxOptions : 4;
+  const questionCount = Number.isSafeInteger(quiz.questionCount) ? quiz.questionCount : questions.length;
+  return questions.length > 0
+    && questions.length === questionCount
+    && questions.every(question => question !== null
+      && typeof question === 'object'
+      && typeof question.prompt === 'string'
+      && question.prompt.trim()
+      && Array.isArray(question.options)
+      && question.options.filter(option => typeof option === 'string' && option.trim()).length >= 2
+      && question.options.filter(option => typeof option === 'string' && option.trim()).length <= maxOptions);
+}
+
 export const getLocalQuizzes = () => {
   const quizzes = readList(QUIZ_KEY);
-  const normalized = quizzes.map(quiz => quiz.mode === 'qcm' && quiz.draft ? { ...quiz, draft: false } : quiz);
+  const normalized = quizzes.map(quiz => {
+    if (quiz.mode !== 'qcm') return quiz;
+    const draft = !isCompleteQcm(quiz);
+    return quiz.draft === draft ? quiz : { ...quiz, draft };
+  });
   if (normalized.some((quiz, index) => quiz !== quizzes[index])) writeList(QUIZ_KEY, normalized);
   return normalized;
 };

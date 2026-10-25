@@ -11,6 +11,8 @@ import VideoPlayer from './VideoPlayer.jsx';
 import VideoThumbnail from './VideoThumbnail.jsx';
 import { useLanguage } from '../i18n.jsx';
 
+const QCM_PAGE_SIZE = 10;
+
 function createId() {
   if (typeof globalThis.crypto?.randomUUID === 'function') return globalThis.crypto.randomUUID();
   if (typeof globalThis.crypto?.getRandomValues === 'function') {
@@ -95,6 +97,7 @@ export default function DemoEditor({ quiz, quizzes = [], onSave }) {
   const [questionCount, setQuestionCount] = useState(initialQuestionCount);
   const [maxOptions, setMaxOptions] = useState(initialMaxOptions);
   const [activeQuestion, setActiveQuestion] = useState(0);
+  const [qcmPage, setQcmPage] = useState(0);
   const [step, setStep] = useState(() => quiz || preparedQuiz || (linkedVideoId && linkedVideoTitle) ? 2 : 1);
   const initialQuestions = quiz?.questions ?? preparedQuiz?.questions;
   const [questions, setQuestions] = useState(() => initialQuestions?.map(item => ({
@@ -138,9 +141,12 @@ export default function DemoEditor({ quiz, quizzes = [], onSave }) {
   };
   const scrollToQuestion = index => document.getElementById(`progressive-question-${index}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   const progressive = isProgressiveMode(mode);
-  const completeQuestion = item => mode === 'qcm' || Boolean(item?.prompt.trim() && item.options.filter(option => option.trim()).length >= 2 && item.options.filter(option => option.trim()).length <= maxOptions);
+  const completeQuestion = item => Boolean(item?.prompt.trim() && item.options.filter(option => option.trim()).length >= 2 && item.options.filter(option => option.trim()).length <= maxOptions);
   const completeCount = progressive ? questions.filter(completeQuestion).length : questions.length;
   const readyToPlay = !progressive || questions.length === questionCount && questions.every(completeQuestion);
+  const qcmPageCount = Math.ceil(questions.length / QCM_PAGE_SIZE);
+  const qcmPageStart = qcmPage * QCM_PAGE_SIZE;
+  const qcmVisibleQuestions = questions.slice(qcmPageStart, qcmPageStart + QCM_PAGE_SIZE);
   const validateVideoStep = () => {
     if (!title.trim()) {
       setError(t('Donnez un titre à votre quiz.'));
@@ -208,7 +214,7 @@ export default function DemoEditor({ quiz, quizzes = [], onSave }) {
           prompt: item.prompt.trim(),
           type: progressive ? 'multi_choice' : item.type,
           options: item.type === 'text' ? undefined : progressive
-            ? mode === 'qcm' ? Array.from({ length: maxOptions }, (_, index) => item.options[index] ?? '') : readyToPlay ? item.options.filter(option => option.trim()) : Array.from({ length: maxOptions }, (_, index) => item.options[index] ?? '')
+            ? mode === 'qcm' ? item.options.filter(option => option.trim()) : readyToPlay ? item.options.filter(option => option.trim()) : Array.from({ length: maxOptions }, (_, index) => item.options[index] ?? '')
             : options,
           answer: progressive ? undefined : item.type === 'text'
             ? item.answer.trim()
@@ -233,6 +239,7 @@ export default function DemoEditor({ quiz, quizzes = [], onSave }) {
       setQuestionCount(count);
       setQuestions(items => resizeQuestions(items, count, nextMode, maxOptions));
       setActiveQuestion(0);
+      setQcmPage(0);
     } else {
       const preparedQuestions = questions
         .filter(item => item.prompt.trim() || item.options.some(option => option.trim()))
@@ -253,6 +260,7 @@ export default function DemoEditor({ quiz, quizzes = [], onSave }) {
     setQuestionCount(nextCount);
     setQuestions(items => resizeQuestions(items, nextCount, mode, maxOptions));
     setActiveQuestion(index => Math.min(index, nextCount - 1));
+    setQcmPage(0);
   };
   const changeMaxOptions = value => {
     const nextMax = Number(value);
@@ -302,7 +310,7 @@ export default function DemoEditor({ quiz, quizzes = [], onSave }) {
               <label className="editor-mode-option"><input type="radio" name="review-mode" value="progressive" checked={mode === 'progressive'} onChange={() => switchMode('progressive')} /><span><strong>{t('Réviser avec la vidéo')}</strong><small>{t('Répondez, puis corrigez-vous en regardant.')}</small></span></label>
               <details className="editor-advanced-options" open={mode === 'qcm'}>
                 <summary>{t('Autres options')}</summary>
-                <label className="editor-mode-option"><input type="radio" name="review-mode" value="qcm" checked={mode === 'qcm'} onChange={() => switchMode('qcm')} /><span><strong>{t('Mode QCM express')}</strong><small>{t('Remplissez une grille de questions et de réponses.')}</small></span></label>
+                <label className="editor-mode-option"><input type="radio" name="review-mode" value="qcm" checked={mode === 'qcm'} onChange={() => switchMode('qcm')} /><span><strong>{t('Mode QCM express')}</strong><small>{t('Saisissez vos questions et au moins deux choix par ligne.')}</small></span></label>
               </details>
             </div>
             {progressive && <div className="progressive-grid-settings"><label className="answer-field"><span>{t('Nombre de questions')}</span><input aria-label={t('Nombre de questions')} type="number" min="1" value={questionCount} onChange={event => changeQuestionCount(event.target.value)} /></label><label className="answer-field"><span>{t('Options maximum par question')}</span><input aria-label={t('Options maximum par question')} type="number" min="2" max={isNewRoadCodeQuiz ? 4 : undefined} value={maxOptions} onChange={event => changeMaxOptions(event.target.value)} /></label></div>}
@@ -312,7 +320,30 @@ export default function DemoEditor({ quiz, quizzes = [], onSave }) {
               const complete = completeQuestion(item);
               return <button key={slot} type="button" className={`question-slot${slot === activeQuestion ? ' is-active' : ''}${complete ? ' is-complete' : item?.prompt.trim() || item?.options.some(option => option.trim()) ? ' is-started' : ''}`} onClick={() => selectProgressiveQuestion(slot)} aria-label={t(complete ? 'Question {count}, renseignée' : item?.prompt.trim() || item?.options.some(option => option.trim()) ? 'Question {count}, en cours' : 'Question {count}, vide').replace('{count}', slot + 1)}>{String(slot + 1).padStart(2, '0')}</button>;
             })}</div></div>}
-            {mode === 'qcm' ? <div className="qcm-empty-grid" style={{ '--option-count': maxOptions }}><div className="qcm-empty-header"><span>#</span><span>{t('Question dans la vidéo')}</span>{Array.from({ length: maxOptions }, (_, index) => <span key={index}>{formatChoiceLabel(index)}</span>)}</div>{questions.map((item, index) => <div className="qcm-empty-row" key={item.id}><span>{String(index + 1).padStart(2, '0')}</span><span>{t('Question')} {String(index + 1).padStart(2, '0')}</span>{Array.from({ length: maxOptions }, (_, optionIndex) => <span key={optionIndex}>{formatChoiceLabel(optionIndex)}</span>)}</div>)}</div> : <div className="editor-question-list">
+            {mode === 'qcm' && <div className="qcm-grid-toolbar">
+              <div><strong>{t('Questions {start} à {end} sur {total}').replace('{start}', qcmPageStart + 1).replace('{end}', Math.min(qcmPageStart + QCM_PAGE_SIZE, questionCount)).replace('{total}', questionCount)}</strong><span>{completeCount} / {questionCount} {t('questions complètes')}</span><small>{t('Saisissez une question et au moins deux choix par ligne. Le moment est facultatif.')}</small></div>
+              <nav className="qcm-grid-pagination" aria-label={t('Pages de la grille QCM')}>
+                <button type="button" className="icon-action" onClick={() => setQcmPage(page => Math.max(0, page - 1))} disabled={qcmPage === 0} aria-label={t('Page précédente')}><DemoIcon name="arrowLeft" /></button>
+                <span>{t('Page {current} sur {total}').replace('{current}', qcmPage + 1).replace('{total}', qcmPageCount)}</span>
+                <button type="button" className="icon-action" onClick={() => setQcmPage(page => Math.min(qcmPageCount - 1, page + 1))} disabled={qcmPage >= qcmPageCount - 1} aria-label={t('Page suivante')}><DemoIcon name="arrowRight" /></button>
+              </nav>
+            </div>}
+            {mode === 'qcm' && <div className="qcm-bulk-table" style={{ '--option-count': maxOptions }} role="group" aria-label={t('Grille QCM')}>
+              <div className="qcm-bulk-header"><span>#</span><span>{t('Question et moment')}</span>{Array.from({ length: maxOptions }, (_, index) => <span key={index}>{formatChoiceLabel(index)}</span>)}</div>
+              {qcmVisibleQuestions.map((item, visibleIndex) => {
+                const index = qcmPageStart + visibleIndex;
+                const complete = completeQuestion(item);
+                return <div className="qcm-bulk-row" key={item.id}>
+                  <span className={`qcm-row-number${complete ? ' is-complete' : ''}`}>{String(index + 1).padStart(2, '0')}</span>
+                  <div className="qcm-question-cell">
+                    <CFormInput aria-label={t('Question {count}').replace('{count}', index + 1)} value={item.prompt} onChange={event => updateQuestion(item.id, { prompt: event.target.value })} placeholder={t('Écrivez la question')} />
+                    <CFormInput aria-label={t('Moment de la question {count}').replace('{count}', index + 1)} type="text" inputMode="numeric" value={toTimestamp(item.at)} onChange={event => updateQuestion(item.id, { at: toSeconds(event.target.value) })} />
+                  </div>
+                  {Array.from({ length: maxOptions }, (_, optionIndex) => <CFormInput key={optionIndex} aria-label={t('Question {count}, choix {choice}').replace('{count}', index + 1).replace('{choice}', formatChoiceLabel(optionIndex))} value={item.options[optionIndex] ?? ''} onChange={event => updateAnswerOption(item, optionIndex, event.target.value)} placeholder={formatChoiceLabel(optionIndex)} />)}
+                </div>;
+              })}
+            </div>}
+            {mode !== 'qcm' && <div className="editor-question-list">
               {(mode === 'progressive' ? [questions[activeQuestion]] : mode === 'prepared' ? questions.slice(activeQuestion, activeQuestion + 1) : questions).map((item, visibleIndex) => {
                 const index = mode === 'progressive' || mode === 'prepared' ? activeQuestion : visibleIndex;
                 return <article id={mode === 'progressive' ? `progressive-question-${index}` : undefined} className="editor-question" key={item.id}>
@@ -368,7 +399,7 @@ export default function DemoEditor({ quiz, quizzes = [], onSave }) {
         <div className="editor-submit">
           <Link className="btn btn-outline-secondary button button-quiet" to="/">{t('Annuler')}</Link>
           {step === 2 && <CButton type="button" className="button button-quiet" color="light" onClick={() => { setError(''); setStep(1); }}>{t('Retour')}</CButton>}
-          <CButton type="submit" className="button button-dark" color="success">{t(step === 1 ? 'Continuer' : mode === 'qcm' ? 'Créer et lancer le QCM' : progressive ? readyToPlay ? 'Enregistrer et réviser' : 'Enregistrer le brouillon' : quiz ? 'Enregistrer les changements' : 'Enregistrer et essayer')} <DemoIcon name="arrowRight" /></CButton>
+          <CButton type="submit" className="button button-dark" color="success">{t(step === 1 ? 'Continuer' : mode === 'qcm' ? readyToPlay ? 'Créer et lancer le QCM' : 'Enregistrer le brouillon' : progressive ? readyToPlay ? 'Enregistrer et réviser' : 'Enregistrer le brouillon' : quiz ? 'Enregistrer les changements' : 'Enregistrer et essayer')} <DemoIcon name="arrowRight" /></CButton>
         </div>
       </form>
     </main>
