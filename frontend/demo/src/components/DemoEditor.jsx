@@ -143,7 +143,14 @@ export default function DemoEditor({ quiz, quizzes = [], onSave }) {
   const progressive = isProgressiveMode(mode);
   const completeQuestion = item => Boolean(item?.prompt.trim() && item.options.filter(option => option.trim()).length >= 2 && item.options.filter(option => option.trim()).length <= maxOptions);
   const completeCount = progressive ? questions.filter(completeQuestion).length : questions.length;
-  const readyToPlay = !progressive || questions.length === questionCount && questions.every(completeQuestion);
+  const readyToPlay = mode === 'qcm' || !progressive || questions.length === questionCount && questions.every(completeQuestion);
+  const submitLabel = t(step === 1
+    ? 'Continuer'
+    : mode === 'qcm'
+      ? readyToPlay ? 'Créer et lancer le QCM' : 'Enregistrer le brouillon'
+      : progressive
+        ? readyToPlay ? 'Enregistrer et réviser' : 'Enregistrer le brouillon'
+        : quiz ? 'Enregistrer les changements' : 'Enregistrer et essayer');
   const qcmPageCount = Math.ceil(questions.length / QCM_PAGE_SIZE);
   const qcmPageStart = qcmPage * QCM_PAGE_SIZE;
   const qcmVisibleQuestions = questions.slice(qcmPageStart, qcmPageStart + QCM_PAGE_SIZE);
@@ -205,7 +212,7 @@ export default function DemoEditor({ quiz, quizzes = [], onSave }) {
       local: true,
       mode, questionCount: progressive ? questionCount : questions.length,
       maxOptions: progressive ? maxOptions : undefined,
-      draft: progressive && !readyToPlay,
+      draft: mode !== 'qcm' && progressive && !readyToPlay,
       questions: questions.map(item => {
         const originalIndexes = item.options.map((option, index) => option.trim() ? index : -1).filter(index => index >= 0);
         const options = originalIndexes.map(index => item.options[index]);
@@ -214,7 +221,7 @@ export default function DemoEditor({ quiz, quizzes = [], onSave }) {
           prompt: item.prompt.trim(),
           type: progressive ? 'multi_choice' : item.type,
           options: item.type === 'text' ? undefined : progressive
-            ? mode === 'qcm' ? item.options.filter(option => option.trim()) : readyToPlay ? item.options.filter(option => option.trim()) : Array.from({ length: maxOptions }, (_, index) => item.options[index] ?? '')
+            ? mode === 'qcm' ? Array.from({ length: maxOptions }, (_, index) => item.options[index] ?? '') : readyToPlay ? item.options.filter(option => option.trim()) : Array.from({ length: maxOptions }, (_, index) => item.options[index] ?? '')
             : options,
           answer: progressive ? undefined : item.type === 'text'
             ? item.answer.trim()
@@ -296,8 +303,8 @@ export default function DemoEditor({ quiz, quizzes = [], onSave }) {
             <div className="editor-video-summary-row">
               {video && <VideoThumbnail className="editor-video-thumbnail" video={video} alt={t('Aperçu vidéo : {title}').replace('{title}', title)} loading="eager" />}
               <div><span className="eyebrow">{t('VIDÉO CHOISIE')}</span><strong>{title}</strong><small>{video ? getVideoProviderLabel(video.provider) : ''}</small></div>
-              {video && <button type="button" className="editor-video-preview-toggle" aria-expanded={showSelectedVideoPreview} onClick={() => setShowSelectedVideoPreview(value => !value)}>{t(showSelectedVideoPreview ? 'Masquer l’aperçu' : 'Voir l’aperçu')}</button>}
-              <button type="button" className="editor-change-video" onClick={() => { setError(''); setShowSelectedVideoPreview(false); setStep(1); }}>{t('Modifier')}</button>
+              {video && <button type="button" className="editor-video-preview-toggle" title={t(showSelectedVideoPreview ? 'Masquer l’aperçu' : 'Voir l’aperçu')} aria-expanded={showSelectedVideoPreview} onClick={() => setShowSelectedVideoPreview(value => !value)}>{t(showSelectedVideoPreview ? 'Masquer l’aperçu' : 'Voir l’aperçu')}</button>}
+              <button type="button" className="editor-change-video" title={t('Modifier')} onClick={() => { setError(''); setShowSelectedVideoPreview(false); setStep(1); }}>{t('Modifier')}</button>
             </div>
             {showSelectedVideoPreview && video && <div className="editor-video-summary-player"><div className={`video-shell${video.provider === 'tiktok' ? ' is-tiktok' : ''}`}><VideoPlayer video={video} title={t('Aperçu vidéo : {title}').replace('{title}', title)} /></div></div>}
           </CCard>
@@ -346,7 +353,7 @@ export default function DemoEditor({ quiz, quizzes = [], onSave }) {
             {mode !== 'qcm' && <div className="editor-question-list">
               {(mode === 'progressive' ? [questions[activeQuestion]] : mode === 'prepared' ? questions.slice(activeQuestion, activeQuestion + 1) : questions).map((item, visibleIndex) => {
                 const index = mode === 'progressive' || mode === 'prepared' ? activeQuestion : visibleIndex;
-                return <article id={mode === 'progressive' ? `progressive-question-${index}` : undefined} className="editor-question" key={item.id}>
+                return <article id={mode === 'progressive' ? `progressive-question-${index}` : undefined} className={`editor-question${mode === 'progressive' ? ' is-progressive' : ''}`} key={item.id}>
                 <div className="editor-question-top"><span className="eyebrow">{t('QUESTION')} {String(index + 1).padStart(2, '0')}</span>{mode === 'prepared' && questions.length > 1 && <button className="remove-question" type="button" onClick={() => removeQuestion(item.id)} aria-label={t('Supprimer la question {count}').replace('{count}', index + 1)}><DemoIcon name="trash" /></button>}</div>
                 <label className="answer-field"><span>{t('Question')}</span><CFormInput value={item.prompt} onChange={event => updateQuestion(item.id, { prompt: event.target.value })} placeholder={t('Que voulez-vous faire retenir ?')} /></label>
                 <div className="editor-inline-fields">
@@ -397,9 +404,9 @@ export default function DemoEditor({ quiz, quizzes = [], onSave }) {
         </>}
         {error && <CAlert color="danger" role="alert" className="editor-error">{error}{conflictingQuiz && <div><Link to={conflictingQuiz.local ? `/edit/${conflictingQuiz.id}` : `/quiz/${conflictingQuiz.id}`}>{t(conflictingQuiz.local ? 'Modifier ce quiz' : 'Ouvrir ce quiz')}</Link></div>}</CAlert>}
         <div className="editor-submit">
-          <Link className="btn btn-outline-secondary button button-quiet" to="/">{t('Annuler')}</Link>
-          {step === 2 && <CButton type="button" className="button button-quiet" color="light" onClick={() => { setError(''); setStep(1); }}>{t('Retour')}</CButton>}
-          <CButton type="submit" className="button button-dark" color="success">{t(step === 1 ? 'Continuer' : mode === 'qcm' ? readyToPlay ? 'Créer et lancer le QCM' : 'Enregistrer le brouillon' : progressive ? readyToPlay ? 'Enregistrer et réviser' : 'Enregistrer le brouillon' : quiz ? 'Enregistrer les changements' : 'Enregistrer et essayer')} <DemoIcon name="arrowRight" /></CButton>
+          <Link className="btn btn-outline-secondary button button-quiet" to="/" title={t('Annuler')}><span className="editor-submit-label">{t('Annuler')}</span></Link>
+          {step === 2 && <CButton type="button" className="button button-quiet" color="light" title={t('Retour')} onClick={() => { setError(''); setStep(1); }}><span className="editor-submit-label">{t('Retour')}</span></CButton>}
+          <CButton type="submit" className="button button-dark" color="success" title={submitLabel}><span className="editor-submit-label">{submitLabel}</span><DemoIcon name="arrowRight" /></CButton>
         </div>
       </form>
     </main>

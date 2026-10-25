@@ -38,7 +38,7 @@ export default function RoadCodeVideosPage({ quizzes }) {
         label: theme,
         count: videoLibrary.filter(video => video.theme === theme).length,
       }))
-      .sort((left, right) => left.label.localeCompare(right.label, 'fr')),
+      .sort((left, right) => right.count - left.count || left.label.localeCompare(right.label, 'fr')),
   ];
   useEffect(() => {
     const toolbar = themeToolbar.current;

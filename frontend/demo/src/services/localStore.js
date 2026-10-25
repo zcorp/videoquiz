@@ -402,7 +402,7 @@ export const getLocalQuizzes = () => {
   const quizzes = readList(QUIZ_KEY);
   const normalized = quizzes.map(quiz => {
     if (quiz.mode !== 'qcm') return quiz;
-    const draft = !isCompleteQcm(quiz);
+    const draft = quiz.draft === true && !isCompleteQcm(quiz);
     return quiz.draft === draft ? quiz : { ...quiz, draft };
   });
   if (normalized.some((quiz, index) => quiz !== quizzes[index])) writeList(QUIZ_KEY, normalized);

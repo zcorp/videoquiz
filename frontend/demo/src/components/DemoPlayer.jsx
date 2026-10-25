@@ -97,7 +97,11 @@ export default function DemoPlayer({ quizzes, onAttempt, onTrack }) {
   const didComplete = useRef(false);
   const activeSession = useRef(false);
   const trackedQuizId = useRef(null);
+  const videoColumn = useRef(null);
   const questionHeading = useRef(null);
+  const answerPhase = useRef(null);
+  const correctionPhase = useRef(null);
+  const phaseToScroll = useRef(null);
   const previousQuestion = useRef(current);
   const questionAt = quiz?.questions[current]?.at ?? 0;
   const conflictingQuiz = quiz?.local ? getQuizUsingVideo(video, quizzes, quiz.id) : undefined;
@@ -149,6 +153,35 @@ export default function DemoPlayer({ quizzes, onAttempt, onTrack }) {
     if (previousQuestion.current !== current) questionHeading.current?.focus({ preventScroll: true });
     previousQuestion.current = current;
   }, [current]);
+
+  useEffect(() => {
+    const phase = phaseToScroll.current;
+    if (!phase) return undefined;
+    phaseToScroll.current = null;
+    if (!window.matchMedia('(max-width: 900px)').matches) return undefined;
+    const frame = requestAnimationFrame(() => {
+      const video = videoColumn.current;
+      const target = phase === 'correction' ? correctionPhase.current : answerPhase.current;
+      if (!video || !target) return;
+      const stickyTop = Number.parseFloat(window.getComputedStyle(video).top) || 0;
+      const videoHeight = video.getBoundingClientRect().height;
+      const scrollOffset = Math.ceil(stickyTop + videoHeight + 12);
+      const targetTop = target.getBoundingClientRect().top + window.scrollY;
+      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+      const extraSpace = Math.ceil(targetTop - scrollOffset - maxScroll);
+      if (extraSpace > 0) {
+        const page = video.closest('.player-page');
+        const currentPadding = Number.parseFloat(window.getComputedStyle(page).paddingBottom) || 0;
+        page.style.paddingBottom = `${currentPadding + extraSpace}px`;
+      }
+      target.style.scrollMarginTop = `${scrollOffset}px`;
+      target.scrollIntoView({
+        behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+        block: 'start',
+      });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [answerSubmitted, current, reviewMode]);
 
   if (!quiz) return <main className="demo-page"><div className="empty-state"><span>404</span><h1>{t('Quiz introuvable')}</h1><Link className="button button-dark" to="/">{t('Revenir aux quiz')}</Link></div></main>;
   if (progressLoadedQuizId !== quizId) return <main className="demo-page player-page" role="status">{t('Chargement de votre quiz…')}</main>;
@@ -205,6 +238,7 @@ export default function DemoPlayer({ quizzes, onAttempt, onTrack }) {
   };
   const next = () => {
     if (progressive && !answerSubmitted) {
+      phaseToScroll.current = 'correction';
       setAnswerSubmitted(true);
       return;
     }
@@ -216,6 +250,7 @@ export default function DemoPlayer({ quizzes, onAttempt, onTrack }) {
       finish();
       return;
     }
+    if (progressive) phaseToScroll.current = 'answer';
     setCurrent(index => index + 1);
     setAnswerSubmitted(false);
     setCorrectionShown(false);
@@ -265,7 +300,7 @@ export default function DemoPlayer({ quizzes, onAttempt, onTrack }) {
         <>
           <header className="player-title-row"><div><h1>{reviewingAnswers ? t('Revoir vos réponses.') : quiz.title}</h1><p>{reviewingAnswers ? t('Mode lecture : vos réponses et auto-corrections ne peuvent plus être modifiées.') : quiz.description}</p></div><CBadge className="question-counter" color="success">{String(current + 1).padStart(2, '0')} <span>/ {String(quiz.questions.length).padStart(2, '0')}</span></CBadge></header>
           <div className="player-grid">
-            <section className="video-column" aria-label={t('Vidéo de cours')}>
+            <section ref={videoColumn} className="video-column" aria-label={t('Vidéo de cours')}>
               {showVideo ? <><div className={`video-shell${video?.provider === 'tiktok' ? ' is-tiktok' : ''}`}><VideoPlayer key={`${video?.provider}:${video?.id}:${video?.hash ?? ''}`} video={video} startAt={questionAt} title={`${t('Vidéo :')} ${quiz.videoLabel}, ${t('à')} ${formatTime(question.at)}`} /></div>{video && video.provider !== 'youtube' && <a className="video-source-link" href={getVideoPageUrl(video)} target="_blank" rel="noreferrer">{t('Ouvrir sur {provider}').replace('{provider}', getVideoProviderLabel(video.provider))} ↗</a>}</> : <div className="video-disabled"><span>{t('Vidéo masquée')}</span><button className="text-action" onClick={() => setShowVideo(true)}>{t('Afficher')}</button></div>}
               <div className="video-caption"><span>{reviewingAnswers ? t('REVOYEZ LES PASSAGES À VOTRE RYTHME') : t('REGARDEZ, PUIS RÉPONDEZ')}</span><button onClick={() => setShowVideo(value => !value)}>{t(showVideo ? 'Masquer la vidéo' : 'Afficher la vidéo')}</button></div>
               {(!quiz.exam && !progressive || reviewingAnswers) && <div className="chapter-list"><span className="eyebrow">LES ARRÊTS DU QUIZ</span>{quiz.questions.map((item, index) => {
@@ -280,7 +315,7 @@ export default function DemoPlayer({ quizzes, onAttempt, onTrack }) {
               {progressive && question.type === 'multi_choice' ? (
                 <div className="progressive-answer-grid">
                   {[{ title: t('Ma réponse'), value: reviewingAnswers ? reviewItem.givenAnswer : value, onPick: selectOption, className: 'learner-grid' }, ...(answerSubmitted || reviewingAnswers ? [{ title: t('Auto-correction d’après la vidéo'), value: reviewingAnswers ? reviewItem.correctAnswer : keyValue, onPick: selectSelfKey, className: 'key-grid' }] : [])].map(grid => (
-                    <div className={`progressive-grid ${grid.className}`} key={grid.className} role="group" aria-label={grid.title}>
+                    <div ref={grid.className === 'learner-grid' ? answerPhase : correctionPhase} className={`progressive-grid ${grid.className}`} key={grid.className} role="group" aria-label={grid.title}>
                       <h3>{grid.title}</h3>
                       {question.options.map((option, index) => {
                         const selected = (grid.value ?? []).includes(index);
@@ -301,8 +336,8 @@ export default function DemoPlayer({ quizzes, onAttempt, onTrack }) {
                 </div>
               ) : progressive && question.type === 'text' ? (
                 <div className="progressive-answer-grid">
-                  <label className={`answer-field${reviewingAnswers ? reviewItem.correct ? ' is-review-correct' : ' is-review-wrong' : ''}`}><span>{t('Ma réponse')}</span><CFormInput autoComplete="off" value={reviewingAnswers ? reviewItem.givenAnswer || '' : value || ''} onChange={event => setAnswers(state => ({ ...state, [question.id]: event.target.value }))} placeholder={t('Écrivez ce que vous retenez…')} disabled={reviewingAnswers || answerSubmitted || correctionShown} /></label>
-                  {(answerSubmitted || reviewingAnswers) && <label className={`answer-field${reviewingAnswers ? ' is-review-correction' : ''}`}><span>{t('Auto-correction d’après la vidéo')}</span><CFormInput autoComplete="off" value={reviewingAnswers ? reviewItem.correctAnswer || '' : keyValue || ''} onChange={event => updateSelfKeyText(event.target.value)} placeholder={t('Complétez après avoir regardé…')} disabled={reviewingAnswers || correctionShown} /></label>}
+                  <label ref={answerPhase} className={`answer-field${reviewingAnswers ? reviewItem.correct ? ' is-review-correct' : ' is-review-wrong' : ''}`}><span>{t('Ma réponse')}</span><CFormInput autoComplete="off" value={reviewingAnswers ? reviewItem.givenAnswer || '' : value || ''} onChange={event => setAnswers(state => ({ ...state, [question.id]: event.target.value }))} placeholder={t('Écrivez ce que vous retenez…')} disabled={reviewingAnswers || answerSubmitted || correctionShown} /></label>
+                  {(answerSubmitted || reviewingAnswers) && <label ref={correctionPhase} className={`answer-field${reviewingAnswers ? ' is-review-correction' : ''}`}><span>{t('Auto-correction d’après la vidéo')}</span><CFormInput autoComplete="off" value={reviewingAnswers ? reviewItem.correctAnswer || '' : keyValue || ''} onChange={event => updateSelfKeyText(event.target.value)} placeholder={t('Complétez après avoir regardé…')} disabled={reviewingAnswers || correctionShown} /></label>}
                 </div>
               ) : reviewingAnswers && question.type === 'text' ? (
                 <div className="progressive-answer-grid">
@@ -342,7 +377,7 @@ export default function DemoPlayer({ quizzes, onAttempt, onTrack }) {
                 </>
               ) : (
                 <>
-                  <div className="question-actions"><button className="button button-quiet" onClick={() => { if (current > 0) { setCurrent(index => index - 1); setAnswerSubmitted(false); setCorrectionShown(false); } }} disabled={quiz.exam || current === 0}><DemoIcon name="arrowLeft" /> {t('Précédent')}</button><button className="button button-dark" onClick={next} disabled={!isAnswered}>{t(quiz.exam ? correctionShown ? current === quiz.questions.length - 1 ? 'Voir mon résultat' : 'Question suivante' : 'Voir la correction' : progressive ? !answerSubmitted ? 'Valider ma réponse' : !isKeyFilled ? 'Valider ma correction' : current === quiz.questions.length - 1 ? 'Voir mon résultat' : 'Question suivante' : current === quiz.questions.length - 1 ? 'Voir mon résultat' : 'Question suivante')} <DemoIcon name="arrowRight" /></button></div>
+                  <div className="question-actions"><button className="button button-quiet" onClick={() => { if (current > 0) { if (progressive) phaseToScroll.current = 'answer'; setCurrent(index => index - 1); setAnswerSubmitted(false); setCorrectionShown(false); } }} disabled={quiz.exam || current === 0}><DemoIcon name="arrowLeft" /> {t('Précédent')}</button><button className="button button-dark" onClick={next} disabled={!isAnswered}>{t(quiz.exam ? correctionShown ? current === quiz.questions.length - 1 ? 'Voir mon résultat' : 'Question suivante' : 'Voir la correction' : progressive ? !answerSubmitted ? 'Valider ma réponse' : !isKeyFilled ? 'Valider ma correction' : current === quiz.questions.length - 1 ? 'Voir mon résultat' : 'Question suivante' : current === quiz.questions.length - 1 ? 'Voir mon résultat' : 'Question suivante')} <DemoIcon name="arrowRight" /></button></div>
                   {progressive && <p className={`correction-save-status${storageWarning ? ' is-warning' : ''}`} aria-live="polite">{storageWarning ? t('Impossible d’enregistrer la correction dans ce navigateur.') : t('Corrections mémorisées sur cet appareil : {saved}/{total}.').replace('{saved}', savedCorrectionCount).replace('{total}', quiz.questions.length)}</p>}
                   {(quiz.exam || progressive) && <div className="exam-progress"><span>{t('Question')} <strong>{current + 1} / {quiz.questions.length}</strong></span><span><strong>{completedQuestionCount}</strong> {t(completedQuestionCount === 1 ? 'complétée' : 'complétées')}</span></div>}
                 </>
