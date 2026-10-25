@@ -48,6 +48,7 @@ const englishTranslations = {
   'Aperçu vidéo : {title}': 'Video preview: {title}',
   'Voir l’aperçu': 'Show preview',
   'Masquer l’aperçu': 'Hide preview',
+  'Détails sur les données et les vidéos': 'Data and video details',
   'LE PARCOURS EN 4 TEMPS': 'THE 4-STEP JOURNEY',
   'Du visionnage à la progression.': 'From watching to making progress.',
   'Choisis une vidéo, prépare ta grille, entraîne-toi et retrouve tes résultats.': 'Choose a video, prepare your answer grid, practise, and review your results.',

@@ -79,23 +79,26 @@ export default function HelpPage({ onOpenAnalyticsPreferences }) {
         <Link className="help-inline-cta" to="/">{t('Un quiz vous attend')} <span>{t('Commencer à explorer')} <DemoIcon name="arrowRight" /></span></Link>
       </section>
 
-      <section className="help-info-grid" aria-label={t('Données et vidéos')}>
-        <article>
-          <span className="eyebrow">{t('VOTRE ESPACE')}</span>
-          <h2>{t('Vous gardez la main.')}</h2>
-          <p>{t('Dans cette démo, vos quiz créés, résultats et reprises sont conservés dans le stockage local de ce navigateur. Ils ne sont pas synchronisés entre appareils et aucun compte n’est nécessaire.')}</p>
-          <p>{t('Pour transférer ou conserver vos données, utilisez la sauvegarde et la restauration depuis le dashboard. Effacer les données du navigateur peut supprimer les éléments enregistrés ici.')}</p>
-          <Link to="/dashboard">{t('Sauvegarder ou retrouver mes données')} <DemoIcon name="arrowRight" /></Link>
-        </article>
-        <article>
-          <span className="eyebrow">{t('TRANSPARENCE')}</span>
-          <h2>{t('La vidéo reste chez sa plateforme.')}</h2>
-          <p>{t('Les vidéos YouTube, Vimeo, Dailymotion, RUTUBE et TikTok sont intégrées depuis leur plateforme. Leur disponibilité et leur lecture dépendent de celle-ci et des réglages de la personne qui les a publiées.')}</p>
-          <p>{t('La mesure d’audience est soumise à votre choix. Les réponses aux quiz et les contenus que vous saisissez ne sont pas envoyés à Google Analytics.')}</p>
-          <button type="button" onClick={onOpenAnalyticsPreferences}>{t('Préférences Analytics')}</button>
-          <p className="help-contact">{t('Une question ?')} <a href="mailto:contact@videoquiz.fr">{t('Écrivez-nous à contact@videoquiz.fr')}</a></p>
-        </article>
-      </section>
+      <details className="help-info-disclosure">
+        <summary>{t('Détails sur les données et les vidéos')}</summary>
+        <section className="help-info-grid" aria-label={t('Données et vidéos')}>
+          <article>
+            <span className="eyebrow">{t('VOTRE ESPACE')}</span>
+            <h2>{t('Vous gardez la main.')}</h2>
+            <p>{t('Dans cette démo, vos quiz créés, résultats et reprises sont conservés dans le stockage local de ce navigateur. Ils ne sont pas synchronisés entre appareils et aucun compte n’est nécessaire.')}</p>
+            <p>{t('Pour transférer ou conserver vos données, utilisez la sauvegarde et la restauration depuis le dashboard. Effacer les données du navigateur peut supprimer les éléments enregistrés ici.')}</p>
+            <Link to="/dashboard">{t('Sauvegarder ou retrouver mes données')} <DemoIcon name="arrowRight" /></Link>
+          </article>
+          <article>
+            <span className="eyebrow">{t('TRANSPARENCE')}</span>
+            <h2>{t('La vidéo reste chez sa plateforme.')}</h2>
+            <p>{t('Les vidéos YouTube, Vimeo, Dailymotion, RUTUBE et TikTok sont intégrées depuis leur plateforme. Leur disponibilité et leur lecture dépendent de celle-ci et des réglages de la personne qui les a publiées.')}</p>
+            <p>{t('La mesure d’audience est soumise à votre choix. Les réponses aux quiz et les contenus que vous saisissez ne sont pas envoyés à Google Analytics.')}</p>
+            <button type="button" onClick={onOpenAnalyticsPreferences}>{t('Préférences Analytics')}</button>
+            <p className="help-contact">{t('Une question ?')} <a href="mailto:contact@videoquiz.fr">{t('Écrivez-nous à contact@videoquiz.fr')}</a></p>
+          </article>
+        </section>
+      </details>
 
       <section className="help-faq" aria-labelledby="help-faq-title">
         <div className="help-section-heading">

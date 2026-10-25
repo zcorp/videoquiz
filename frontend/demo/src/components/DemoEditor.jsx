@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { CAlert, CBadge, CButton, CCard, CFormInput, CFormSelect, CFormTextarea } from '@coreui/react';
-import { formatChoiceLabel, formatTime } from '../data/demoQuizzes.js';
+import { formatChoiceLabel } from '../data/demoQuizzes.js';
 import { getApprovedPreparedQuiz } from '../data/preparedQuizzes/catalog.js';
 import { getQuizUsingVideo } from '../services/localStore.js';
 import { getQuizVideo, getVideoPageUrl, getVideoProviderLabel, getVideoReference } from '../services/video.js';
@@ -107,7 +107,6 @@ export default function DemoEditor({ quiz, quizzes = [], onSave }) {
     ...emptyQuestion(initialMode),
     options: Array(isProgressiveMode(initialMode) ? initialMaxOptions : 2).fill(''),
   })));
-  const [previewAt, setPreviewAt] = useState(() => initialQuestions?.[0]?.at ?? 0);
   const [error, setError] = useState('');
   const video = getVideoReference(videoUrl);
   const conflictingQuiz = getQuizUsingVideo(video, quizzes, quiz?.id);
@@ -172,13 +171,11 @@ export default function DemoEditor({ quiz, quizzes = [], onSave }) {
   };
   const selectProgressiveQuestion = index => {
     setActiveQuestion(index);
-    setPreviewAt(questions[index]?.at ?? 0);
     requestAnimationFrame(() => scrollToQuestion(index));
   };
   const selectQuestion = index => {
     const boundedIndex = Math.max(0, Math.min(index, questions.length - 1));
     setActiveQuestion(boundedIndex);
-    setPreviewAt(questions[boundedIndex]?.at ?? 0);
   };
   const removeQuestion = id => {
     const index = questions.findIndex(item => item.id === id);
@@ -322,7 +319,7 @@ export default function DemoEditor({ quiz, quizzes = [], onSave }) {
                 <div className="editor-question-top"><span className="eyebrow">{t('QUESTION')} {String(index + 1).padStart(2, '0')}</span>{mode === 'prepared' && questions.length > 1 && <button className="remove-question" type="button" onClick={() => removeQuestion(item.id)} aria-label={t('Supprimer la question {count}').replace('{count}', index + 1)}><DemoIcon name="trash" /></button>}</div>
                 <label className="answer-field"><span>{t('Question')}</span><CFormInput value={item.prompt} onChange={event => updateQuestion(item.id, { prompt: event.target.value })} placeholder={t('Que voulez-vous faire retenir ?')} /></label>
                 <div className="editor-inline-fields">
-                  <label className="answer-field"><span>{t('Moment dans la vidéo')}</span><CFormInput type="text" inputMode="numeric" value={toTimestamp(item.at)} onChange={event => { const at = toSeconds(event.target.value); updateQuestion(item.id, { at }); setPreviewAt(at); }} aria-label={t('Moment dans la vidéo, minutes et secondes')} /></label>
+                  <label className="answer-field"><span>{t('Moment dans la vidéo')}</span><CFormInput type="text" inputMode="numeric" value={toTimestamp(item.at)} onChange={event => { const at = toSeconds(event.target.value); updateQuestion(item.id, { at }); }} aria-label={t('Moment dans la vidéo, minutes et secondes')} /></label>
                   {mode === 'prepared' && <label className="answer-field"><span>{t('Format de réponse')}</span><CFormSelect value={item.type} onChange={event => { const type = event.target.value; updateQuestion(item.id, { type, answer: type === 'choice' ? null : type === 'multi_choice' ? [] : '' }); }}><option value="choice">{t('Une seule bonne réponse')}</option><option value="multi_choice">{t('Plusieurs bonnes réponses')}</option><option value="text">{t('Réponse courte')}</option></CFormSelect></label>}
                 </div>
                 {item.type !== 'text' ? mode === 'prepared'
@@ -364,7 +361,6 @@ export default function DemoEditor({ quiz, quizzes = [], onSave }) {
               })}
             </div>}
             {mode === 'prepared' && <div className="question-add-row"><button type="button" className="add-question" onClick={() => { setQuestions(items => [...items, emptyQuestion(mode)]); setActiveQuestion(questions.length); }}><span><DemoIcon name="plus" /></span> {t('Ajouter une question')}</button><span>{questions.length}</span></div>}
-            {progressive && video && <div className="editor-video-preview"><div><span className="eyebrow">{t('APERÇU DE LA VIDÉO')}</span><span className="preview-time">{t('Départ à')} {formatTime(previewAt)}</span></div><div className={`video-shell${video.provider === 'tiktok' ? ' is-tiktok' : ''}`}><VideoPlayer key={`${video.provider}:${video.id}:${video.hash ?? ''}`} video={video} startAt={previewAt} title={`${t('Aperçu vidéo à')} ${formatTime(previewAt)}`} /></div>{video.provider !== 'youtube' && <a className="video-source-link" href={getVideoPageUrl(video)} target="_blank" rel="noreferrer">{t('Ouvrir sur {provider}').replace('{provider}', getVideoProviderLabel(video.provider))} ↗</a>}</div>}
           </div>
         </CCard>
         </>}
