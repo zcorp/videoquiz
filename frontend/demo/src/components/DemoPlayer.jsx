@@ -167,6 +167,24 @@ export default function DemoPlayer({ quizzes, onAttempt, onTrack }) {
   const isAnswered = progressive
     ? isAnswerFilled && (!answerSubmitted || isKeyFilled)
     : isAnswerFilled;
+  const questionHint = reviewingAnswers
+    ? t('Comparez votre réponse et votre correction.')
+    : progressive
+      ? answerSubmitted
+        ? t('Regardez la vidéo et indiquez votre correction.')
+        : t(question.type === 'text'
+          ? 'Répondez avec vos mots. Vous vous corrigerez après.'
+          : 'Choisissez une ou plusieurs réponses. Vous vous corrigerez après.')
+      : question.type === 'text'
+        ? t('Répondez en quelques mots.')
+        : question.type === 'multi_choice'
+          ? t('Une ou plusieurs réponses possibles.')
+          : t('Choisissez la réponse qui vous semble juste.');
+  const questionStep = reviewingAnswers
+    ? `${t('MODE LECTURE · QUESTION')} ${String(current + 1).padStart(2, '0')}`
+    : progressive
+      ? t(answerSubmitted ? 'ÉTAPE 2 · VOTRE CORRECTION' : 'ÉTAPE 1 · VOTRE RÉPONSE')
+      : `${t('QUESTION')} ${String(current + 1).padStart(2, '0')}`;
   const savedCorrectionCount = quiz.questions.filter(item => (
     hasAnswer(item, selfKeys[item.id])
   )).length;
@@ -256,9 +274,9 @@ export default function DemoPlayer({ quizzes, onAttempt, onTrack }) {
               })}</div>}
             </section>
             <CCard key={current} className="question-column" role="region" aria-labelledby="quiz-question-title" aria-live="polite">
-              <div className="question-card-head"><span className="eyebrow">{reviewingAnswers ? `${t('MODE LECTURE · QUESTION')} ${String(current + 1).padStart(2, '0')}` : `${t('QUESTION')} ${String(current + 1).padStart(2, '0')}`}</span><span className={`time-chip${reviewingAnswers ? reviewItem.correct ? ' is-review-correct' : ' is-review-wrong' : ''}`}><DemoIcon name="mediaPlay" /> {formatTime(question.at)}{reviewingAnswers && <> · {t(reviewItem.correct ? 'Concordante' : 'À revoir')}</>}</span></div>
+              <div className="question-card-head"><span className="eyebrow">{questionStep}</span><span className={`time-chip${reviewingAnswers ? reviewItem.correct ? ' is-review-correct' : ' is-review-wrong' : ''}`}><DemoIcon name="mediaPlay" /> {formatTime(question.at)}{reviewingAnswers && <> · {t(progressive ? reviewItem.correct ? 'Correspondance' : 'Différence' : reviewItem.correct ? 'Concordante' : 'À revoir')}</>}</span></div>
               <h2 ref={questionHeading} id="quiz-question-title" tabIndex={-1}>{questionPrompt}</h2>
-              <p className="question-hint">{reviewingAnswers ? t('Comparez votre réponse initiale avec votre auto-correction.') : question.type === 'text' ? t('Répondez en quelques mots.') : question.type === 'multi_choice' ? t('Une ou plusieurs réponses possibles.') : t('Choisissez la réponse qui vous semble juste.')}</p>
+              <p className="question-hint">{questionHint}</p>
               {progressive && question.type === 'multi_choice' ? (
                 <div className="progressive-answer-grid">
                   {[{ title: t('Ma réponse'), value: reviewingAnswers ? reviewItem.givenAnswer : value, onPick: selectOption, className: 'learner-grid' }, ...(answerSubmitted || reviewingAnswers ? [{ title: t('Auto-correction d’après la vidéo'), value: reviewingAnswers ? reviewItem.correctAnswer : keyValue, onPick: selectSelfKey, className: 'key-grid' }] : [])].map(grid => (
@@ -319,12 +337,12 @@ export default function DemoPlayer({ quizzes, onAttempt, onTrack }) {
               )}
               {reviewingAnswers ? (
                 <>
-                  {question.explanation && <div className={`instant-feedback${reviewItem.correct ? '' : ' is-wrong'}`}><strong>{t(reviewItem.correct ? 'Grilles concordantes' : 'Grilles différentes')}</strong><p>{question.explanation}</p></div>}
+                  {question.explanation && <div className={`instant-feedback${reviewItem.correct ? '' : ' is-wrong'}`}><strong>{t(progressive ? reviewItem.correct ? 'Vos réponses correspondent.' : 'Vos réponses ne correspondent pas.' : reviewItem.correct ? 'Grilles concordantes' : 'Grilles différentes')}</strong><p>{question.explanation}</p></div>}
                   <div className="question-actions review-navigation"><button type="button" className="button button-quiet" onClick={() => setCurrent(index => Math.max(0, index - 1))} disabled={current === 0}><DemoIcon name="arrowLeft" /> {t('Précédente')}</button><button type="button" className="button button-dark" onClick={() => { if (current === quiz.questions.length - 1) setReviewMode(false); else setCurrent(index => index + 1); }}>{t(current === quiz.questions.length - 1 ? 'Retour au résultat' : 'Question suivante')} <DemoIcon name="arrowRight" /></button></div>
                 </>
               ) : (
                 <>
-                  <div className="question-actions"><button className="button button-quiet" onClick={() => { if (current > 0) { setCurrent(index => index - 1); setAnswerSubmitted(false); setCorrectionShown(false); } }} disabled={quiz.exam || current === 0}><DemoIcon name="arrowLeft" /> {t('Précédent')}</button><button className="button button-dark" onClick={next} disabled={!isAnswered}>{t(quiz.exam ? correctionShown ? current === quiz.questions.length - 1 ? 'Voir mon résultat' : 'Question suivante' : 'Voir la correction' : progressive ? !answerSubmitted ? 'Valider ma réponse' : current === quiz.questions.length - 1 ? 'Voir mon résultat' : 'Question suivante' : current === quiz.questions.length - 1 ? 'Voir mon résultat' : 'Question suivante')} <DemoIcon name="arrowRight" /></button></div>
+                  <div className="question-actions"><button className="button button-quiet" onClick={() => { if (current > 0) { setCurrent(index => index - 1); setAnswerSubmitted(false); setCorrectionShown(false); } }} disabled={quiz.exam || current === 0}><DemoIcon name="arrowLeft" /> {t('Précédent')}</button><button className="button button-dark" onClick={next} disabled={!isAnswered}>{t(quiz.exam ? correctionShown ? current === quiz.questions.length - 1 ? 'Voir mon résultat' : 'Question suivante' : 'Voir la correction' : progressive ? !answerSubmitted ? 'Valider ma réponse' : !isKeyFilled ? 'Valider ma correction' : current === quiz.questions.length - 1 ? 'Voir mon résultat' : 'Question suivante' : current === quiz.questions.length - 1 ? 'Voir mon résultat' : 'Question suivante')} <DemoIcon name="arrowRight" /></button></div>
                   {progressive && <p className={`correction-save-status${storageWarning ? ' is-warning' : ''}`} aria-live="polite">{storageWarning ? t('Impossible d’enregistrer la correction dans ce navigateur.') : t('Corrections mémorisées sur cet appareil : {saved}/{total}.').replace('{saved}', savedCorrectionCount).replace('{total}', quiz.questions.length)}</p>}
                   {(quiz.exam || progressive) && <div className="exam-progress"><span>{t('Question')} <strong>{current + 1} / {quiz.questions.length}</strong></span><span><strong>{completedQuestionCount}</strong> {t(completedQuestionCount === 1 ? 'complétée' : 'complétées')}</span></div>}
                 </>
@@ -336,8 +354,8 @@ export default function DemoPlayer({ quizzes, onAttempt, onTrack }) {
         </>
       ) : (
         <section className="result-view animate-in">
-          <div className="result-score"><span className="eyebrow">{t(quiz.exam ? 'EXAMEN BLANC' : progressive ? 'CONCORDANCE DES GRILLES' : 'VOTRE RÉSULTAT')}</span><strong>{result.score}<small>/{result.max}</small></strong><span className="result-percentage">{result.percentage}%</span><span>{progressive ? t('{score} concordant grids out of {max}.').replace('{score}', result.score).replace('{max}', result.max) : t('{score} correct answers out of {max}.').replace('{score}', result.score).replace('{max}', result.max)}</span>{quiz.exam && <b className={`pass-status ${result.passed ? 'is-pass' : 'is-fail'}`}>{t(result.passed ? 'Seuil atteint' : 'Encore un effort')} · {result.score}/40 {t('(35 requis)')}</b>}</div>
-          <div className="result-copy"><span className="eyebrow">{t(quiz.exam ? 'CORRECTION DES 40 QUESTIONS' : progressive ? 'AUTO-CORRECTION APRÈS VISIONNAGE' : 'ÇA SE RETIENT MIEUX EN PRATIQUANT')}</span><h1>{t(quiz.exam ? result.passed ? 'Reçu pour l’entraînement.' : 'À reprendre.' : progressive ? result.percentage === 100 ? 'Vos grilles concordent.' : 'Votre révision est notée.' : result.percentage === 100 ? 'Impeccable.' : result.percentage >= 50 ? 'Bien joué.' : 'Une autre passe ?')}</h1><p>{t(quiz.exam ? 'Le seuil d’entraînement reprend le format de l’épreuve théorique : au moins 35 bonnes réponses sur 40. Ce quiz est une révision non officielle.' : progressive ? 'Le résultat compare vos réponses initiales avec les auto-corrections déclarées d’après la vidéo. Parcourez le mode lecture pour revoir chaque passage sans modifier vos réponses.' : 'Revoir l’idée au moment où elle apparaît aide à l’ancrer. Repassez les questions ou explorez un autre sujet.')}</p><div className="result-actions">{progressive && <button className="button button-dark" onClick={() => { setCurrent(0); setReviewMode(true); onTrack?.('quiz_review_opened'); }}>{t('Revoir mes réponses')} <DemoIcon name="mediaPlay" /></button>}<button className={`button ${progressive ? 'button-quiet' : 'button-dark'}`} onClick={() => { if (!clearQuizProgress(quiz.id)) setProgressStorageWarning(true); didComplete.current = false; setCurrent(0); setAnswers({}); setSelfKeys(progressive ? getQuizCorrections(quiz) : {}); setResult(null); setReviewMode(false); setAnswerSubmitted(false); setCorrectionShown(false); setResumeActive(false); onTrack?.('quiz_restarted'); }}>{t('Recommencer')} <DemoIcon name="reload" /></button><Link className="button button-quiet" to={`/progression/${quiz.id}`} aria-label={`${t('Voir la progression de')} ${quiz.title}`} title={t('Voir la progression')}><DemoIcon name="externalLink" /> <span className="visually-hidden">{t('Voir la progression')}</span></Link><Link className="button button-quiet" to="/">{t('Choisir un autre quiz')}</Link></div></div>
+          <div className="result-score"><span className="eyebrow">{t(quiz.exam ? 'EXAMEN BLANC' : progressive ? 'COMPARAISON DES RÉPONSES' : 'VOTRE RÉSULTAT')}</span><strong>{result.score}<small>/{result.max}</small></strong><span className="result-percentage">{result.percentage}%</span><span>{progressive ? t('Réponses concordantes : {score}/{max}.').replace('{score}', result.score).replace('{max}', result.max) : t('{score} correct answers out of {max}.').replace('{score}', result.score).replace('{max}', result.max)}</span>{quiz.exam && <b className={`pass-status ${result.passed ? 'is-pass' : 'is-fail'}`}>{t(result.passed ? 'Seuil atteint' : 'Encore un effort')} · {result.score}/40 {t('(35 requis)')}</b>}</div>
+          <div className="result-copy"><span className="eyebrow">{t(quiz.exam ? 'CORRECTION DES 40 QUESTIONS' : progressive ? 'AUTO-CORRECTION APRÈS VISIONNAGE' : 'ÇA SE RETIENT MIEUX EN PRATIQUANT')}</span><h1>{t(quiz.exam ? result.passed ? 'Reçu pour l’entraînement.' : 'À reprendre.' : progressive ? result.percentage === 100 ? 'Vos réponses correspondent.' : 'Auto-correction terminée.' : result.percentage === 100 ? 'Impeccable.' : result.percentage >= 50 ? 'Bien joué.' : 'Une autre passe ?')}</h1><p>{t(quiz.exam ? 'Le seuil d’entraînement reprend le format de l’épreuve théorique : au moins 35 bonnes réponses sur 40. Ce quiz est une révision non officielle.' : progressive ? 'Ce score compare vos réponses aux corrections que vous avez saisies après la vidéo. Il ne vérifie pas si elles sont exactes.' : 'Revoir l’idée au moment où elle apparaît aide à l’ancrer. Repassez les questions ou explorez un autre sujet.')}</p><div className="result-actions">{progressive && <button className="button button-dark" onClick={() => { setCurrent(0); setReviewMode(true); onTrack?.('quiz_review_opened'); }}>{t('Revoir mes réponses')} <DemoIcon name="mediaPlay" /></button>}<button className={`button ${progressive ? 'button-quiet' : 'button-dark'}`} onClick={() => { if (!clearQuizProgress(quiz.id)) setProgressStorageWarning(true); didComplete.current = false; setCurrent(0); setAnswers({}); setSelfKeys(progressive ? getQuizCorrections(quiz) : {}); setResult(null); setReviewMode(false); setAnswerSubmitted(false); setCorrectionShown(false); setResumeActive(false); onTrack?.('quiz_restarted'); }}>{t('Recommencer')} <DemoIcon name="reload" /></button><Link className="button button-quiet" to={`/progression/${quiz.id}`} aria-label={`${t('Voir la progression de')} ${quiz.title}`} title={t('Voir la progression')}><DemoIcon name="externalLink" /> <span className="visually-hidden">{t('Voir la progression')}</span></Link><Link className="button button-quiet" to="/">{t('Choisir un autre quiz')}</Link></div></div>
           <div className="answer-review">{result.details.map((item, index) => {
             const givenAnswer = formatReviewAnswer(item.givenAnswer, item.type, item.options);
             const expectedAnswer = formatReviewAnswer(item.correctAnswer, item.type, item.options);
@@ -352,7 +370,7 @@ export default function DemoPlayer({ quizzes, onAttempt, onTrack }) {
                 </div>
                 {item.explanation && <p>{item.explanation}</p>}
               </div>
-              <strong>{t(item.correct ? 'Juste' : 'À revoir')}</strong>
+              <strong>{t(progressive ? item.correct ? 'Correspondance' : 'Différence' : item.correct ? 'Juste' : 'À revoir')}</strong>
             </article>;
           })}</div>
         </section>
