@@ -1442,7 +1442,6 @@ body, .demo-shell { background: var(--paper); color: var(--ink); }
 .dashboard-preview-badge { flex: 0 0 auto; padding: 6px 9px; border: 1px solid #d8e5e6; border-radius: 999px; background: var(--surface-soft); color: var(--turquoise); font: 700 11px 'DM Sans', sans-serif; letter-spacing: .04em; }
 .dashboard-preview > p { margin: 8px 0 0; color: var(--muted); font-size: 16px; line-height: 1.5; }
 .dashboard-preview .progression-chart-wrap { margin-top: 7px; background: transparent; }
-.dashboard-desktop-tracking { display: none; }
 .mobile-bottom-nav { display: none; }
 
 .tutorial-page { padding-top: 62px; padding-bottom: 64px; }
@@ -1561,7 +1560,6 @@ body, .demo-shell { background: var(--paper); color: var(--ink); }
 .feature-cycle-link .demo-icon { width: 16px; height: 16px; }
 
 @media (min-width: 901px) {
-  .dashboard-desktop-tracking { display: block; }
 }
 
 @media (max-width: 900px) {
