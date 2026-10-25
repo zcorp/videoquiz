@@ -15,7 +15,7 @@ const steps = [
     number: '02',
     label: 'Ton quiz',
     title: 'Donne une forme à ton quiz.',
-    description: 'Ajoute un titre, puis choisis comment tu veux réviser : quiz préparé, révision progressive ou QCM express.',
+    description: 'Choisis un quiz avec correction ou une révision avec la vidéo. Le QCM express est dans les autres options.',
     visual: 'setup',
   },
   {
@@ -48,10 +48,11 @@ function StepVisual({ type, t }) {
       {type === 'setup' && (
         <div className="tutorial-setup-mock">
           <span className="tutorial-mock-label">{t('NOUVEAU QUIZ')}</span>
-          <div className="tutorial-mock-field"><small>{t('TITRE DU QUIZ')}</small><strong>{t('Les bases de la conduite')}</strong></div>
           <div className="tutorial-mock-field"><small>{t('LIEN VIDÉO')}</small><span><DemoIcon name="mediaPlay" /> YouTube · Vimeo · Dailymotion · RUTUBE · TikTok</span></div>
-          <small className="tutorial-mode-label">{t('CHOISIS TON MODE')}</small>
-          <div className="tutorial-mode-options"><span>{t('Quiz préparé')}</span><span className="is-selected">{t('Progressif')}</span><span>{t('QCM express')}</span></div>
+          <div className="tutorial-mock-field"><small>{t('TITRE DU QUIZ')}</small><strong>{t('Les bases de la conduite')}</strong></div>
+          <small className="tutorial-mode-label">{t('COMMENT RÉVISER ?')}</small>
+          <div className="tutorial-mode-options"><span>{t('Quiz avec correction')}</span><span className="is-selected">{t('Réviser avec la vidéo')}</span></div>
+          <small className="tutorial-mode-label">{t('Autres options')} · {t('Mode QCM express')}</small>
         </div>
       )}
       {type === 'questions' && (

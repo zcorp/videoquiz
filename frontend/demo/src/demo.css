@@ -526,6 +526,11 @@ button:disabled { cursor: not-allowed; opacity: .45; }
 .editor-heading { padding: 35px 0 25px; }
 .editor-heading h1 { font-size: 45px; }
 .editor-form { max-width: 880px; }
+.editor-steps { display: flex; align-items: center; gap: 10px; max-width: 880px; margin-bottom: 12px; }
+.editor-steps > span { display: inline-flex; align-items: center; gap: 8px; color: var(--muted); font-size: 12px; }
+.editor-steps > span b { display: grid; width: 26px; height: 26px; place-items: center; border: 1px solid var(--rule); border-radius: 50%; background: #fff; color: var(--muted); font: 11px var(--mono); }
+.editor-steps > span.is-active { color: var(--ink); font-weight: 700; }
+.editor-steps > span.is-active b,.editor-steps > span.is-complete b { border-color: var(--green); background: var(--green); color: #fff; }
 .editor-section { display: grid; grid-template-columns: 230px 1fr; gap: 30px; padding: 28px 0; border-top: 1px solid var(--rule); }
 .editor-section > div:last-child { min-width: 0; }
 .editor-section-title { display: flex; align-items: flex-start; gap: 12px; }
@@ -533,6 +538,24 @@ button:disabled { cursor: not-allowed; opacity: .45; }
 .editor-section-title h2 { margin: -4px 0 5px; font: 600 22px var(--serif); }
 .editor-section-title p { margin: 0; color: var(--muted); font-size: 11px; line-height: 1.6; }
 .editor-fields { display: grid; gap: 15px; }
+.editor-optional-field { padding-top: 2px; }
+.editor-optional-field summary,.editor-advanced-options summary { width: fit-content; color: var(--green); cursor: pointer; font-size: 12px; font-weight: 700; }
+.editor-optional-field[open] .answer-field { margin-top: 12px; }
+.editor-video-summary { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 12px; padding: 14px 18px; border-color: var(--rule); background: #fff; }
+.editor-video-summary > div { display: grid; min-width: 0; gap: 4px; }
+.editor-video-summary strong { overflow: hidden; color: var(--ink); font-size: 14px; text-overflow: ellipsis; white-space: nowrap; }
+.editor-video-summary small { color: var(--muted); font-size: 11px; }
+.editor-change-video { flex: 0 0 auto; padding: 7px 10px; border: 1px solid var(--rule); background: #fff; color: var(--green); font-size: 11px; font-weight: 700; }
+.editor-mode-picker { display: grid; gap: 8px; margin-bottom: 14px; }
+.editor-mode-label { margin-bottom: 2px; color: var(--ink); font-size: 13px; font-weight: 700; }
+.editor-mode-option { display: grid; grid-template-columns: 18px minmax(0, 1fr); align-items: start; gap: 10px; padding: 12px; border: 1px solid var(--rule); background: #fff; cursor: pointer; }
+.editor-mode-option:has(input:checked) { border-color: var(--green); background: #f3f7f1; box-shadow: inset 0 0 0 1px var(--green); }
+.editor-mode-option input { width: 16px; height: 16px; margin: 2px 0 0; accent-color: var(--green); }
+.editor-mode-option strong,.editor-mode-option small { display: block; }
+.editor-mode-option strong { color: var(--ink); font-size: 12px; }
+.editor-mode-option small { margin-top: 3px; color: var(--muted); font-size: 11px; line-height: 1.4; }
+.editor-advanced-options { padding: 2px 0; }
+.editor-advanced-options > .editor-mode-option { margin-top: 8px; }
 .progressive-grid-settings { display: grid; min-width: 0; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; margin-bottom: 12px; }
 .progressive-grid-settings .answer-field input,.progressive-grid-settings .answer-field select { min-height: 40px; }
 .qcm-bulk-table { --option-count: 4; display: grid; min-width: 0; max-width: 100%; max-height: min(68vh, 620px); grid-template-columns: 32px minmax(220px, 1.4fr) repeat(var(--option-count), minmax(100px, 1fr)); overflow: auto; overscroll-behavior: contain; border-top: 1px solid var(--rule); border-left: 1px solid var(--rule); background: #fff; }
@@ -1309,6 +1332,8 @@ body, .demo-shell { background: var(--paper); color: var(--ink); }
   .editor-heading h1 { font-size: clamp(32px, 8vw, 42px); line-height: 1.12; }
   .editor-heading p { font-size: 15px; line-height: 1.5; }
   .editor-section.card { padding: 17px; }
+  .editor-video-summary { padding: 13px; }
+  .editor-mode-option { padding: 11px; }
   .editor-section-title { gap: 10px; }
   .editor-section-title h2 { font-size: 21px; line-height: 1.2; }
   .editor-section-title p { max-width: none; }

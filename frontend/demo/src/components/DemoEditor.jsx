@@ -78,7 +78,7 @@ export default function DemoEditor({ quiz, quizzes = [], onSave }) {
   const initialMode = quiz?.mode ?? (preparedQuiz ? 'prepared' : searchParams.get('mode') === 'qcm' && linkedVideoId ? 'qcm' : 'prepared');
   const initialQuestionCount = quiz?.questionCount ?? (preparedQuiz
     ? preparedQuiz.questions.length
-    : isProgressiveMode(initialMode) ? quiz?.questions?.length ?? 40 : 40);
+    : isProgressiveMode(initialMode) ? quiz?.questions?.length ?? 5 : 40);
   const initialMaxOptions = quiz?.maxOptions ?? 4;
   const [title, setTitle] = useState(() => quiz?.title ?? preparedQuiz?.title ?? linkedVideoTitle.slice(0, 90));
   const [description, setDescription] = useState(() => quiz?.description ?? preparedQuiz?.description ?? '');
@@ -91,6 +91,7 @@ export default function DemoEditor({ quiz, quizzes = [], onSave }) {
   const [questionCount, setQuestionCount] = useState(initialQuestionCount);
   const [maxOptions, setMaxOptions] = useState(initialMaxOptions);
   const [activeQuestion, setActiveQuestion] = useState(0);
+  const [step, setStep] = useState(() => quiz || preparedQuiz || (linkedVideoId && linkedVideoTitle) ? 2 : 1);
   const initialQuestions = quiz?.questions ?? preparedQuiz?.questions;
   const [questions, setQuestions] = useState(() => initialQuestions?.map(item => ({
     ...item,
@@ -137,6 +138,34 @@ export default function DemoEditor({ quiz, quizzes = [], onSave }) {
   const completeQuestion = item => mode === 'qcm' || Boolean(item?.prompt.trim() && item.options.filter(option => option.trim()).length >= 2 && item.options.filter(option => option.trim()).length <= maxOptions);
   const completeCount = progressive ? questions.filter(completeQuestion).length : questions.length;
   const readyToPlay = !progressive || questions.length === questionCount && questions.every(completeQuestion);
+  const validateVideoStep = () => {
+    if (!title.trim()) {
+      setError(t('Donnez un titre à votre quiz.'));
+      return false;
+    }
+    if (!video) {
+      setError(t('Collez un lien vidéo valide.'));
+      return false;
+    }
+    if (conflictingQuiz) {
+      setError(t('Cette vidéo est déjà associée au quiz « {title} ». Ouvrez-le pour le modifier ou choisissez une autre vidéo.').replace('{title}', conflictingQuiz.title));
+      return false;
+    }
+    return true;
+  };
+  const continueToQuestions = () => {
+    if (!validateVideoStep()) return;
+    setError('');
+    setStep(2);
+  };
+  const handleSubmit = event => {
+    if (step === 1) {
+      event.preventDefault();
+      continueToQuestions();
+      return;
+    }
+    save(event);
+  };
   const selectProgressiveQuestion = index => {
     setActiveQuestion(index);
     setPreviewAt(questions[index]?.at ?? 0);
@@ -154,9 +183,7 @@ export default function DemoEditor({ quiz, quizzes = [], onSave }) {
   };
   const save = event => {
     event.preventDefault();
-    if (!title.trim()) return setError(t('Donnez un titre à votre quiz.'));
-    if (!video) return setError(t('Ajoutez un lien YouTube, Vimeo, Dailymotion, RUTUBE ou TikTok valide.'));
-    if (conflictingQuiz) return setError(t('Cette vidéo est déjà associée au quiz « {title} ». Ouvrez-le pour le modifier ou choisissez une autre vidéo.').replace('{title}', conflictingQuiz.title));
+    if (!validateVideoStep()) return;
     if (progressive && (!Number.isSafeInteger(questionCount) || questionCount < 1 || !Number.isSafeInteger(maxOptions) || maxOptions < 2)) return setError(t('Choisissez un nombre entier valide de questions et au moins deux options.'));
     if (mode === 'prepared' && questions.length === 0) return setError(t('Ajoutez au moins une question au quiz.'));
     if (mode === 'prepared' && !questions.every(item => item.prompt.trim() && (item.type === 'text' || item.options.filter(option => option.trim()).length >= 2 && item.options.filter(option => option.trim()).length <= 4) && hasValidPreparedAnswer(item))) return setError(t('Complétez les questions avec 2 à 4 choix de réponse.'));
@@ -201,7 +228,7 @@ export default function DemoEditor({ quiz, quizzes = [], onSave }) {
   const switchMode = nextMode => {
     setMode(nextMode);
     if (isProgressiveMode(nextMode)) {
-      const count = isProgressiveMode(quiz?.mode) ? questionCount : 40;
+      const count = isProgressiveMode(quiz?.mode) ? questionCount : 5;
       setQuestionCount(count);
       setQuestions(items => resizeQuestions(items, count, nextMode, maxOptions));
       setActiveQuestion(0);
@@ -238,25 +265,40 @@ export default function DemoEditor({ quiz, quizzes = [], onSave }) {
   return (
     <main className="demo-page editor-page">
       <FirstVisitNotice storageKey="videoquiz-demo:first-visit:editor:v1" message="Vos quiz créés sont enregistrés dans ce navigateur." />
-      <div className="editor-heading"><span className="eyebrow">{t('CRÉATEUR DE QUIZ')}</span><h1>{t(quiz ? 'Affinez votre quiz.' : 'Une vidéo, vos questions.')}</h1><p>{t('Collez un lien YouTube, Vimeo, Dailymotion, RUTUBE ou TikTok.')}</p></div>
+      <div className="editor-heading"><span className="eyebrow">{t('CRÉATEUR DE QUIZ')}</span><h1>{t(quiz ? 'Affinez votre quiz.' : 'Créer un quiz')}</h1><p>{t(step === 1 ? 'Étape 1 sur 2 · Choisissez une vidéo.' : 'Étape 2 sur 2 · Ajoutez vos questions.')}</p></div>
       {preparedQuiz && <CAlert color="info" className="prepared-quiz-note">{t('Quiz préparé et vérifié avant publication. Vous pouvez adapter les questions avant de l’enregistrer.')}</CAlert>}
-      <form className="editor-form" onSubmit={save}>
-        <CCard className="editor-section" role="group">
-          <div className="editor-section-title"><CBadge className="editor-section-number" color="success">01</CBadge><div><h2>{t('La vidéo')}</h2><p>{t('Collez le lien de la vidéo que vous souhaitez accompagner.')}</p></div></div>
+      <div className="editor-steps" aria-label={t('Étapes de création')}>
+        <span className={step === 1 ? 'is-active' : 'is-complete'} aria-current={step === 1 ? 'step' : undefined}><b>1</b>{t('Vidéo')}</span>
+        <span className={step === 2 ? 'is-active' : ''} aria-current={step === 2 ? 'step' : undefined}><b>2</b>{t('Questions')}</span>
+      </div>
+      <form className="editor-form" onSubmit={handleSubmit}>
+        {step === 1 ? <CCard className="editor-section" role="group">
+          <div className="editor-section-title"><CBadge className="editor-section-number" color="success">01</CBadge><div><h2>{t('Choisissez une vidéo')}</h2><p>{t('Collez son lien et donnez un nom à votre quiz.')}</p></div></div>
           <div className="editor-fields">
-            <label className="answer-field"><span>{t('Titre du quiz')}</span><CFormInput value={title} onChange={event => setTitle(event.target.value)} maxLength={90} placeholder={t('Ex. Les bases de la photographie')} /></label>
             <label className="answer-field"><span>{t('Lien de la vidéo')}</span><CFormInput value={videoUrl} onChange={event => { setVideoUrl(event.target.value); setError(''); }} placeholder="YouTube, Vimeo, Dailymotion, RUTUBE, TikTok…" inputMode="url" />{video && <small className="video-provider-note">{t('Plateforme détectée')} · {getVideoProviderLabel(video.provider)}</small>}{conflictingQuiz && <small className="video-duplicate-note">{t('Cette vidéo est déjà utilisée par « {title} ».').replace('{title}', conflictingQuiz.title)}</small>}</label>
-            <label className="answer-field"><span>{t('En une phrase')} <small>{t('facultatif')}</small></span><CFormTextarea value={description} onChange={event => setDescription(event.target.value)} maxLength={180} placeholder={t('Qu’allez-vous découvrir ?')} rows={2} /></label>
-            <div className="answer-field">
-              <label htmlFor="review-mode"><span>{t('Mode de révision')}</span></label>
-              <CFormSelect id="review-mode" value={mode} onChange={event => switchMode(event.target.value)}><option value="prepared">{t('Quiz préparé · réponses définies à l’avance')}</option><option value="progressive">{t('Révision progressive · questions au fil de la vidéo')}</option><option value="qcm">{t('QCM express · grille sans formulaire par question')}</option></CFormSelect>
-            </div>
-            {progressive && <div className="mode-note"><strong>{t('Sans clé de réponse préalable')}</strong><span>{t('Suggestion de départ : 40 questions et 4 choix maximum. Vous pouvez modifier ces deux nombres selon votre vidéo.')} {t(mode === 'qcm' ? 'La grille QCM crée toutes les lignes d’un coup. Saisissez questions et choix directement dans le tableau.' : 'La grille réserve les questions; laissez des cases vides et complétez-les une à une pendant le visionnage.')} {t('Le réviseur donnera ensuite sa réponse puis sa propre correction d’après la vidéo.')}</span></div>}
+            <label className="answer-field"><span>{t('Titre du quiz')}</span><CFormInput value={title} onChange={event => { setTitle(event.target.value); setError(''); }} maxLength={90} placeholder={t('Ex. Les bases de la photographie')} /></label>
+            <details className="editor-optional-field">
+              <summary>{t('Ajouter une description (facultatif)')}</summary>
+              <label className="answer-field"><span>{t('En une phrase')}</span><CFormTextarea value={description} onChange={event => setDescription(event.target.value)} maxLength={180} placeholder={t('Qu’allez-vous découvrir ?')} rows={2} /></label>
+            </details>
           </div>
-        </CCard>
-        <CCard className="editor-section" role="group">
-          <div className="editor-section-title"><CBadge className="editor-section-number" color="success">02</CBadge><div><h2>{t(progressive ? mode === 'qcm' ? 'Grille QCM' : 'Questions au fil de la vidéo' : 'Les questions')}</h2><p>{t(progressive ? mode === 'qcm' ? 'Une ligne par question, une colonne par choix. Remplissez la grille en une vue.' : 'Définissez une grille vide, puis remplissez chaque case pendant le visionnage.' : 'Choisissez un passage et une façon simple de répondre.')}</p></div></div>
+        </CCard> : <>
+          <CCard className="editor-video-summary">
+            <div><span className="eyebrow">{t('VIDÉO CHOISIE')}</span><strong>{title}</strong><small>{video ? getVideoProviderLabel(video.provider) : ''}</small></div>
+            <button type="button" className="editor-change-video" onClick={() => { setError(''); setStep(1); }}>{t('Modifier')}</button>
+          </CCard>
+          <CCard className="editor-section" role="group">
+          <div className="editor-section-title"><CBadge className="editor-section-number" color="success">02</CBadge><div><h2>{t('Vos questions')}</h2><p>{t('Choisissez comment réviser, puis ajoutez vos questions.')}</p></div></div>
           <div>
+            <div className="editor-mode-picker">
+              <span className="editor-mode-label">{t('Comment voulez-vous réviser ?')}</span>
+              <label className="editor-mode-option"><input type="radio" name="review-mode" value="prepared" checked={mode === 'prepared'} onChange={() => switchMode('prepared')} /><span><strong>{t('Créer un quiz avec correction')}</strong><small>{t('Choisissez les bonnes réponses à l’avance.')}</small></span></label>
+              <label className="editor-mode-option"><input type="radio" name="review-mode" value="progressive" checked={mode === 'progressive'} onChange={() => switchMode('progressive')} /><span><strong>{t('Réviser avec la vidéo')}</strong><small>{t('Répondez, puis corrigez-vous en regardant.')}</small></span></label>
+              <details className="editor-advanced-options" open={mode === 'qcm'}>
+                <summary>{t('Autres options')}</summary>
+                <label className="editor-mode-option"><input type="radio" name="review-mode" value="qcm" checked={mode === 'qcm'} onChange={() => switchMode('qcm')} /><span><strong>{t('Mode QCM express')}</strong><small>{t('Remplissez une grille de questions et de réponses.')}</small></span></label>
+              </details>
+            </div>
             {progressive && <div className="progressive-grid-settings"><label className="answer-field"><span>{t('Nombre de questions')}</span><input aria-label={t('Nombre de questions')} type="number" min="1" value={questionCount} onChange={event => changeQuestionCount(event.target.value)} /></label><label className="answer-field"><span>{t('Options maximum par question')}</span><input aria-label={t('Options maximum par question')} type="number" min="2" value={maxOptions} onChange={event => changeMaxOptions(event.target.value)} /></label></div>}
             {mode === 'prepared' && <div className="question-pager"><button type="button" className="icon-action" onClick={() => selectQuestion(activeQuestion - 1)} disabled={activeQuestion === 0} aria-label={t('Question précédente')} title={t('Question précédente')}><DemoIcon name="arrowLeft" /></button><span>{t('QUESTION')} {String(activeQuestion + 1).padStart(2, '0')} / {String(questions.length).padStart(2, '0')}</span><button type="button" className="icon-action" onClick={() => selectQuestion(activeQuestion + 1)} disabled={activeQuestion >= questions.length - 1} aria-label={t('Question suivante')} title={t('Question suivante')}><DemoIcon name="arrowRight" /></button></div>}
             {mode === 'progressive' && <div className="question-slot-board"><div><span className="eyebrow">{t('GRILLE DES {count} QUESTIONS').replace('{count}', questionCount)}</span><span className="preview-time">{completeCount} {t(completeCount === 1 ? 'renseignée' : 'renseignées')} / {questionCount}</span></div><div className="question-slot-grid">{Array.from({ length: questionCount }, (_, slot) => {
@@ -316,8 +358,13 @@ export default function DemoEditor({ quiz, quizzes = [], onSave }) {
             {progressive && video && <div className="editor-video-preview"><div><span className="eyebrow">{t('APERÇU DE LA VIDÉO')}</span><span className="preview-time">{t('Départ à')} {formatTime(previewAt)}</span></div><div className={`video-shell${video.provider === 'tiktok' ? ' is-tiktok' : ''}`}><VideoPlayer key={`${video.provider}:${video.id}:${video.hash ?? ''}`} video={video} startAt={previewAt} title={`${t('Aperçu vidéo à')} ${formatTime(previewAt)}`} /></div>{video.provider !== 'youtube' && <a className="video-source-link" href={getVideoPageUrl(video)} target="_blank" rel="noreferrer">{t('Ouvrir sur {provider}').replace('{provider}', getVideoProviderLabel(video.provider))} ↗</a>}</div>}
           </div>
         </CCard>
+        </>}
         {error && <CAlert color="danger" role="alert" className="editor-error">{error}{conflictingQuiz && <div><Link to={conflictingQuiz.local ? `/edit/${conflictingQuiz.id}` : `/quiz/${conflictingQuiz.id}`}>{t(conflictingQuiz.local ? 'Modifier ce quiz' : 'Ouvrir ce quiz')}</Link></div>}</CAlert>}
-        <div className="editor-submit"><Link className="btn btn-outline-secondary button button-quiet" to="/">{t('Annuler')}</Link><CButton type="submit" className="button button-dark" color="success">{t(mode === 'qcm' ? 'Créer et lancer le QCM' : progressive ? readyToPlay ? 'Enregistrer et réviser' : 'Enregistrer le brouillon' : quiz ? 'Enregistrer les changements' : 'Enregistrer et essayer')} <DemoIcon name="arrowRight" /></CButton></div>
+        <div className="editor-submit">
+          <Link className="btn btn-outline-secondary button button-quiet" to="/">{t('Annuler')}</Link>
+          {step === 2 && <CButton type="button" className="button button-quiet" color="light" onClick={() => { setError(''); setStep(1); }}>{t('Retour')}</CButton>}
+          <CButton type="submit" className="button button-dark" color="success">{t(step === 1 ? 'Continuer' : mode === 'qcm' ? 'Créer et lancer le QCM' : progressive ? readyToPlay ? 'Enregistrer et réviser' : 'Enregistrer le brouillon' : quiz ? 'Enregistrer les changements' : 'Enregistrer et essayer')} <DemoIcon name="arrowRight" /></CButton>
+        </div>
       </form>
     </main>
   );
