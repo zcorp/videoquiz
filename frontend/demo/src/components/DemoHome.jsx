@@ -96,19 +96,19 @@ export default function DemoHome({ quizzes, attempts, onDelete }) {
       <section className="welcome-band">
         <div className="welcome-copy">
           <div className="welcome-kicker"><span className="eyebrow eyebrow-dark">{t('APPRENDRE EN REGARDANT')}</span><span>{t('VIDÉO')} <i /> {t('QUIZ')} <i /> {t('PROGRESSION')}</span></div>
-          <h1><span>{t('Choisis une série.')}</span><span>{t('Crée ton QCM.')}</span><span>{t('Entraîne-toi à ton rythme.')}</span></h1>
-          <p className="welcome-description">{t('Associe une vidéo de ton choix à une grille de réponses, teste tes connaissances et suis ta progression. Tes quiz et tes résultats restent enregistrés sur ton appareil.')}</p>
+          <h1>{t('Apprends avec une vidéo.')}</h1>
+          <p className="welcome-description">{t('Choisis un quiz prêt à jouer ou crée le tien avec une vidéo.')}</p>
           <div className="welcome-actions"><Link className="btn btn-success button button-dark" to="/videos">{t('Choisir une vidéo')} <DemoIcon name="arrowRight" /></Link><Link className="btn btn-outline-secondary button button-quiet" to="/create">{t('Créer un quiz')} <DemoIcon name="plus" /></Link></div>
         </div>
         <CCard className="feature-card">
           <div className="feature-carousel" role="region" aria-label={t('Exemples de quiz vidéo')} aria-roledescription={t('carrousel')}>
             <div className="feature-carousel-content" aria-live="polite">
-              {activeFeatureSlide === 0 && <Link className="feature-frame" to={featuredDestination} aria-label={featuredQuiz ? `Ouvrir le quiz associé à ${featuredVideo.title}` : `Associer ${featuredVideo.title} à un QCM`}>
-                <VideoThumbnail video={featuredVideo} alt={`Aperçu vidéo : ${featuredVideo.title}`} loading="eager" />
+              {activeFeatureSlide === 0 && <Link className="feature-frame" to={featuredDestination} aria-label={t(featuredQuiz ? 'Ouvrir le quiz associé à {title}' : 'Associer {title} à un QCM').replace('{title}', featuredVideo.title)}>
+                <VideoThumbnail video={featuredVideo} alt={t('Aperçu vidéo : {title}').replace('{title}', featuredVideo.title)} loading="eager" />
                 <span className="feature-wash" />
                 <span className="feature-play"><DemoIcon name="plus" /></span>
-                <span className="feature-caption"><CBadge color="warning">{featuredQuiz ? 'QUIZ ASSOCIÉ' : 'VIDÉO À UTILISER'}</CBadge><strong>{featuredVideo.title}</strong><small>{featuredVideo.theme} · {featuredQuiz ? 'Ouvrir le quiz' : 'Créer un QCM express'}</small></span>
-                <span className="feature-index">EXEMPLE 01</span>
+                <span className="feature-caption"><CBadge color="warning">{t(featuredQuiz ? 'QUIZ ASSOCIÉ' : 'VIDÉO À UTILISER')}</CBadge><strong>{featuredVideo.title}</strong><small>{translateTopic(featuredVideo.theme, language)} · {t(featuredQuiz ? 'Ouvrir le quiz' : 'Créer un QCM express')}</small></span>
+                <span className="feature-index">{t('EXEMPLE 01')}</span>
               </Link>}
               {activeFeatureSlide === 1 && <div className="feature-cycle-slide">
                 <div className="feature-cycle-heading">
@@ -127,8 +127,8 @@ export default function DemoHome({ quizzes, attempts, onDelete }) {
                 </div>
                 <Link className="feature-cycle-link" to="/tutoriel">{t('Découvrir comment ça marche')} <DemoIcon name="arrowRight" /></Link>
               </div>}
-              {activeFeatureSlide === 2 && cultureVideo && cultureDestination && <Link className="feature-frame" to={cultureDestination} aria-label={cultureQuiz ? `Ouvrir le quiz associé à ${cultureVideo.title}` : `Associer ${cultureVideo.title} à un QCM`}>
-                <VideoThumbnail video={cultureVideo} alt={`Aperçu vidéo : ${cultureVideo.title}`} loading="lazy" />
+              {activeFeatureSlide === 2 && cultureVideo && cultureDestination && <Link className="feature-frame" to={cultureDestination} aria-label={t(cultureQuiz ? 'Ouvrir le quiz associé à {title}' : 'Associer {title} à un QCM').replace('{title}', cultureVideo.title)}>
+                <VideoThumbnail video={cultureVideo} alt={t('Aperçu vidéo : {title}').replace('{title}', cultureVideo.title)} loading="lazy" />
                 <span className="feature-wash" />
                 <span className="feature-play"><DemoIcon name="plus" /></span>
                 <span className="feature-caption"><CBadge color="warning">{t(cultureQuiz ? 'QUIZ ASSOCIÉ' : 'AUTRE THÈME')}</CBadge><strong>{cultureVideo.title}</strong><small>{translateTopic(cultureVideo.theme, language)} · {t(cultureQuiz ? 'Ouvrir le quiz' : 'Créer un QCM express')}</small></span>
@@ -138,7 +138,7 @@ export default function DemoHome({ quizzes, attempts, onDelete }) {
             <div className="feature-carousel-controls">
               <button type="button" className="feature-carousel-arrow" onClick={() => setActiveFeatureSlide(slide => (slide - 1 + featureSlideCount) % featureSlideCount)} aria-label={t('Exemple précédent')}><DemoIcon name="arrowLeft" /></button>
               <div className="feature-carousel-pagination" aria-label={t('Choisir un exemple')}>
-                {Array.from({ length: featureSlideCount }, (_, slide) => <button key={slide} type="button" className={`feature-carousel-dot${slide === activeFeatureSlide ? ' is-active' : ''}`} onClick={() => setActiveFeatureSlide(slide)} aria-label={`Afficher ${slide === 0 ? 'le quiz du code de la route' : slide === 1 ? 'le principe du parcours' : cultureVideo?.theme}`} aria-pressed={slide === activeFeatureSlide} />)}
+                {Array.from({ length: featureSlideCount }, (_, slide) => <button key={slide} type="button" className={`feature-carousel-dot${slide === activeFeatureSlide ? ' is-active' : ''}`} onClick={() => setActiveFeatureSlide(slide)} aria-label={t(slide === 0 ? 'Afficher le quiz du code de la route' : slide === 1 ? 'Afficher le parcours en quatre étapes' : 'Afficher un autre thème')} aria-pressed={slide === activeFeatureSlide} />)}
               </div>
               <span className="feature-carousel-count" aria-hidden="true">{String(activeFeatureSlide + 1).padStart(2, '0')} / {String(featureSlideCount).padStart(2, '0')}</span>
               <button type="button" className="feature-carousel-arrow" onClick={() => setActiveFeatureSlide(slide => (slide + 1) % featureSlideCount)} aria-label={t('Exemple suivant')}><DemoIcon name="arrowRight" /></button>
