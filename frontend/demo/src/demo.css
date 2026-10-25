@@ -541,11 +541,15 @@ button:disabled { cursor: not-allowed; opacity: .45; }
 .editor-optional-field { padding-top: 2px; }
 .editor-optional-field summary,.editor-advanced-options summary { width: fit-content; color: var(--green); cursor: pointer; font-size: 12px; font-weight: 700; }
 .editor-optional-field[open] .answer-field { margin-top: 12px; }
-.editor-video-summary { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 12px; padding: 14px 18px; border-color: var(--rule); background: #fff; }
-.editor-video-summary > div { display: grid; min-width: 0; gap: 4px; }
+.editor-video-summary { display: grid; gap: 10px; margin-bottom: 12px; padding: 14px 18px; border-color: var(--rule); background: #fff; }
+.editor-video-summary-row { display: flex; align-items: center; gap: 10px; }
+.editor-video-summary-row .editor-video-thumbnail { width: 160px; flex: 0 0 160px; aspect-ratio: 16 / 9; border-radius: 6px; object-fit: cover; }
+.editor-video-summary-row > div { display: grid; flex: 1; min-width: 0; gap: 4px; }
+.editor-video-summary-player { width: min(100%, 520px); margin-inline: auto; }
+.editor-video-summary-player .video-shell { border-radius: 6px; overflow: hidden; }
 .editor-video-summary strong { overflow: hidden; color: var(--ink); font-size: 14px; text-overflow: ellipsis; white-space: nowrap; }
 .editor-video-summary small { color: var(--muted); font-size: 11px; }
-.editor-change-video { flex: 0 0 auto; padding: 7px 10px; border: 1px solid var(--rule); background: #fff; color: var(--green); font-size: 11px; font-weight: 700; }
+.editor-change-video,.editor-video-preview-toggle { flex: 0 0 auto; padding: 7px 10px; border: 1px solid var(--rule); background: #fff; color: var(--green); font-size: 11px; font-weight: 700; white-space: nowrap; }
 .editor-mode-picker { display: grid; gap: 8px; margin-bottom: 14px; }
 .editor-mode-label { margin-bottom: 2px; color: var(--ink); font-size: 13px; font-weight: 700; }
 .editor-mode-option { display: grid; grid-template-columns: 18px minmax(0, 1fr); align-items: start; gap: 10px; padding: 12px; border: 1px solid var(--rule); background: #fff; cursor: pointer; }
@@ -1333,6 +1337,8 @@ body, .demo-shell { background: var(--paper); color: var(--ink); }
   .editor-heading p { font-size: 15px; line-height: 1.5; }
   .editor-section.card { padding: 17px; }
   .editor-video-summary { padding: 13px; }
+  .editor-video-summary-row { flex-wrap: wrap; }
+  .editor-video-summary-row .editor-video-thumbnail { width: 96px; flex-basis: 96px; }
   .editor-mode-option { padding: 11px; }
   .editor-section-title { gap: 10px; }
   .editor-section-title h2 { font-size: 21px; line-height: 1.2; }

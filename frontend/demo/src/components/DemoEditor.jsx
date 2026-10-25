@@ -8,6 +8,7 @@ import { getQuizVideo, getVideoPageUrl, getVideoProviderLabel, getVideoReference
 import DemoIcon from './DemoIcon.jsx';
 import FirstVisitNotice from './FirstVisitNotice.jsx';
 import VideoPlayer from './VideoPlayer.jsx';
+import VideoThumbnail from './VideoThumbnail.jsx';
 import { useLanguage } from '../i18n.jsx';
 
 function createId() {
@@ -75,13 +76,16 @@ export default function DemoEditor({ quiz, quizzes = [], onSave }) {
     ? getApprovedPreparedQuiz(searchParams.get('prepared'), linkedVideoId)
     : null;
   const linkedTopic = quiz?.topic ?? preparedQuiz?.topic ?? searchParams.get('topic') ?? 'CRÉÉ ICI';
+  const isRoadCodeTopic = linkedTopic.toLocaleUpperCase('fr-FR').includes('CODE DE LA ROUTE');
+  const isNewRoadCodeQuiz = !quiz && isRoadCodeTopic;
   const initialMode = quiz?.mode ?? (preparedQuiz ? 'prepared' : searchParams.get('mode') === 'qcm' && linkedVideoId ? 'qcm' : 'prepared');
   const initialQuestionCount = quiz?.questionCount ?? (preparedQuiz
     ? preparedQuiz.questions.length
-    : isProgressiveMode(initialMode) ? quiz?.questions?.length ?? 5 : 40);
+    : isProgressiveMode(initialMode) ? quiz?.questions?.length ?? (isRoadCodeTopic ? 40 : 5) : 40);
   const initialMaxOptions = quiz?.maxOptions ?? 4;
   const [title, setTitle] = useState(() => quiz?.title ?? preparedQuiz?.title ?? linkedVideoTitle.slice(0, 90));
   const [description, setDescription] = useState(() => quiz?.description ?? preparedQuiz?.description ?? '');
+  const [showSelectedVideoPreview, setShowSelectedVideoPreview] = useState(false);
   const [videoUrl, setVideoUrl] = useState(() => quiz
     ? getVideoPageUrl(getQuizVideo(quiz))
     : preparedQuiz?.videoId || linkedVideoId
@@ -184,7 +188,7 @@ export default function DemoEditor({ quiz, quizzes = [], onSave }) {
   const save = event => {
     event.preventDefault();
     if (!validateVideoStep()) return;
-    if (progressive && (!Number.isSafeInteger(questionCount) || questionCount < 1 || !Number.isSafeInteger(maxOptions) || maxOptions < 2)) return setError(t('Choisissez un nombre entier valide de questions et au moins deux options.'));
+    if (progressive && (!Number.isSafeInteger(questionCount) || questionCount < 1 || !Number.isSafeInteger(maxOptions) || maxOptions < 2 || isNewRoadCodeQuiz && maxOptions > 4)) return setError(t(isNewRoadCodeQuiz ? 'Choisissez un nombre entier valide de questions et de 2 à 4 options.' : 'Choisissez un nombre entier valide de questions et au moins deux options.'));
     if (mode === 'prepared' && questions.length === 0) return setError(t('Ajoutez au moins une question au quiz.'));
     if (mode === 'prepared' && !questions.every(item => item.prompt.trim() && (item.type === 'text' || item.options.filter(option => option.trim()).length >= 2 && item.options.filter(option => option.trim()).length <= 4) && hasValidPreparedAnswer(item))) return setError(t('Complétez les questions avec 2 à 4 choix de réponse.'));
     const nextQuiz = {
@@ -228,7 +232,7 @@ export default function DemoEditor({ quiz, quizzes = [], onSave }) {
   const switchMode = nextMode => {
     setMode(nextMode);
     if (isProgressiveMode(nextMode)) {
-      const count = isProgressiveMode(quiz?.mode) ? questionCount : 5;
+      const count = isProgressiveMode(quiz?.mode) ? questionCount : isRoadCodeTopic ? 40 : 5;
       setQuestionCount(count);
       setQuestions(items => resizeQuestions(items, count, nextMode, maxOptions));
       setActiveQuestion(0);
@@ -255,7 +259,7 @@ export default function DemoEditor({ quiz, quizzes = [], onSave }) {
   };
   const changeMaxOptions = value => {
     const nextMax = Number(value);
-    if (!Number.isSafeInteger(nextMax) || nextMax < 2) return;
+    if (!Number.isSafeInteger(nextMax) || nextMax < 2 || isNewRoadCodeQuiz && nextMax > 4) return;
     const hasDiscardedChoices = questions.some(item => item.options.slice(nextMax).some(option => option.trim()));
     if (nextMax < maxOptions && hasDiscardedChoices && !window.confirm(t('Réduire à {count} choix supprimera les options déjà saisies après le choix {count}. Continuer ?').replaceAll('{count}', nextMax))) return;
     setMaxOptions(nextMax);
@@ -284,8 +288,13 @@ export default function DemoEditor({ quiz, quizzes = [], onSave }) {
           </div>
         </CCard> : <>
           <CCard className="editor-video-summary">
-            <div><span className="eyebrow">{t('VIDÉO CHOISIE')}</span><strong>{title}</strong><small>{video ? getVideoProviderLabel(video.provider) : ''}</small></div>
-            <button type="button" className="editor-change-video" onClick={() => { setError(''); setStep(1); }}>{t('Modifier')}</button>
+            <div className="editor-video-summary-row">
+              {video && <VideoThumbnail className="editor-video-thumbnail" video={video} alt={t('Aperçu vidéo : {title}').replace('{title}', title)} loading="eager" />}
+              <div><span className="eyebrow">{t('VIDÉO CHOISIE')}</span><strong>{title}</strong><small>{video ? getVideoProviderLabel(video.provider) : ''}</small></div>
+              {video && <button type="button" className="editor-video-preview-toggle" aria-expanded={showSelectedVideoPreview} onClick={() => setShowSelectedVideoPreview(value => !value)}>{t(showSelectedVideoPreview ? 'Masquer l’aperçu' : 'Voir l’aperçu')}</button>}
+              <button type="button" className="editor-change-video" onClick={() => { setError(''); setShowSelectedVideoPreview(false); setStep(1); }}>{t('Modifier')}</button>
+            </div>
+            {showSelectedVideoPreview && video && <div className="editor-video-summary-player"><div className={`video-shell${video.provider === 'tiktok' ? ' is-tiktok' : ''}`}><VideoPlayer video={video} title={t('Aperçu vidéo : {title}').replace('{title}', title)} /></div></div>}
           </CCard>
           <CCard className="editor-section" role="group">
           <div className="editor-section-title"><CBadge className="editor-section-number" color="success">02</CBadge><div><h2>{t('Vos questions')}</h2><p>{t('Choisissez comment réviser, puis ajoutez vos questions.')}</p></div></div>
@@ -299,7 +308,7 @@ export default function DemoEditor({ quiz, quizzes = [], onSave }) {
                 <label className="editor-mode-option"><input type="radio" name="review-mode" value="qcm" checked={mode === 'qcm'} onChange={() => switchMode('qcm')} /><span><strong>{t('Mode QCM express')}</strong><small>{t('Remplissez une grille de questions et de réponses.')}</small></span></label>
               </details>
             </div>
-            {progressive && <div className="progressive-grid-settings"><label className="answer-field"><span>{t('Nombre de questions')}</span><input aria-label={t('Nombre de questions')} type="number" min="1" value={questionCount} onChange={event => changeQuestionCount(event.target.value)} /></label><label className="answer-field"><span>{t('Options maximum par question')}</span><input aria-label={t('Options maximum par question')} type="number" min="2" value={maxOptions} onChange={event => changeMaxOptions(event.target.value)} /></label></div>}
+            {progressive && <div className="progressive-grid-settings"><label className="answer-field"><span>{t('Nombre de questions')}</span><input aria-label={t('Nombre de questions')} type="number" min="1" value={questionCount} onChange={event => changeQuestionCount(event.target.value)} /></label><label className="answer-field"><span>{t('Options maximum par question')}</span><input aria-label={t('Options maximum par question')} type="number" min="2" max={isNewRoadCodeQuiz ? 4 : undefined} value={maxOptions} onChange={event => changeMaxOptions(event.target.value)} /></label></div>}
             {mode === 'prepared' && <div className="question-pager"><button type="button" className="icon-action" onClick={() => selectQuestion(activeQuestion - 1)} disabled={activeQuestion === 0} aria-label={t('Question précédente')} title={t('Question précédente')}><DemoIcon name="arrowLeft" /></button><span>{t('QUESTION')} {String(activeQuestion + 1).padStart(2, '0')} / {String(questions.length).padStart(2, '0')}</span><button type="button" className="icon-action" onClick={() => selectQuestion(activeQuestion + 1)} disabled={activeQuestion >= questions.length - 1} aria-label={t('Question suivante')} title={t('Question suivante')}><DemoIcon name="arrowRight" /></button></div>}
             {mode === 'progressive' && <div className="question-slot-board"><div><span className="eyebrow">{t('GRILLE DES {count} QUESTIONS').replace('{count}', questionCount)}</span><span className="preview-time">{completeCount} {t(completeCount === 1 ? 'renseignée' : 'renseignées')} / {questionCount}</span></div><div className="question-slot-grid">{Array.from({ length: questionCount }, (_, slot) => {
               const item = questions[slot];

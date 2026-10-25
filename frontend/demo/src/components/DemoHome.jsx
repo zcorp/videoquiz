@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { CBadge, CCard, CCardBody, CFormInput, CFormSelect } from '@coreui/react';
 import { videoLibrary } from '../data/demoQuizzes.js';
@@ -47,6 +47,7 @@ function QuizTile({ quiz, quizzes, attempt, onDelete }) {
 
 export default function DemoHome({ quizzes, attempts, onDelete }) {
   const { t, language } = useLanguage();
+  const libraryHeading = useRef(null);
   const featuredVideo = videoLibrary.find(video => video.theme === 'Code de la route') ?? videoLibrary[0];
   const [query, setQuery] = useState('');
   const [modeFilter, setModeFilter] = useState('all');
@@ -98,7 +99,7 @@ export default function DemoHome({ quizzes, attempts, onDelete }) {
           <div className="welcome-kicker"><span className="eyebrow eyebrow-dark">{t('APPRENDRE EN REGARDANT')}</span><span>{t('VIDÉO')} <i /> {t('QUIZ')} <i /> {t('PROGRESSION')}</span></div>
           <h1>{t('Apprends avec une vidéo.')}</h1>
           <p className="welcome-description">{t('Choisis un quiz prêt à jouer ou crée le tien avec une vidéo.')}</p>
-          <div className="welcome-actions"><Link className="btn btn-success button button-dark" to="/videos">{t('Choisir une vidéo')} <DemoIcon name="arrowRight" /></Link><Link className="btn btn-outline-secondary button button-quiet" to="/create">{t('Créer un quiz')} <DemoIcon name="plus" /></Link></div>
+          <div className="welcome-actions"><button type="button" className="btn btn-success button button-dark" aria-controls="library-title" onClick={() => { libraryHeading.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }); libraryHeading.current?.focus({ preventScroll: true }); }}>{t('Jouer un quiz')} <DemoIcon name="arrowRight" /></button><Link className="btn btn-outline-secondary button button-quiet" to="/create">{t('Créer un quiz')} <DemoIcon name="plus" /></Link></div>
         </div>
         <CCard className="feature-card">
           <div className="feature-carousel" role="region" aria-label={t('Exemples de quiz vidéo')} aria-roledescription={t('carrousel')}>
@@ -150,7 +151,7 @@ export default function DemoHome({ quizzes, attempts, onDelete }) {
 
       <section className="library-section" aria-labelledby="library-title">
         <div className="section-heading">
-          <div><span className="eyebrow">{t('À TOI DE JOUER')}</span><h2 id="library-title">{t('Choisis un sujet')}</h2></div>
+          <div><span className="eyebrow">{t('À TOI DE JOUER')}</span><h2 ref={libraryHeading} id="library-title" tabIndex={-1}>{t('Choisis un sujet')}</h2></div>
           <span className="section-count">{quizzes.length.toString().padStart(2, '0')} QUIZ</span>
         </div>
         <div className="library-tools" aria-label={t('Recherche et filtres de la bibliothèque')}>
