@@ -15,7 +15,7 @@ Ce document décrit les fonctionnalités disponibles dans la démo statique publ
 
 **Étant donné** la bibliothèque de quiz, **lorsque** l’utilisateur recherche un terme, choisit un thème ou un mode, ou modifie le tri, **alors** la liste est filtrée ou réordonnée et peut être parcourue par pages.
 
-**Étant donné** l’accueil, **lorsque** l’utilisateur parcourt le carrousel d’exemples, **alors** il peut découvrir des vidéos de quiz sur différents thèmes ainsi qu’une illustration du cycle vidéo, QCM et progression, avec des liens directs vers les quiz ou le tutoriel.
+**Étant donné** l’accueil, **lorsque** l’utilisateur parcourt le carrousel d’exemples, **alors** il peut découvrir des vidéos de quiz sur différents thèmes ainsi qu’une illustration du cycle vidéo, QCM et progression, avec des liens directs vers les quiz ou le tutoriel. La vidéo Code de la route mise en avant propose aussi un démarrage rapide avec une grille vide de 40 questions; si elle est déjà associée à un quiz, l’action ouvre ce quiz ou reprend la révision rapide.
 
 ### Comprendre le principe et commencer
 

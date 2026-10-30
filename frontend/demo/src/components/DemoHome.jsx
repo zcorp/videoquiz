@@ -43,10 +43,11 @@ function QuizTile({ quiz, quizzes, attempt, onDelete }) {
   );
 }
 
-export default function DemoHome({ quizzes, attempts, onDelete }) {
+export default function DemoHome({ quizzes, attempts, onDelete, onQuickReview }) {
   const { t, language } = useLanguage();
   const libraryHeading = useRef(null);
   const featuredVideo = videoLibrary.find(video => video.theme === 'Code de la route') ?? videoLibrary[0];
+  const [featuredQuickReviewError, setFeaturedQuickReviewError] = useState('');
   const [query, setQuery] = useState('');
   const [modeFilter, setModeFilter] = useState('all');
   const [topicFilter, setTopicFilter] = useState('all');
@@ -65,6 +66,16 @@ export default function DemoHome({ quizzes, attempts, onDelete }) {
   const featuredDestination = featuredQuiz
     ? featuredQuiz.local ? `/edit/${featuredQuiz.id}` : `/quiz/${featuredQuiz.id}`
     : `/create?mode=qcm&video=${featuredVideo.id}&title=${encodeURIComponent(featuredVideo.title)}&topic=${encodeURIComponent(featuredVideo.theme.toLocaleUpperCase('fr-FR'))}`;
+  const startFeaturedQuickReview = () => {
+    const result = onQuickReview?.(featuredVideo);
+    if (!result?.saved) {
+      setFeaturedQuickReviewError(result?.conflict
+        ? t('Cette vidéo est déjà associée au quiz « {title} ».').replace('{title}', result.conflict.title)
+        : t('Le navigateur n’a pas pu enregistrer ce quiz. Vérifiez l’espace de stockage disponible.'));
+      return;
+    }
+    setFeaturedQuickReviewError('');
+  };
   const cultureVideo = videoLibrary.find(video => normalizeTopic(video.theme) === 'CULTURE GÉNÉRALE') ?? videoLibrary.find(video => video.theme !== featuredVideo.theme);
   const cultureQuiz = cultureVideo ? getQuizUsingVideo(cultureVideo.id, quizzes) : undefined;
   const cultureDestination = cultureVideo && (cultureQuiz
@@ -102,13 +113,19 @@ export default function DemoHome({ quizzes, attempts, onDelete }) {
         <CCard className="feature-card">
           <div className="feature-carousel" role="region" aria-label={t('Exemples de quiz vidéo')} aria-roledescription={t('carrousel')}>
             <div className="feature-carousel-content" aria-live="polite">
-              {activeFeatureSlide === 0 && <Link className="feature-frame" to={featuredDestination} aria-label={t(featuredQuiz ? 'Ouvrir le quiz associé à {title}' : 'Associer {title} à un QCM').replace('{title}', featuredVideo.title)}>
-                <VideoThumbnail video={featuredVideo} alt={t('Aperçu vidéo : {title}').replace('{title}', featuredVideo.title)} loading="eager" />
-                <span className="feature-wash" />
-                <span className="feature-play"><DemoIcon name="plus" /></span>
-                <span className="feature-caption"><CBadge color="warning">{t(featuredQuiz ? 'QUIZ ASSOCIÉ' : 'VIDÉO À UTILISER')}</CBadge><strong>{featuredVideo.title}</strong><small>{translateTopic(featuredVideo.theme, language)} · {t(featuredQuiz ? 'Ouvrir le quiz' : 'Créer un QCM express')}</small></span>
-                <span className="feature-index">{t('EXEMPLE 01')}</span>
-              </Link>}
+              {activeFeatureSlide === 0 && <div className="feature-carousel-featured">
+                <Link className="feature-frame" to={featuredDestination} aria-label={t(featuredQuiz ? 'Ouvrir le quiz associé à {title}' : 'Associer {title} à un QCM').replace('{title}', featuredVideo.title)}>
+                  <VideoThumbnail video={featuredVideo} alt={t('Aperçu vidéo : {title}').replace('{title}', featuredVideo.title)} loading="eager" />
+                  <span className="feature-wash" />
+                  <span className="feature-play"><DemoIcon name="plus" /></span>
+                  <span className="feature-caption"><CBadge color="warning">{t(featuredQuiz ? 'QUIZ ASSOCIÉ' : 'VIDÉO À UTILISER')}</CBadge><strong>{featuredVideo.title}</strong><small>{translateTopic(featuredVideo.theme, language)} · {t(featuredQuiz ? 'Ouvrir le quiz' : 'Créer un QCM express')}</small></span>
+                  <span className="feature-index">{t('EXEMPLE 01')}</span>
+                </Link>
+                {featuredQuiz
+                  ? <Link className="btn btn-success feature-quick-review" to={featuredQuiz.quickReview ? `/quiz/${featuredQuiz.id}` : featuredDestination}>{t(featuredQuiz.quickReview ? 'Reprendre la révision' : 'Ouvrir le quiz associé')} <DemoIcon name="arrowRight" /></Link>
+                  : <button type="button" className="btn btn-success feature-quick-review" onClick={startFeaturedQuickReview}>{t('Réviser en 1 clic')} <DemoIcon name="arrowRight" /></button>}
+                {featuredQuickReviewError && <p className="video-duplicate-note feature-quick-review-error" role="alert">{featuredQuickReviewError}</p>}
+              </div>}
               {activeFeatureSlide === 1 && <div className="feature-cycle-slide">
                 <div className="feature-cycle-heading">
                   <span className="eyebrow">{t('LE PARCOURS EN 4 TEMPS')}</span>

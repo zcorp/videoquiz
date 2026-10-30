@@ -164,7 +164,7 @@ function DemoAppContent() {
     <div className={`demo-shell${immersiveRoute ? ' is-immersive' : ''}`}>
       <DemoHeader />
       <Routes>
-        <Route path="/" element={<DemoHome quizzes={quizzes} attempts={attempts} onDelete={id => { deleteLocalQuiz(id); setLocalQuizzes(getLocalQuizzes()); }} />} />
+        <Route path="/" element={<DemoHome quizzes={quizzes} attempts={attempts} onQuickReview={startRoadCodeQuickReview} onDelete={id => { deleteLocalQuiz(id); setLocalQuizzes(getLocalQuizzes()); }} />} />
         <Route path="/dashboard" element={<DashboardPage quizzes={quizzes} attempts={attempts} onDataChanged={refreshLocalData} onTrack={trackInteraction} />} />
         <Route path="/suivi" element={<TrackingPage quizzes={quizzes} attempts={attempts} />} />
         <Route path="/help" element={<HelpPage onOpenAnalyticsPreferences={() => setShowAnalyticsChoices(true)} />} />
@@ -175,7 +175,7 @@ function DemoAppContent() {
         <Route path="/progression/:quizId" element={<ProgressionPage quizzes={quizzes} />} />
         <Route path="/create" element={<DemoEditor quizzes={quizzes} onSave={addQuiz} />} />
         <Route path="/edit/:quizId" element={<DemoEditor quiz={localQuizzes.find(quiz => quiz.id === location.pathname.split('/').pop())} quizzes={quizzes} onSave={addQuiz} />} />
-        <Route path="*" element={<DemoHome quizzes={quizzes} attempts={attempts} />} />
+        <Route path="*" element={<DemoHome quizzes={quizzes} attempts={attempts} onQuickReview={startRoadCodeQuickReview} />} />
       </Routes>
       <MobileBottomNavigation />
       <CFooter className="demo-footer">

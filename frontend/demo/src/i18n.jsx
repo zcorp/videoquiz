@@ -200,6 +200,7 @@ const englishTranslations = {
   'Créer un QCM avec cette vidéo': 'Create a quiz with this video',
   'Réviser en 1 clic': 'Start a quick review',
   'Reprendre la révision': 'Resume review',
+  'Ouvrir le quiz associé': 'Open linked quiz',
   'Créer mon QCM': 'Create my quiz',
   'Créer avec un QCM validé': 'Create from a reviewed quiz',
   'Créer un QCM vierge': 'Create a blank quiz',

@@ -1561,7 +1561,10 @@ body, .demo-shell { background: var(--paper); color: var(--ink); }
 .tutorial-transfer-steps li { display: flex; align-items: center; gap: 10px; color: var(--ink); font-size: 13px; }
 .tutorial-transfer-steps li > span { display: grid; width: 28px; height: 28px; flex: 0 0 auto; place-items: center; border: 1px solid #b9cfc0; border-radius: 50%; color: var(--green); font: 700 10px var(--mono); }
 .tutorial-transfer > .button { min-height: 44px; white-space: nowrap; }
-.feature-carousel-content > .feature-frame { border-radius: 12px 12px 0 0; }
+.feature-carousel-featured { display: grid; }
+.feature-carousel-featured > .feature-frame { border-radius: 12px 12px 0 0; }
+.feature-quick-review.btn { display: flex; min-height: 46px; align-items: center; justify-content: center; gap: 8px; border-radius: 0; font-size: 13px; font-weight: 700; }
+.feature-quick-review-error { margin: 0; padding: 8px 12px; background: #fff0e9; font-size: 12px; }
 .feature-carousel-controls { display: flex; min-height: 56px; align-items: center; gap: 12px; padding: 7px 14px; background: var(--surface); }
 .feature-carousel-arrow { display: grid; width: 38px; height: 38px; flex: 0 0 auto; place-items: center; border: 1px solid var(--rule); border-radius: 50%; background: var(--surface); color: var(--navy); transition: background .18s ease, border-color .18s ease; }
 .feature-carousel-arrow:hover { border-color: var(--turquoise); background: var(--surface-soft); }
