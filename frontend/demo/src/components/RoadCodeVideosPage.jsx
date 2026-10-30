@@ -11,7 +11,7 @@ import { translateTopic, useLanguage } from '../i18n.jsx';
 const PAGE_SIZE = 8;
 const formatVideoCount = (count, t) => `${count} ${t(count === 1 ? 'vidéo' : 'vidéos')}`;
 
-export default function RoadCodeVideosPage({ quizzes }) {
+export default function RoadCodeVideosPage({ quizzes, onQuickReview }) {
   const { t, language } = useLanguage();
   const location = useLocation();
   const [searchParams] = useSearchParams();
@@ -20,6 +20,7 @@ export default function RoadCodeVideosPage({ quizzes }) {
   const [activeRoadTab, setActiveRoadTab] = useState('videos');
   const [nephSituation, setNephSituation] = useState('new');
   const [page, setPage] = useState(1);
+  const [quickReviewError, setQuickReviewError] = useState('');
   const themeToolbar = useRef(null);
   const [hasMoreThemes, setHasMoreThemes] = useState(false);
   const isRoadCodeTheme = themeFilter === 'CODE DE LA ROUTE';
@@ -65,6 +66,16 @@ export default function RoadCodeVideosPage({ quizzes }) {
   const showVideoToolbar = !isRoadCodeTheme || activeRoadTab === 'videos';
   const associateVideo = video => `/create?mode=qcm&video=${video.id}&title=${encodeURIComponent(video.title)}&topic=${encodeURIComponent(video.theme.toUpperCase())}`;
   const createPreparedQuiz = (video, quiz) => `/create?mode=prepared&video=${video.id}&prepared=${encodeURIComponent(quiz.id)}&topic=${encodeURIComponent(video.theme.toUpperCase())}`;
+  const startQuickReview = video => {
+    const result = onQuickReview(video);
+    if (!result?.saved) {
+      setQuickReviewError(result?.conflict
+        ? t('Cette vidéo est déjà associée au quiz « {title} ».').replace('{title}', result.conflict.title)
+        : t('Le navigateur n’a pas pu enregistrer ce quiz. Vérifiez l’espace de stockage disponible.'));
+      return;
+    }
+    setQuickReviewError('');
+  };
   const handleRoadTabKeyDown = (event, index) => {
     const lastIndex = roadTabs.length - 1;
     const nextIndex = event.key === 'ArrowRight' ? (index + 1) % roadTabs.length
@@ -85,10 +96,22 @@ export default function RoadCodeVideosPage({ quizzes }) {
         {visibleVideos.map(video => {
           const existingQuiz = getQuizUsingVideo(video.id, quizzes);
           const preparedQuiz = getApprovedPreparedQuizForVideo(video.id);
-          const existingQuizPath = existingQuiz?.local ? `/edit/${existingQuiz.id}` : existingQuiz ? `/quiz/${existingQuiz.id}` : null;
+          const existingQuizPath = existingQuiz?.local && !existingQuiz.quickReview ? `/edit/${existingQuiz.id}` : existingQuiz ? `/quiz/${existingQuiz.id}` : null;
           return <CCard className="road-video-card" key={video.id}>
           <div className="road-video-card-media"><YouTubeThumbnail className="card-img-top" videoId={video.id} alt={`${t('Miniature vidéo :')} ${video.title}`} /><span className="road-video-play"><DemoIcon name="plus" /></span>{video.duration && <span className="road-video-duration">{video.duration}</span>}</div>
-          <CCardBody className="road-video-card-copy"><CBadge className="road-video-series-badge" color="warning">{translateTopic(video.theme, language)}</CBadge><CCardTitle>{video.title}</CCardTitle>{video.channelTitle && <a className="road-video-channel" href={video.channelUrl} target="_blank" rel="noreferrer">{video.channelTitle}</a>}{existingQuiz ? <Link className="btn btn-outline-success road-video-open" to={existingQuizPath}>{t(existingQuiz.local ? 'Modifier le quiz associé' : 'Quiz déjà associé')} <DemoIcon name="arrowRight" /></Link> : preparedQuiz ? <div className="road-video-actions"><Link className="btn btn-success road-video-open" to={createPreparedQuiz(video, preparedQuiz)}>{t('Créer avec un QCM validé')} <DemoIcon name="arrowRight" /></Link><Link className="btn btn-outline-success road-video-open" to={associateVideo(video)}>{t('Créer un QCM vierge')}</Link></div> : <Link className="btn btn-success road-video-open" to={associateVideo(video)}>{t('Créer un QCM avec cette vidéo')} <DemoIcon name="arrowRight" /></Link>}<CCardText><a className="road-video-source" href={`https://www.youtube.com/watch?v=${video.id}`} target="_blank" rel="noreferrer">{t('Source YouTube')} <DemoIcon name="externalLink" /></a></CCardText></CCardBody>
+          <CCardBody className="road-video-card-copy">
+            <CBadge className="road-video-series-badge" color="warning">{translateTopic(video.theme, language)}</CBadge>
+            <CCardTitle>{video.title}</CCardTitle>
+            {video.channelTitle && <a className="road-video-channel" href={video.channelUrl} target="_blank" rel="noreferrer">{video.channelTitle}</a>}
+            {existingQuiz ? <Link className="btn btn-outline-success road-video-open" to={existingQuizPath}>{existingQuiz.quickReview ? t('Reprendre la révision') : t(existingQuiz.local ? 'Modifier le quiz associé' : 'Quiz déjà associé')} <DemoIcon name="arrowRight" /></Link> : (
+              <div className="road-video-actions">
+                {isRoadCodeTheme && <button type="button" className="btn btn-success road-video-open" onClick={() => startQuickReview(video)}>{t('Réviser en 1 clic')} <DemoIcon name="arrowRight" /></button>}
+                {preparedQuiz && <Link className={`btn road-video-open${isRoadCodeTheme ? ' btn-outline-success' : ' btn-success'}`} to={createPreparedQuiz(video, preparedQuiz)}>{t('Créer avec un QCM validé')} <DemoIcon name="arrowRight" /></Link>}
+                <Link className={`btn road-video-open${preparedQuiz || isRoadCodeTheme ? ' btn-outline-success' : ' btn-success'}`} to={associateVideo(video)}>{t(preparedQuiz ? 'Créer un QCM vierge' : isRoadCodeTheme ? 'Créer mon QCM' : 'Créer un QCM avec cette vidéo')}</Link>
+              </div>
+            )}
+            <CCardText><a className="road-video-source" href={`https://www.youtube.com/watch?v=${video.id}`} target="_blank" rel="noreferrer">{t('Source YouTube')} <DemoIcon name="externalLink" /></a></CCardText>
+          </CCardBody>
         </CCard>;
         })}
         {!visibleVideos.length && <div className="library-empty"><DemoIcon name="magnifyingGlass" /><h3>{t('Aucune vidéo trouvée')}</h3><p>{t('Essaie une autre recherche.')}</p></div>}
@@ -120,7 +143,7 @@ export default function RoadCodeVideosPage({ quizzes }) {
             {roadTabs.map((tab, index) => <button id={`road-tab-${tab.id}`} type="button" role="tab" aria-selected={activeRoadTab === tab.id} aria-controls="road-tabpanel" tabIndex={activeRoadTab === tab.id ? 0 : -1} className={activeRoadTab === tab.id ? 'is-active' : ''} key={tab.id} onClick={() => setActiveRoadTab(tab.id)} onKeyDown={event => handleRoadTabKeyDown(event, index)}><span>{tab.number}</span>{t(tab.label)}</button>)}
           </nav>
           <section id="road-tabpanel" className="road-tabpanel" role="tabpanel" aria-labelledby={`road-tab-${activeRoadTab}`} tabIndex={0}>
-            {activeRoadTab === 'videos' && videoCollection}
+            {activeRoadTab === 'videos' && <>{quickReviewError && <p className="video-duplicate-note" role="alert">{quickReviewError}</p>}{videoCollection}</>}
             {activeRoadTab === 'neph' && (
               <article className="tutorial-step road-guide-step">
                 <div className="tutorial-step-copy">

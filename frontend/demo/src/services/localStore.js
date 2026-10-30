@@ -443,6 +443,33 @@ export function saveLocalQuiz(quiz) {
   return { saved: writeList(QUIZ_KEY, quizzes), conflict: null };
 }
 
+export function createRoadCodeQuickReview(video, title, description) {
+  const quizId = `local-${globalThis.crypto?.randomUUID?.() ?? `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`}`;
+  return {
+    id: quizId,
+    title: title.trim(),
+    description,
+    topic: 'CODE DE LA ROUTE',
+    videoId: video.id,
+    videoProvider: video.provider,
+    ...(video.hash ? { videoHash: video.hash } : {}),
+    videoLabel: title.trim(),
+    local: true,
+    mode: 'qcm',
+    quickReview: 'road-code',
+    questionCount: 40,
+    maxOptions: 4,
+    draft: false,
+    questions: Array.from({ length: 40 }, (_, index) => ({
+      id: `${quizId}-question-${index + 1}`,
+      prompt: '',
+      at: 0,
+      type: 'multi_choice',
+      options: ['', '', '', ''],
+    })),
+  };
+}
+
 export function deleteLocalQuiz(quizId) {
   return writeList(QUIZ_KEY, getLocalQuizzes().filter(quiz => quiz.id !== quizId));
 }

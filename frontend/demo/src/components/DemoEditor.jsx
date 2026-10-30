@@ -3,7 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { CAlert, CBadge, CButton, CCard, CFormInput, CFormSelect, CFormTextarea } from '@coreui/react';
 import { formatChoiceLabel } from '../data/demoQuizzes.js';
 import { getApprovedPreparedQuiz } from '../data/preparedQuizzes/catalog.js';
-import { getQuizUsingVideo } from '../services/localStore.js';
+import { createRoadCodeQuickReview, getQuizUsingVideo } from '../services/localStore.js';
 import { getQuizVideo, getVideoPageUrl, getVideoProviderLabel, getVideoReference, isTikTokShortUrl, resolveTikTokShortUrl } from '../services/video.js';
 import DemoIcon from './DemoIcon.jsx';
 import FirstVisitNotice from './FirstVisitNotice.jsx';
@@ -78,9 +78,11 @@ export default function DemoEditor({ quiz, quizzes = [], onSave }) {
     ? getApprovedPreparedQuiz(searchParams.get('prepared'), linkedVideoId)
     : null;
   const linkedTopic = quiz?.topic ?? preparedQuiz?.topic ?? searchParams.get('topic') ?? 'CRÉÉ ICI';
-  const isRoadCodeTopic = linkedTopic.toLocaleUpperCase('fr-FR').includes('CODE DE LA ROUTE');
+  const isQuickRoadCodeRequest = searchParams.get('mode') === 'quick-road-code';
+  const [topic, setTopic] = useState(linkedTopic);
+  const isRoadCodeTopic = topic.toLocaleUpperCase('fr-FR').includes('CODE DE LA ROUTE');
   const isNewRoadCodeQuiz = !quiz && isRoadCodeTopic;
-  const initialMode = quiz?.mode ?? (preparedQuiz ? 'prepared' : searchParams.get('mode') === 'qcm' && linkedVideoId ? 'qcm' : 'prepared');
+  const initialMode = quiz?.mode ?? (preparedQuiz ? 'prepared' : ['qcm', 'quick-road-code'].includes(searchParams.get('mode')) && linkedVideoId ? 'qcm' : 'prepared');
   const initialQuestionCount = quiz?.questionCount ?? (preparedQuiz
     ? preparedQuiz.questions.length
     : isProgressiveMode(initialMode) ? quiz?.questions?.length ?? (isRoadCodeTopic ? 40 : 5) : 40);
@@ -100,7 +102,7 @@ export default function DemoEditor({ quiz, quizzes = [], onSave }) {
   const [maxOptions, setMaxOptions] = useState(initialMaxOptions);
   const [activeQuestion, setActiveQuestion] = useState(0);
   const [qcmPage, setQcmPage] = useState(0);
-  const [step, setStep] = useState(() => quiz || preparedQuiz || (linkedVideoId && linkedVideoTitle) ? 2 : 1);
+  const [step, setStep] = useState(() => !isQuickRoadCodeRequest && (quiz || preparedQuiz || (linkedVideoId && linkedVideoTitle)) ? 2 : 1);
   const initialQuestions = quiz?.questions ?? preparedQuiz?.questions;
   const [questions, setQuestions] = useState(() => initialQuestions?.map(item => ({
     ...item,
@@ -149,7 +151,7 @@ export default function DemoEditor({ quiz, quizzes = [], onSave }) {
   const completeCount = progressive ? questions.filter(completeQuestion).length : questions.length;
   const readyToPlay = mode === 'qcm' || !progressive || questions.length === questionCount && questions.every(completeQuestion);
   const submitLabel = t(step === 1
-    ? 'Continuer'
+    ? isNewRoadCodeQuiz ? 'Réviser maintenant' : 'Continuer'
     : mode === 'qcm'
       ? readyToPlay ? 'Créer et lancer le QCM' : 'Enregistrer le brouillon'
       : progressive
@@ -174,11 +176,11 @@ export default function DemoEditor({ quiz, quizzes = [], onSave }) {
     }
     return true;
   };
-  const continueToQuestions = async () => {
+  const resolveVideoForCreate = async () => {
     if (resolvingTikTok) return;
     if (!title.trim()) {
       setError(t('Donnez un titre à votre quiz.'));
-      return;
+      return null;
     }
     let candidateVideo = video;
     if (!candidateVideo && isTikTokShortUrl(videoUrl)) {
@@ -188,24 +190,41 @@ export default function DemoEditor({ quiz, quizzes = [], onSave }) {
         candidateVideo = await resolveTikTokShortUrl(videoUrl);
         if (!candidateVideo) {
           setError(t('Le lien TikTok n’a pas pu être vérifié. Vérifiez votre connexion ou collez le lien complet de la vidéo.'));
-          return;
+          return null;
         }
         setResolvedTikTokShort({ url: videoUrl, reference: candidateVideo });
       } catch {
         setError(t('Le lien TikTok n’a pas pu être vérifié. Vérifiez votre connexion ou collez le lien complet de la vidéo.'));
-        return;
+        return null;
       } finally {
         setResolvingTikTok(false);
       }
     }
-    if (!validateVideoStep(candidateVideo)) return;
+    if (!validateVideoStep(candidateVideo)) return null;
     setError('');
+    return candidateVideo;
+  };
+  const continueToQuestions = async () => {
+    const candidateVideo = await resolveVideoForCreate();
+    if (!candidateVideo) return;
     setStep(2);
+  };
+  const startRoadCodeQuickReview = async () => {
+    const candidateVideo = await resolveVideoForCreate();
+    if (!candidateVideo) return;
+    const quickReviewQuiz = createRoadCodeQuickReview(candidateVideo, title, t('Grille de 40 questions à compléter en suivant la vidéo. Choisissez vos réponses, puis auto-corrigez-vous.'));
+    const saveResult = onSave(quickReviewQuiz);
+    if (!saveResult?.saved) {
+      if (saveResult?.conflict) return setError(t('Cette vidéo est déjà associée au quiz « {title} ». Ouvrez-le pour le reprendre ou choisissez une autre vidéo.').replace('{title}', saveResult.conflict.title));
+      return setError(t('Le navigateur n’a pas pu enregistrer ce quiz. Vérifiez l’espace de stockage disponible.'));
+    }
+    navigate(`/quiz/${quickReviewQuiz.id}`);
   };
   const handleSubmit = event => {
     if (step === 1) {
       event.preventDefault();
-      continueToQuestions();
+      if (isNewRoadCodeQuiz) startRoadCodeQuickReview();
+      else continueToQuestions();
       return;
     }
     save(event);
@@ -232,7 +251,7 @@ export default function DemoEditor({ quiz, quizzes = [], onSave }) {
     const nextQuiz = {
       id: quiz?.id ?? `local-${createId()}`,
       title: title.trim(), description: description.trim() || t('Un quiz vidéo créé dans votre navigateur.'),
-      topic: linkedTopic,
+      topic,
       videoId: video.id,
       videoProvider: video.provider,
       ...(video.hash ? { videoHash: video.hash } : {}),
@@ -267,10 +286,10 @@ export default function DemoEditor({ quiz, quizzes = [], onSave }) {
     navigate(nextQuiz.draft ? '/' : `/quiz/${nextQuiz.id}`);
   };
 
-  const switchMode = nextMode => {
+  const switchMode = (nextMode, roadCodeTopic = isRoadCodeTopic) => {
     setMode(nextMode);
     if (isProgressiveMode(nextMode)) {
-      const count = isProgressiveMode(quiz?.mode) ? questionCount : isRoadCodeTopic ? 40 : 5;
+      const count = isProgressiveMode(quiz?.mode) ? questionCount : roadCodeTopic ? 40 : 5;
       setQuestionCount(count);
       setQuestions(items => resizeQuestions(items, count, nextMode, maxOptions));
       setActiveQuestion(0);
@@ -284,6 +303,10 @@ export default function DemoEditor({ quiz, quizzes = [], onSave }) {
       setQuestionCount(nextQuestions.length);
       setActiveQuestion(0);
     }
+  };
+  const customizeRoadCodeGrid = async () => {
+    if (mode !== 'qcm') switchMode('qcm', true);
+    await continueToQuestions();
   };
   const changeQuestionCount = count => {
     const parsed = Number(count);
@@ -321,6 +344,8 @@ export default function DemoEditor({ quiz, quizzes = [], onSave }) {
           <div className="editor-fields">
             <label className="answer-field"><span>{t('Lien de la vidéo')}</span><CFormInput value={videoUrl} disabled={resolvingTikTok} onChange={event => { setVideoUrl(event.target.value); setResolvedTikTokShort(null); setError(''); }} placeholder="YouTube, Vimeo, Dailymotion, RUTUBE, TikTok…" inputMode="url" />{video && <small className="video-provider-note">{t('Plateforme détectée')} · {getVideoProviderLabel(video.provider)}</small>}{conflictingQuiz && <small className="video-duplicate-note">{t('Cette vidéo est déjà utilisée par « {title} ».').replace('{title}', conflictingQuiz.title)}</small>}</label>
             <label className="answer-field"><span>{t('Titre du quiz')}</span><CFormInput value={title} onChange={event => { setTitle(event.target.value); setError(''); }} maxLength={90} placeholder={t('Ex. Les bases de la photographie')} /></label>
+            {!quiz && !preparedQuiz && !searchParams.has('topic') && <label className="answer-field"><span>{t('Type de révision')}</span><CFormSelect value={isRoadCodeTopic ? 'road-code' : 'other'} onChange={event => { setTopic(event.target.value === 'road-code' ? 'CODE DE LA ROUTE' : 'CRÉÉ ICI'); setError(''); }}><option value="other">{t('Autre sujet')}</option><option value="road-code">{t('Code de la route')}</option></CFormSelect></label>}
+            {isNewRoadCodeQuiz && <small className="video-provider-note">{t('La vidéo contient les questions. Choisissez A–D, puis auto-corrigez-vous.')}</small>}
             <details className="editor-optional-field">
               <summary>{t('Ajouter une description (facultatif)')}</summary>
               <label className="answer-field"><span>{t('En une phrase')}</span><CFormTextarea value={description} onChange={event => setDescription(event.target.value)} maxLength={180} placeholder={t('Qu’allez-vous découvrir ?')} rows={2} /></label>
@@ -434,6 +459,7 @@ export default function DemoEditor({ quiz, quizzes = [], onSave }) {
         <div className="editor-submit">
           <Link className="btn btn-outline-secondary button button-quiet" to="/" title={t('Annuler')}><span className="editor-submit-label">{t('Annuler')}</span></Link>
           {step === 2 && <CButton type="button" className="button button-quiet" color="light" title={t('Retour')} onClick={() => { setError(''); setStep(1); }}><span className="editor-submit-label">{t('Retour')}</span></CButton>}
+          {step === 1 && isNewRoadCodeQuiz && <CButton type="button" className="button button-quiet" color="light" title={t('Personnaliser mon QCM')} onClick={customizeRoadCodeGrid} disabled={resolvingTikTok}><span className="editor-submit-label">{t('Personnaliser mon QCM')}</span></CButton>}
           <CButton type="submit" className="button button-dark" color="success" title={resolvingTikTok ? t('Vérification du lien TikTok…') : submitLabel} disabled={resolvingTikTok}><span className="editor-submit-label">{resolvingTikTok ? t('Vérification du lien TikTok…') : submitLabel}</span><DemoIcon name="arrowRight" /></CButton>
         </div>
       </form>

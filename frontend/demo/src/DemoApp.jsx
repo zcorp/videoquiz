@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Link, Route, Routes, useLocation } from 'react-router-dom';
+import { Link, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { CBadge, CFooter } from '@coreui/react';
 import DemoHeader from './components/DemoHeader.jsx';
 import DemoHome from './components/DemoHome.jsx';
@@ -14,7 +14,7 @@ import TrackingPage from './components/TrackingPage.jsx';
 import TutorialPage from './components/TutorialPage.jsx';
 import MobileBottomNavigation from './components/MobileBottomNavigation.jsx';
 import { demoQuizzes } from './data/demoQuizzes.js';
-import { deleteLocalQuiz, getAttempts, getLocalQuizzes, saveAttempt, saveLocalQuiz } from './services/localStore.js';
+import { createRoadCodeQuickReview, deleteLocalQuiz, getAttempts, getLocalQuizzes, saveAttempt, saveLocalQuiz } from './services/localStore.js';
 import { LanguageProvider, localizeQuiz, useLanguage } from './i18n.jsx';
 
 const ANALYTICS_CONSENT_KEY = 'videoquiz-demo:analytics-consent:v1';
@@ -31,6 +31,7 @@ function readAnalyticsConsent() {
 
 function DemoAppContent() {
   const { language, t } = useLanguage();
+  const navigate = useNavigate();
   const [localQuizzes, setLocalQuizzes] = useState(getLocalQuizzes);
   const [attempts, setAttempts] = useState(getAttempts);
   const [showWelcome, setShowWelcome] = useState(() => localStorage.getItem(`videoquiz-demo:welcome-seen:v1:${language}`) !== '1');
@@ -126,6 +127,16 @@ function DemoAppContent() {
     if (saved.saved) setLocalQuizzes(getLocalQuizzes());
     return saved;
   };
+  const startRoadCodeQuickReview = video => {
+    const quiz = createRoadCodeQuickReview(
+      video,
+      video.title,
+      t('Grille de 40 questions à compléter en suivant la vidéo. Choisissez vos réponses, puis auto-corrigez-vous.'),
+    );
+    const result = addQuiz(quiz);
+    if (result?.saved) navigate(`/quiz/${quiz.id}`);
+    return result;
+  };
   const addAttempt = attempt => {
     if (saveAttempt(attempt)) setAttempts(getAttempts());
   };
@@ -158,8 +169,8 @@ function DemoAppContent() {
         <Route path="/suivi" element={<TrackingPage quizzes={quizzes} attempts={attempts} />} />
         <Route path="/help" element={<HelpPage onOpenAnalyticsPreferences={() => setShowAnalyticsChoices(true)} />} />
         <Route path="/tutoriel" element={<TutorialPage />} />
-        <Route path="/videos" element={<RoadCodeVideosPage quizzes={quizzes} />} />
-        <Route path="/videos/code-route" element={<RoadCodeVideosPage quizzes={quizzes} />} />
+        <Route path="/videos" element={<RoadCodeVideosPage quizzes={quizzes} onQuickReview={startRoadCodeQuickReview} />} />
+        <Route path="/videos/code-route" element={<RoadCodeVideosPage quizzes={quizzes} onQuickReview={startRoadCodeQuickReview} />} />
         <Route path="/quiz/:quizId" element={<DemoPlayer quizzes={quizzes} onAttempt={addAttempt} onTrack={trackInteraction} />} />
         <Route path="/progression/:quizId" element={<ProgressionPage quizzes={quizzes} />} />
         <Route path="/create" element={<DemoEditor quizzes={quizzes} onSave={addQuiz} />} />

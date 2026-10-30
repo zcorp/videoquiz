@@ -9,7 +9,7 @@ import DemoIcon from './DemoIcon.jsx';
 import { useLanguage } from '../i18n.jsx';
 
 function grade(quiz, answers, selfKeys = {}) {
-  const details = quiz.questions.map(question => {
+  const details = quiz.questions.map((question, index) => {
     const value = answers[question.id];
     const expected = isProgressiveMode(quiz) ? selfKeys[question.id] : question.answer;
     const correct = hasAnswer(question, value) && hasAnswer(question, expected) && (question.type === 'text'
@@ -19,7 +19,7 @@ function grade(quiz, answers, selfKeys = {}) {
         : Number(value) === expected);
     return {
       questionId: question.id,
-      prompt: question.prompt,
+      prompt: question.prompt.trim() || `Question ${String(index + 1).padStart(2, '0')}`,
       type: question.type,
       correct,
       givenAnswer: value ?? [],
@@ -202,6 +202,8 @@ export default function DemoPlayer({ quizzes, onAttempt, onTrack }) {
     : isAnswerFilled;
   const questionHint = reviewingAnswers
     ? t('Comparez votre réponse et votre correction.')
+    : quiz.quickReview === 'road-code'
+      ? t('Suivez la question dans la vidéo : choisissez A–D, puis auto-corrigez-vous.')
     : progressive
       ? answerSubmitted
         ? t('Regardez la vidéo et indiquez votre correction.')
